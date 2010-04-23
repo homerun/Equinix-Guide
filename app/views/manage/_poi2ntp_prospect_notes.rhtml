@@ -1,0 +1,68 @@
+
+<div id="add_note_<%= sales_prospect.id %>_div" style="display: none">
+	<% form_remote_tag :url => {:action => 'add_poi2ntp_prospect'}, :update => "view_poi2ntp_prospect_#{ sales_prospect.id }_div" do %>
+		<%= hidden_field :poi2ntp, :id, :value => "#{sales_prospect.id}" %>
+		<%= hidden_field :new, :id, :value => "YES" %>
+		<textarea rows="2" cols="60" id="note_text" name="note_text"></textarea>
+		<br/>
+		<%= submit_to_remote "add_note", 'Add', :url => { :action => 'add_poi2ntp_prospect_note'}, :update => "poi2ntp_prospect_#{ sales_prospect.id }_notes" %>
+		or <a onclick="$('add_note_<%= sales_prospect.id %>_div').style.display = 'none'; $('add_note_<%= sales_prospect.id %>_link').style.display = 'block';" >Cancel</a>
+	<% end %> 
+</div>
+<div name="editable" style="display: none;">
+	<div id="add_note_<%= sales_prospect.id %>_link">
+		<a href="#" onclick="$('add_note_<%= sales_prospect.id %>_div').style.display = 'block'; $('add_note_<%= sales_prospect.id %>_link').style.display = 'none'; return false;">Add Note</a>
+	</div>
+	<%= '<hr/>' if sales_prospect.notes != nil and sales_prospect.notes.size != 0 %>
+</div>
+<div style="max-height: <%= if current_page == 'edit_poi' then "180px" else '100px' end %>; overflow: auto;">
+		<% first_time = true %>
+		<% sales_prospect.notes.each do |note| %>
+			<% if first_time then %>
+				<% first_time = false %>
+			<% else %>
+				<hr/>
+			<% end %>
+			<% if note.user_id == current_user_id then %>
+				<div id="view_note_<%= note.id %>" style="display: inline;">
+					<%= print_date(note.date_time) %> <i>by You</i>
+					&nbsp;
+					<div name="editable" style="display: none;">
+						<a href="#" onclick="$('edit_note_<%= note.id %>').style.display = 'block'; return false;">Edit</a>
+					</div>
+					<div style="margin: 0px 0px 0px 40px; display: block;">
+						<%= note.note %>
+					</div>
+				</div>
+				<div name="editable" style="display: none;">
+					<div id="edit_note_<%= note.id %>" style="display: none;">
+						<% form_remote_tag :url => {:action => 'add_poi2ntp_prospect'}, :update => "view_poi2ntp_prospect_#{ sales_prospect.id }_div" do %>
+							<%= hidden_field :poi2ntp, :id, :value => "#{sales_prospect.id}" %>
+							<%= hidden_field :note, :id, :value => note.id %>
+							<%= hidden_field :new, :id, :value => "NO" %>
+							<textarea rows="2" cols="60" id="note_text" name="note_text"><%= note.note %></textarea>
+							<br/>
+							<input type="button" value="Save" onclick="$('edit_note_<%= note.id %>').style.display = 'none'; document.getElementsByName('add_note_<%= note.id %>')[0].onclick();" />
+							or <a onclick="$('edit_note_<%= note.id %>').style.display = 'none';" >Cancel</a>
+							<div style="display: none;">
+								<%= submit_to_remote "add_note_#{note.id}", 'Add', :url => { :action => 'add_poi2ntp_prospect_note'}, :update => "view_note_#{ note.id }" %>
+							</div>
+						<% end %> 
+					</div>
+				</div>
+			<% else %>
+				<div id="view_note_<%= note.id %>">
+					<%= print_date(note.date_time) %> <i>by <%= note.user.print_name %></i>
+					<div style="margin: 0px 0px 0px 40px; display: block;">
+						<%= note.note %>
+					</div>
+				</div>
+			<% end %>
+		<% end %>
+</div>
+
+<% if @change_to_edit then %>
+	<script type="text/javascript">
+		toggle_read_only(false);
+	</script>
+<% end %>

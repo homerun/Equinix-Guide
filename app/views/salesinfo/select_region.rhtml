@@ -1,0 +1,28 @@
+<div class="title_div">
+    <h1>Select Regions</h1>
+</div>
+    
+<% form_tag do %>
+	<%= submit_tag "Save and Continue" %>
+	<input type='button' value='Select All' onclick='javascript:checkAll(this)'> 
+		<br/>
+		<p></p>
+		<table class="border_only"><tr><td>
+		<table class="list_columns">
+			<tbody >
+			<% @regions.each do |region| %>
+				<tr class="<%= cycle('odd','even') %>">
+					<td>
+					    <span class="left">&nbsp;<%= check_box "selected_regions", "", {}, "#{region.id},","" %> &nbsp;</span>
+						<div style="width: 400px;"> 
+							<%= region.region_name %> 
+						</div>
+					</td>
+				</tr>
+			<% end %>
+			</tbody>
+		</table>
+		</td></tr></table>
+	<p></p>
+	<%= submit_tag "Save and Continue" %>
+<% end %>

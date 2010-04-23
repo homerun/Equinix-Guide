@@ -1,0 +1,12 @@
+<form action="/salesinfo/remove_selected_pois" method="get" id="remove_selected_ntps">
+	<%= submit_to_remote 'remove_pois_submit', 'Remove Points of Interest', :url => {:action => 'remove_selected_pois'}, :update => 'view_poi_list', :html => {:id => 'remove_pois_submit', :disabled => true}, :before => 'this.selectedIndex = -1' %>
+	<br/>
+	<select id="remove_pois" name="remove_pois[]" multiple="multiple" size="<%= @remove_from_poi_list_size %>" style="*width: 340px; min-width: 300px;" onchange="if(this.selectedIndex>=0) $('remove_pois_submit').disabled=false; else $('remove_pois_submit').disabled=true;">
+		<%= options_for_select(@list_of_selected_pois) %>
+	</select>
+</form>
+
+<script type="text/javascript">
+	if($('save_and_continue'))
+		$('save_and_continue').disabled = ($('remove_pois').options.length==0);
+</script>

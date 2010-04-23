@@ -1,0 +1,47 @@
+<%= image_tag("/images/view_poi_title_img.jpg",{:class => 'title_img'}) %>
+<% form_tag do %>
+	<% @regional_poiss.each do |regional_pois| %>
+		<br/>
+		<h2>Region: <%= regional_pois.region_name %> 
+			(<%= (regional_pois.subregions.collect { |subreg| subreg.name }).join(', ') %>)</h2>
+		<% is_even = true %>
+		<table class="border_only"><tr><td>
+		<table class="list_columns" style="width: 800px;">
+			<thead>
+				<tr>
+					<th><div style="width: 120px;">Name</div></th>
+					<th><div style="width: 110px;">Abbreviation</div></th>
+					<th><div style="width: 120px;">Parent</div></th>
+					<th><div style="width: 270px;">Notes</div></th>
+					<th><div style="width: 180px;">Locations</div><br/>
+						<input type="submit" value="View in Google Earth" onClick="postAction(this.form,'salesinfo','view_pois_in_google_earth')"/>
+						<input type='button' value='Select All' onclick='javascript:checkAll(this)'> 
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<% get_all_pois(regional_pois).each do |poi| %>
+					<tr class="<%= if !is_even then 'odd' else 'even' end %>">
+						<td> <b> <%= link_to poi.name, {:controller => 'pointsofinterests', :action => 'edit', :id => poi.id} %> </b> </td>
+						<td> <%= poi.abbreviation %> </td>
+						<td> <%= poi.parent_poi.name if poi.parent_poi != nil %> </td>
+						<td> <%= poi.notes %> </td>
+						<td> <% poi.ntp_connections.each do |ntp_connection| %>
+								<% ntp = ntp_connection.networkterminationpoint %>
+								<%= '<hr/>' if poi.ntp_connections[0] != ntp_connection %>  
+								<% if ntp.lon != nil and !ntp.lon.blank? and ntp.lat != nil and !ntp.lat.blank? then %>
+									<%= check_box 'selected_poi2ntps', '', {}, "#{ntp_connection.id},",'' %>
+								<% else %>
+									<%= check_box 'selected_poi2ntps', '', {:disabled => 'true'}, "#{ntp_connection.id},",'' %>
+								<% end %>
+								<%= "#{ntp.name} [#{print_full_addr(ntp)}]" %>
+							<% end %>
+						</td>
+					</tr>
+					<% is_even = !is_even %>
+				<% end %>
+			</tbody>
+		</table>
+		</td></tr></table>
+	<% end %>
+<% end %>

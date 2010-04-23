@@ -1,0 +1,156 @@
+<div style="width: 900px;">
+		
+	<% unless flash[:notice].blank? %>
+			<div id="prospect_notification" class="notification">
+				<%= image_tag("/images/flash_img.jpg",{:class => 'title_img'}) %>
+				<div style="vertical-align: top; display: inline;">
+	  			<%= flash[:notice] %>
+	  			<% flash[:notice] = '' %>
+	  		</div>
+			</div>
+	  	<script type="text/javascript">
+	  		setTimeout("$('prospect_notification').style.display = 'none'",5000)
+	  	</script>
+	<%end%>
+	
+	<% had_a_connection_list = [] %>
+	
+	<p>
+		<span class="page_title">Sales Prospects</span>
+	</p>
+	<% if @list_of_pois and @list_of_pois.size > 0 then -%>
+		<table class="border_only"><tr><td>
+		<table class="list_columns">
+			<% connection_exists = false -%>
+			<% @list_of_pois.each do |poi| %>
+				<% unless poi.prospect_ntp_connections.blank? %>
+					<% connection_exists = true -%>
+					<% had_a_connection_list << poi.name %>
+					<% is_even = true %>
+					<tr>
+						<th colspan="2" style="background-color: #bbb">
+							<div style="width: 850px;"><%= link_to poi.name, {:controller => 'pointsofinterests', :action => 'edit', :id => poi.id} %></div>
+						</th>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<div id="poi2ntp_account_notes_<%= poi.id %>" style="min-width: 700px;">
+								<%= render :partial => 'poi2ntp_account_notes', :locals => {:poi => poi} %>
+							</div>
+						</td>
+					</tr>
+					<% (poi.prospect_ntp_connections.sort { |x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).each do |sales_prospect| %>
+						<%= render :partial => 'poi2ntp_prospect_item', :locals => {:sales_prospect => sales_prospect, :current_poi => poi, :is_even => is_even} %>
+						<% is_even = !is_even %>
+					<% end %>
+				<% end %>
+			<% end %>
+			<%= "<tr><td><div style='width: 400px;'>No prospective connections</div></td></tr>" unless connection_exists %>
+		</table>	
+		</td></tr></table>
+	<% else -%>
+		You are not the account manager for any sales prospects.
+	<% end -%>
+	<br/>
+	<p>
+		<span class="page_title">Live Connections</span>
+	</p>
+	<% if @list_of_pois and @list_of_pois.size > 0 then -%>
+		<table class="border_only"><tr><td>
+		<table class="list_columns">
+			<% connection_exists = false -%>
+			<% @list_of_pois.each do |poi| -%>
+				<% unless poi.ntp_connections.blank? -%>
+					<% connection_exists = true -%>
+					<% had_a_connection_list << poi.name %>
+					<% is_even = true -%>
+					<tr>
+						<th colspan="2" style="background-color: #bbb">
+							<div style="width: 850px;"><%= link_to poi.name, {:controller => 'pointsofinterests', :action => 'edit', :id => poi.id} %></div>
+						</th>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<div id="poi2ntp_account_notes_<%= poi.id %>" style="min-width: 700px;">
+								<%= render :partial => 'poi2ntp_account_notes', :locals => {:poi => poi} %>
+							</div>
+						</td>
+					</tr>
+					<% (poi.ntp_connections.sort { |x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).each do |sales_prospect| %>
+						<%= render :partial => 'poi2ntp_prospect_item', :locals => {:sales_prospect => sales_prospect, :current_poi => poi, :is_even => is_even} %>
+						<% is_even = !is_even %>
+					<% end %>
+				<% end %>
+			<% end %>
+			<%= "<tr><td><div style='width: 400px;'>No live connections</div></td></tr>" if not connection_exists %>
+		</table>	
+		</td></tr></table>
+	<% else -%>
+		You are not the account manager for any live connections.
+	<% end -%>
+	<% connectionless_pois = (@list_of_pois.collect {|poi| poi.name}) - had_a_connection_list.uniq %>
+	<% unless connectionless_pois.blank? %>
+		<br/>
+		<p>
+			<span class="page_title">Points of Interest with no connections</span><br/>
+			<table class="border_only"><tr><td>
+			<table class="list_columns"><tr><td>
+				<div style="width: 400px;">
+				<%= connectionless_pois.join(', ') %>
+					</div>
+			</td></tr></table></td></tr></table>
+		</p>
+	<% end %>
+	<p>
+		<div name="editable" style="display: none;">
+			<a href="#" onclick="$('add_poiaccountexecutive_div').style.display = 'block'; return false;">Add Point of Interest</a>
+		</div>
+		<div id="add_poiaccountexecutive_div" style="display: none;">
+			<% form_for :poiaccountexecutive, :url => {:controller => :pointsofinterests, :action => 'add_poiaccountexecutive'}, :html => {:id => "add_poiaccountexecutive_form"} do |f| %>
+				<%= f.hidden_field :user_id, :value => @current_user.id %>
+				<table>
+				    <tr>
+						<td class="edit_field_text">Country you represent: </td>
+						<td>
+							<%= f.select :country_id, Country.find(:all, :order => 'name').collect {|country| [country.name, country.id]} %>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Point of Interest you manage: </td>
+						<td>
+							<%= f.select :pointsofinterest_id, Pointsofinterest.find(:all, :order => 'name').collect {|poi| [poi.name, poi.id]} %>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							
+						</td>
+						<td>
+							<%= f.submit 'Add' %>	
+							or <a onclick="$('add_poiaccountexecutive_div').style.display = 'none';" >Cancel</a>
+						</td>
+					</tr>
+				</table>
+			<% end %>
+		</div>
+	</p>
+	<br/>
+	
+	<p>
+		<% if has_editor_role then %>
+			<div name="make_editable">
+				<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+			</div>
+		<% end %>
+		<div name="make_read_only" style="display:none;">
+			<input type="submit" value="Save Changes" onClick="this.disabled = true; postAction(this.form,'manage','save_poi')"/>
+			<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+		</div>
+	</p>
+		
+	<% if @change_to_edit then %>
+		<script type="text/javascript">
+			toggle_read_only(false);
+		</script>
+	<% end %>
+</div>

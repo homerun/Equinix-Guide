@@ -1,0 +1,35 @@
+<% if @list_of_pois && !@limited_access -%>
+<select id="select_poi" name="select_poi">
+	<%= options_for_select(@list_of_pois.insert(0,['',0])) %>
+</select>
+<% else -%>
+    You must select a Region first.
+<% end -%>
+
+<%= observe_field "select_poi", 
+		:url => {:action => 'show_poi'},
+		:update => "editPane",
+		:with => "poi_id" %>
+
+<table class="full">
+    <tr><td>
+        <div id="editPane">
+            <%= render :partial => "edit_poi"%>
+        </div>
+    </td></tr>
+</table>
+		
+<% if @list_of_pois && !@limited_access && !@selected_poi.nil? then %>
+	<script type='text/javascript'>
+		var poi_index = 0
+		for(var i=0; i<$('select_poi').options.length; i++)
+			if($('select_poi').options[i].value == '<%= @selected_poi %>')
+				poi_index = i
+		if(poi_index != 0) {
+			$('select_poi').selectedIndex = poi_index
+			<%= remote_function(:url => {:action => 'show_poi'},
+								:update => "editPane",
+								:with => "'poi_id=#{@selected_poi}&selected_tab=#{@selected_tab}'") %>
+		}
+	</script>
+<% end %>

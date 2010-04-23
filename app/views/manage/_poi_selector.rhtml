@@ -1,0 +1,54 @@
+<% if @selector_size == nil then @selector_size = 5 end %>
+
+<div class="selectionBlock" id="poi_select">
+	<center><span class="selection_box_title">Points of Interest</span></center>
+<% if @partial_type == 'selector' then %>
+		<% form_remote_tag(:url => {:action => 'select_poi'}, :update => "#{get_element_to_update('poi')}") do %>
+			<% unless @selected_poi.nil? -%>
+				<%= select_tag(:id, 
+							options_for_select(@list_of_pois.insert(0,['All','-1']),@selected_poi), 
+							:size => @selector_size, 
+						     :class => 'poi_select',
+							:onchange => remote_function(:update => "#{get_element_to_update('poi')}", 
+												   :url => { :action => 'select_poi'},
+												   :with => "'id='+value+'&page=#{@page}'")) %>
+			<% else %>
+				<%= select_tag(:id, 
+							options_for_select(@list_of_pois.insert(0,['All','-1']),'-1'), 
+							:size => @selector_size, 
+						     :class => 'poi_select', 
+							:onchange => remote_function(:update => "#{get_element_to_update('poi')}", 
+												   :url => { :action => 'select_poi'},
+												   :with => "'id='+value+'&page=#{@page}'")) %>
+			<% end %>
+		<% end %>
+<% else %>
+	<% form_tag do %>
+			<% if @list_of_pois.nil? or @selected_region == '-1' then %>
+				<center>You must select a Region first.</center>
+			<% else %>
+				<% unless @selected_poi.nil? -%>
+					<%= select_tag(:id, 
+								options_for_select(@list_of_pois,@selected_poi), 
+								:size => @selector_size,
+						     	:class => 'poi_select',
+						     	:onclick => "if(confirmed()) $('edit_poi_button').onclick(); else this.value = '#{@selected_poi}';") %>
+				<% else %>
+					<%= select_tag(:id, 
+								options_for_select(@list_of_pois), 
+								:size => @selector_size,
+						     	:class => 'poi_select',
+						     	:onclick => "if(confirmed()) $('edit_poi_button').onclick(); else this.value = '-1';") %>
+				<% end %>
+				<center>
+					<input <%= (@only_edit.nil?)?(""):('disabled="disabled"') %> type="button" value="Add" onClick="this.disabled = true; postAction(this.form,'manage','new_poi')"/>
+					<div style="display: none;">
+						<input id="edit_poi_button" type="button" value="Edit" onClick="this.disabled = true; postAction(this.form,'manage','edit_poi',true)"/>
+					</div>
+					<input <%= if @only_edit != nil then 'disabled="disabled"' end %> type="button" value="Delete" onClick="this.disabled = true; postAction(this.form,'manage','delete_poi')"/>
+				</center>
+			<% end %>
+		<br/>
+	<% end %>
+<% end %>
+</div>		

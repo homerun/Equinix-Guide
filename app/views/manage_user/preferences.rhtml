@@ -1,0 +1,51 @@
+<div class="title_div"><h1>User Preferences for <%= @user.print_name %></h1></div>
+
+<% form_for :user do |form| %>
+	<%= form.hidden_field :id, :value => "#{@user.id}" %>
+	<table>
+		<tr>
+			<td class="edit_field_text">First Name: </td>
+			<td><%= form.text_field :first_name, {:onchange => remote_function(:update => 'modified', 
+									   						    :url => { :action => 'set_modified'})} %></td>
+		</tr>
+		<tr>
+			<td class="edit_field_text">Last Name: </td>
+			<td><%= form.text_field :last_name, {:onchange => remote_function(:update => 'modified', 
+									   						    :url => { :action => 'set_modified'})} %></td>
+		</tr>
+		<tr>
+			<td class="edit_field_text">Phone Number: </td>
+			<td><%= form.text_field :phone_number, {:onchange => remote_function(:update => 'modified', 
+									   						    :url => { :action => 'set_modified'})} %></td>
+		</tr>
+		<tr>
+			<td class="edit_field_text">Preferred Unit: </td>
+			<td>
+				<%= select_tag(:user_unit_preference, 
+											options_for_select([['Metric','M'],['Imperial','B']],"#{@user.unit_preference}"),
+											:name => 'user[unit_preference]',
+											:onchange => remote_function(:update => 'modified', 
+										   						    :url => { :action => 'set_modified'})) %>
+			</td>
+		</tr>
+		<tr>
+			<td class="edit_field_text">Change Password: </td>
+			<td>
+				<%= form.password_field :password %>
+			</td>
+		</tr>
+		<tr>
+			<td class="edit_field_text">Confirm Password: </td>
+			<td><%= form.password_field :password_confirmation %></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>
+			    <input type="submit" value="Save Changes" onClick="postAction(this.form,'manage_user','preferences')"/>
+			    <div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+			</td>
+		</tr>
+	</table>
+	
+	
+<% end %>

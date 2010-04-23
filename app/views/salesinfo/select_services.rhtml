@@ -1,0 +1,43 @@
+<div class="title_div">
+    <h1>Select Services</h1>
+</div>   
+ 
+<% form_tag do %>
+	<%= submit_tag "Save and Continue" %>
+	<input type='button' value='Select All' onclick='javascript:checkAll(this)'> 
+	<br/>
+	<p></p>
+	<table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead >
+			<tr>
+				<th></th>
+				<th><div style="width:150px;">Exchange</div></th>
+				<th><div style="width:100px;">Service Acronym</div></th>
+				<th><div style="width:200px;">Service Name</div></th>
+				<th><div style="width:300px;">Service Description</div></th>
+			</tr>
+		</thead>
+		<tbody >
+			<% if @services.nil? %>
+				<tr>
+					<td>
+						No Services available.
+					</td>
+				</tr>
+			<% else %>
+			<% @services.each do |service| %>
+				<tr class="<%= cycle('even', 'odd') %>">
+					<td class="checkbox"> <%= check_box "selected_services", "", {}, "#{service.id},","" %> </td>
+					<td> <%= service.poi.name %> </td>
+					<td> <%= service.service_acronym %> </td>
+					<td> <%= service.name %> </td>
+					<td> <%= service.description %> </td>
+				</tr>
+			<% end %>
+		</tbody>
+	<% end %>
+	</table>
+	</td></tr></table>
+	<p><%= submit_tag "Save and Continue" %></p>
+<% end %>

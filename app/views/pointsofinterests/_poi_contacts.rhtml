@@ -1,0 +1,91 @@
+
+<% unless flash[:notice].blank? %>
+	<div id="poi_contact_notification" class="notification">
+ 		<%= image_tag "flash_img.jpg", :class => 'title_img' %>
+ 	    <div style="vertical-align: top; display: inline;">
+ 			<%= flash[:notice] %>
+		    <% flash[:notice] = '' %>
+  		</div>
+		</div>
+  	<script type="text/javascript">
+  		setTimeout("$('poi_contact_notification').style.display = 'none'",10000)
+  	</script>
+  	<br/>
+<% end -%>
+
+<p>
+	<div id="add_contact_div" class="connectionTypeDescr" style="display: none;">
+		<% form_tag do %>	
+			<input type="hidden" id="pointsofinterest_id" name="pointsofinterest_id" value="<%= @pointsofinterest.id %>" />
+			<p>
+				<span class="bold_label">Name:</span>
+			</p>
+			<p>
+				<input name="name" id="name" />
+			</p>
+			<p>
+				<span class="bold_label">Email Address: </span>
+			</p>
+			<p>
+				<input name="email_address" id="email_address" />
+			</p>
+			<p>
+				<span class="bold_label">Phone Number: </span>
+			</p>
+			<p>
+				<input name="phone_number" id="phone_number" />
+			</p>
+			<%= submit_to_remote 'add_contact_submit', 'Add Contact', :url => {:action => 'add_poi_contact'}, :update => "poi_contacts", :before => "$('add_contact_div').style.display = 'none'; $('add_contact_link').style.display = 'block';"  %>
+			or <a onclick="$('add_contact_div').style.display = 'none'; $('add_contact_link').style.display = 'block';" >Cancel</a>
+		<%- end -%>
+	</div>
+	<p>
+		<div name="editable" style="display: none;">
+			<div id='add_contact_link' style="display: inline">
+				<a href="#" onclick="$('add_contact_div').style.display = 'block'; $('add_contact_link').style.display = 'none'; return false;">
+					Add Contact
+				</a>
+			</div>
+		</div>
+	</p>
+</p>
+
+
+<table class="border_only"><tr><td>
+<table class="list_columns">
+	<thead >
+		<tr>
+			<th><div style="width: 200px;"><center>User</center></div></th>
+			<th><div style="width: 200px;"><center>Email</center></div></th>
+			<th><div style="width: 120px;"><center>Phone</center></div></th>
+			<th><div style="width: 400px;"><center>Notes</center></div></th>
+		</tr>
+	</thead>
+	<tbody>
+		<%- @pointsofinterest.user_pois.each do |user_poi| %>
+		<tr class="<%= cycle('odd_small','even_small') %>">
+			<td>
+				<%= user_poi.user.print_name %>
+			</td>
+			<td>
+				<%= user_poi.user.email %>
+			</td>
+			<td>
+				<%= user_poi.user.phone_number %>
+			</td>
+			<td>
+				<div id="poi_contact_notes_<%=user_poi.id%>">
+					<%= render :partial => 'poi_contact_notes', :locals => {:user_poi => user_poi} %>
+				</div>
+			</td>
+		</tr>
+		<%- end -%>
+	</tbody>
+</table>
+</td></tr></table>
+
+<% if @current_user.can_edit_pointsofinterest?(@pointsofinterest.id) -%>
+	<div name="make_editable">
+		<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+	</div>
+<% end %>

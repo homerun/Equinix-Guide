@@ -1,0 +1,372 @@
+
+<script type="text/javascript">
+	function show_hide_region_contact_edit(num) {
+		if($('region'+num).innerHTML == 'New Contact') {
+			$('region'+num+'ContactSelect').style.display = 'none';
+			$('region'+num+'ContactEdit').style.display = 'inline';
+			$('region'+num).innerHTML = 'Cancel';
+		} else {
+			$('region'+num+'ContactSelect').style.display = 'inline';
+			$('region'+num+'ContactEdit').style.display = 'none';
+			$('region'+num).innerHTML = 'New Contact';
+			$('region'+num+'ContactEditName').value = '';
+			$('region'+num+'ContactEditEmail').value = '';
+		}
+	}
+</script>
+
+<% @selector_size = 5 %>
+
+<div class="title_div">
+	<%= image_tag "np.gif", :width => '30' %>
+	<h1>Network Providers</h1>
+	<%= image_tag "help_icon.jpg",{:onmouseover => "show_info_div(this,'np_help',200,-40)", :onmouseout => "hide_info_div(this,'np_help')", :class => 'help_icon'} %>
+</div>
+
+<div id="np_help" class="info_div" style="display: none; position: absolute; left: 1; top: 1;" onmouseout="javascript:this.style.display='none'">
+1. To add a new Network Provider, click add. To edit an existing Network Provider,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select the Network Provider and click edit.<br/>
+2. After adding or updating a Network Provider you must click "Save Changes"<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at the bottom of the page.
+</div>
+
+<table class="full">
+<tr><td>
+	<div style="min-width: 1100px;">
+		<% if @limited_access then %>
+			
+		<% else %> 
+			<% @partial_type = 'editor' %>
+			<div id="networkprovider_selector">
+				<%= render :partial => 'networkprovider_selector' %>
+			</div>
+		<% end %>
+	</div>
+</td></tr>
+<tr><td>
+	<div id="editPane">
+		<% if @networkprovider == nil then %>
+			<br/>
+		<% else %>
+			<span class="edit_title"><%= @networkprovider.name %></span>
+			<div id="tabs_pane" class="tabs_pane">
+				<div id="tab_row_1" class="tab_row">
+					<div id="tab_1" class="tab_selected_other">&nbsp;</div><div class="selected_inner_tab_other" id="inner_tab_1">
+						<a href="#" onclick="select_tab_old(1,5); return false;">
+							Network Provider Info
+						</a>
+					</div>
+					<div id="tab_2" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_2">
+						<a href="#" onclick="select_tab_old(2,5); return false;">
+							Network Termination Points
+						</a>
+					</div>
+					<div id="tab_3" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_3">
+						<a href="#" onclick="select_tab_old(3,5); return false;">
+							Latency Times
+						</a>
+					</div>
+					<div id="tab_4" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_4">
+						<a href="#" onclick="select_tab_old(4,5); return false;">
+							History
+						</a>
+					</div>
+					<div id="tab_5" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_5">
+						<a href="#" onclick="select_tab_old(5,5); return false;">
+							News
+						</a>
+					</div>
+				</div>
+				<div id="tab_1_content" class="tab_content" style="width: 800px;">
+				    <div id="tab_padding">
+					<% form_for :networkprovider do |form| %>
+						<%= form.hidden_field :id, :value => "#{@networkprovider.id}" %>
+						<input type="hidden" name="current_tab_row" value="1" />
+						<input type="hidden" name="current_tab" value="1" />
+						<table>
+							<tr>
+								<td class="edit_field_text">Name: </td>
+								<td>
+									<div name="editable" style="display: none;">
+										<%= form.text_field :name, {:value => "#{@networkprovider.name}",
+															  :onchange => remote_function(:update => 'modified', 
+															   						 :url => { :action => 'set_modified'})} %>
+									</div>
+									<div name="read_only">
+										<%= @networkprovider.name %>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="edit_field_text">URL: </td>
+								<td>
+									<div name="editable" style="display: none;">
+										<%= form.text_field :url, {:value => "#{@networkprovider.url}",
+														 :onchange => remote_function(:update => 'modified', 
+														   						:url => { :action => 'set_modified'})} %>
+									</div>
+									<div name="read_only">
+										<%= @networkprovider.url %>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="edit_field_text">asn: </td>
+								<td>
+									<div name="editable" style="display: none;">
+										<%= form.text_field :asn, {:value => "#{@networkprovider.asn}",
+														 :onchange => remote_function(:update => 'modified', 
+														   						:url => { :action => 'set_modified'})} %>
+									</div>
+									<div name="read_only">
+										<%= @networkprovider.asn %>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="edit_field_text">Network Provider Type: </td>
+								<td>
+									<div name="editable" style="display: none;">
+										<% if @current_user.is_equinix_user? -%>
+											<%= radio_button :networkprovider, :np_type, 'E', {:checked => "#{'checked' if @networkprovider.np_type == 'E'}", 
+																					:onchange => remote_function(:update => 'modified', 
+															   												:url => { :action => 'set_modified'})} %>
+											Extranet Provider
+											<%= radio_button :networkprovider, :np_type, 'C', {:checked => "#{'checked' if @networkprovider.np_type == 'C'}", 
+																					:onchange => remote_function(:update => 'modified', 
+															   												:url => { :action => 'set_modified'})} %>
+											Carrier
+										<% else %>
+											<%= if @networkprovider.np_type == 'E' then "Extranet Provider" else "Carrier" end %>
+										<% end %>
+									</div>
+									<div name="read_only">
+										<%= if @networkprovider.np_type == 'E' then "Extranet Provider" else "Carrier" end %>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="edit_field_text">Contact for Equinix Region Asia Pacific: </td>
+								<td>
+									<div name="editable" style="display: none;">
+										<div id="region2ContactSelect" style="display: inline;">
+											<% if @list_of_contacts != nil then %>
+												<%= select_tag(:networkprovider_user_contact_region2, 
+															options_for_select(@list_of_contacts,"#{@networkprovider.user_contact_region2}"),
+															:name => 'networkprovider[user_contact_region2]',
+															:onchange => remote_function(:update => 'modified', 
+														   						    :url => { :action => 'set_modified'})) %>
+											<% else %>
+												There are no contacts or users associated with this Network Provider.
+											<% end %>
+										</div>
+										<div id="region2ContactEdit" style="display: none;">
+											<b>Name:</b>
+											<input id="region2ContactEditName" name="region2ContactEditName"
+												onchange="<%= remote_function(:update => 'modified', 
+												   						:url => { :action => 'set_modified'}) %>" />
+											<b>Email:</b>
+											<input id="region2ContactEditEmail" name="region2ContactEditEmail"
+												onchange="<%= remote_function(:update => 'modified', 
+												   						:url => { :action => 'set_modified'}) %>" />
+											<br/>
+											<b>Phone:</b>
+											<input id="region2ContactEditPhone" name="region2ContactEditPhone"
+												onchange="<%= remote_function(:update => 'modified', 
+												   						:url => { :action => 'set_modified'}) %>" />
+										</div>
+										<a id="region2" href="#" onclick="show_hide_region_contact_edit(2); return false;">New Contact</a>
+									</div>
+									<div name="read_only">
+										<%= "#{@networkprovider.region2contact.print_name} (#{@networkprovider.region2contact.email}) " if @networkprovider.region2contact != nil %>
+										<%= "[#{@networkprovider.region2contact.phone_number}]" if @networkprovider.region2contact != nil and @networkprovider.region2contact.phone_number != nil %>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="edit_field_text">Contact for Equinix Region Europe: </td>
+								<td>
+									<div name="editable" style="display: none;">
+										<div id="region3ContactSelect" style="display: inline;">
+											<% if @list_of_contacts != nil then %>
+												<%= select_tag(:networkprovider_user_contact_region3, 
+															options_for_select(@list_of_contacts,"#{@networkprovider.user_contact_region3}"),
+															:name => 'networkprovider[user_contact_region3]',
+															:onchange => remote_function(:update => 'modified', 
+														   						    :url => { :action => 'set_modified'})) %>
+											<% else %>
+												There are no contacts or users associated with this Network Provider.
+											<% end %>
+										</div>
+										<div id="region3ContactEdit" style="display: none;">
+											<b>Name:</b>
+											<input id="region3ContactEditName" name="region3ContactEditName"
+												onchange="<%= remote_function(:update => 'modified', 
+												   						:url => { :action => 'set_modified'}) %>" />
+											<b>Email:</b>
+											<input id="region3ContactEditEmail" name="region3ContactEditEmail"
+												onchange="<%= remote_function(:update => 'modified', 
+												   						:url => { :action => 'set_modified'}) %>" />
+											<br/>
+											<b>Phone:</b>
+											<input id="region3ContactEditPhone" name="region3ContactEditPhone"
+												onchange="<%= remote_function(:update => 'modified', 
+												   						:url => { :action => 'set_modified'}) %>" />
+										</div>
+										<a id="region3" href="#" onclick="show_hide_region_contact_edit(3); return false;">New Contact</a>
+									</div>
+									<div name="read_only">
+										<%= "#{@networkprovider.region3contact.print_name} (#{@networkprovider.region3contact.email}) " if @networkprovider.region3contact != nil %>
+										<%= "[#{@networkprovider.region3contact.phone_number}]" if @networkprovider.region3contact != nil and @networkprovider.region3contact.phone_number != nil %>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="edit_field_text">Contact for Equinix Region Other: </td>
+								<td>
+									<div name="editable" style="display: none;">
+										<div id="region4ContactSelect" style="display: inline;">
+											<% if @list_of_contacts != nil then %>
+												<%= select_tag(:networkprovider_user_contact_region4, 
+															options_for_select(@list_of_contacts,"#{@networkprovider.user_contact_region4}"),
+															:name => 'networkprovider[user_contact_region4]',
+															:onchange => remote_function(:update => 'modified', 
+														   						    :url => { :action => 'set_modified'})) %>
+											<% else %>
+												There are no contacts or users associated with this Network Provider.
+											<% end %>
+										</div>
+										<div id="region4ContactEdit" style="display: none;">
+											<b>Name:</b>
+											<input id="region4ContactEditName" name="region4ContactEditName"
+												onchange="<%= remote_function(:update => 'modified', 
+												   						:url => { :action => 'set_modified'}) %>" />
+											<b>Email:</b>
+											<input id="region4ContactEditEmail" name="region4ContactEditEmail"
+												onchange="<%= remote_function(:update => 'modified', 
+												   						:url => { :action => 'set_modified'}) %>" />
+											<br/>
+											<b>Phone:</b>
+											<input id="region4ContactEditPhone" name="region4ContactEditPhone"
+												onchange="<%= remote_function(:update => 'modified', 
+												   						:url => { :action => 'set_modified'}) %>" />
+										</div>
+										<a id="region4" href="#" onclick="show_hide_region_contact_edit(4); return false;">New Contact</a>
+									</div>
+									<div name="read_only">
+										<%= "#{@networkprovider.region4contact.print_name} (#{@networkprovider.region4contact.email}) " if @networkprovider.region4contact != nil %>
+										<%= "[#{@networkprovider.region4contact.phone_number}]" if @networkprovider.region4contact != nil and @networkprovider.region4contact.phone_number != nil %>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="edit_field_text">Contact for Equinix Region United States: </td>
+								<td>
+									<div name="editable" style="display: none;">
+										<div id="region1ContactSelect" style="display: inline;">
+											<% if @list_of_contacts != nil then %>
+												<%= select_tag(:networkprovider_user_contact_region1, 
+															options_for_select(@list_of_contacts,"#{@networkprovider.user_contact_region1}"),
+															:name => 'networkprovider[user_contact_region1]',
+															:onchange => remote_function(:update => 'modified', 
+														   						    :url => { :action => 'set_modified'})) %>
+											<% else %>
+												There are no contacts or users associated with this Network Provider.
+											<% end %>
+										</div>
+										<div id="region1ContactEdit" style="display: none;">
+											<b>Name:</b>
+											<input id="region1ContactEditName" name="region1ContactEditName"
+												onchange="<%= remote_function(:update => 'modified', 
+												   						:url => { :action => 'set_modified'}) %>" />
+											<b>Email:</b>
+											<input id="region1ContactEditEmail" name="region1ContactEditEmail"
+												onchange="<%= remote_function(:update => 'modified', 
+												   						:url => { :action => 'set_modified'}) %>" />
+											<br/>
+											<b>Phone:</b>
+											<input id="region1ContactEditPhone" name="region1ContactEditPhone"
+												onchange="<%= remote_function(:update => 'modified', 
+												   						:url => { :action => 'set_modified'}) %>" />
+										</div>
+										<a id="region1" href="#" onclick="show_hide_region_contact_edit(1); return false;">New Contact</a>
+									</div>
+									<div name="read_only">
+										<%= "#{@networkprovider.region1contact.print_name} (#{@networkprovider.region1contact.email}) " if @networkprovider.region1contact != nil %>
+										<%= "[#{@networkprovider.region1contact.phone_number}]" if @networkprovider.region1contact != nil and @networkprovider.region1contact.phone_number != nil %>
+									</div>
+								</td>
+							</tr>
+						</table>
+						<% if has_editor_role then %>
+							<div name="make_editable">
+								<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+							</div>
+						<% end %>
+						<div name="make_read_only" style="display:none;">
+							<input type="submit" value="Save Changes" onClick="this.disabled = true; postAction(this.form,'manage','save_networkprovider')"/>
+							<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+						</div>
+					<% end %>
+					</div>
+				</div>
+				<div id="tab_2_content" class="tab_content" style="display: none;">
+				    <div id="tab_padding">
+						<% if "#{@networkprovider.id}" == '' then %>
+							You must save before you can add Network Termination Points
+						<% else %>
+							<div id="networkprovider_networkterminationpoints">
+								<%= render :partial => 'networkprovider_networkterminationpoints' %>
+							</div>
+							<div id="np2ntps">
+								<%#= render :partial => '/np2ntps/np2ntps', :locals => {:networkterminationpoint => nil, :networkprovider => @networkprovider } %>
+							</div>
+						<% end %>
+					</div>
+				</div>
+				<div id="tab_3_content" class="tab_content" style="display: none;">
+				    <div id="tab_padding">
+						<% if "#{@networkprovider.id}" == '' then %>
+							You must save before you can add Network Termination Points
+						<% else %>
+							<div id="networkprovider_latencytimes">
+								<%= render :partial => 'latencytimes/edit_step1', :locals => {:edit_page => 'Networkprovider', :editable => @current_user.can_edit_networkprovider?(@networkprovider.id)} %>
+							</div>
+						<% end %>
+					</div>
+				</div>
+				<div id="tab_4_content" class="tab_content" style="display: none; width: 800px;">
+				    <div id="tab_padding">
+						<% if "#{@networkprovider.id}" == '' then %>
+							You must save before you can view history items.
+						<% else %>
+							<%= render :partial => '/shared/history_pane', :locals => {:table_name => 'Networkprovider', :table_id => @networkprovider.id, :tab_number => 4} %>
+						<% end %>
+					</div>
+				</div>
+				<div id="tab_5_content" class="tab_content" style="display: none; width: 800px;">
+				    <div id="tab_padding">
+					<% if "#{@networkprovider.id}" == '' then %>
+						You must save before you can view news items.
+					<% else %>
+						<div id="news_pane">
+							<%= render :partial => '/shared/news_pane' %>
+						</div>
+					<% end %>
+					</div>
+				</div>
+			</div> 
+		<% end %>
+	</div>
+</td></tr>
+</table>
+
+<% if @selected_tab != nil and @selected_tab_row != nil then %>
+	<input type="hidden" value="<%= "select_tab_with_row(#{@selected_tab.to_i},13,'#{@selected_tab_row}',2)" %>" id="do_select_tab" />
+<% end %>
+
+<% if @change_to_edit then %>
+	<script type="text/javascript">
+		toggle_read_only(false);
+	</script>
+<% end %>

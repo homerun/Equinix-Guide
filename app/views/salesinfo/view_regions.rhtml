@@ -1,0 +1,28 @@
+<div class="title_div">
+    <h1>Equinix Regions</h1>
+</div>
+
+<table class="border_only"><tr><td>
+<table class="list_columns">
+	<thead >
+		<tr>
+			<th><div style="width: 100px;">Name</div></th>
+			<th><div style="width: 120px;">Subregions</div></th>
+			<th><div style="width: 120px;">Countries</div></th>
+			<th><div style="width: 170px;">Points of Interest</div></th>
+			<th><div style="width: 140px;">Datacenters</div></th>
+		</tr>
+	</thead>
+	<tbody>
+		<% @regions.each do |region| %>
+			<tr class="<%= cycle('odd','even') %>">
+				<td><center><b><%= link_to region[:name], { :controller => 'manage', :action => 'edit_region', :id => "#{region[:id]}"} %></b></center></td>
+				<td><center><%= region[:subregions] %></center></td>
+				<td><center><%= region[:countries] %></center></td>
+				<td><center><%= region[:pois] %></center></td>
+				<td><center><%= region[:datacenters] %></center></td>
+			</tr>
+		<% end %>
+	</tbody>
+</table>
+</td></tr></table>

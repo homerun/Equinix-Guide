@@ -1,0 +1,57 @@
+<% unless ntp2ntp.nil? %>
+	<% ntp2ntp[:latency] = Latencytime.new() if ntp2ntp[:latency].nil? %>
+	<% html_id = "#{[ntp2ntp[:a_np2ntp].id,ntp2ntp[:b_np2ntp].id].min}_#{[ntp2ntp[:a_np2ntp].id,ntp2ntp[:b_np2ntp].id].max}" %>
+	<% form_for :latencytime, :url => {:action => 'update'}, :html => {:id => "latencytime_form_#{html_id}"} do |f| %>
+		<%= f.hidden_field :id, :value => "#{ntp2ntp[:latency].id unless ntp2ntp[:latency].nil?}" %>
+		<%= f.hidden_field :a_np2ntp_id, :value => [ntp2ntp[:a_np2ntp].id,ntp2ntp[:b_np2ntp].id].min %>
+		<%= f.hidden_field :b_np2ntp_id, :value => [ntp2ntp[:a_np2ntp].id,ntp2ntp[:b_np2ntp].id].max %>
+		<%= f.hidden_field :networkprovider_id, :value => ntp2ntp[:a_np2ntp].networkprovider_id %>
+		
+		<div id="do_edit_<%= html_id %>" style="display: none;">
+			<% confirmation = '' %>
+			<% if @current_user.is_np_editor? and @current_user.associated_with_networkprovider?(ntp2ntp[:a_np2ntp].networkprovider_id) %>
+				<% confirmation += "if(confirm('Press Ok to certify this Latency Time as being accurate, or Cancel to save without certifying.')) $('do_certify_#{ html_id }').value = 'yes'; else $('do_certify_#{ html_id }').value = 'no'; " %>
+			<% end %>
+			<% unless ntp2ntp[:latency].user.nil? %>
+				<% confirmation += "if(confirm('This Latency Time has already been certified by #{ntp2ntp[:latency].user.print_name_with_association}. If you proceed, you will overwrite their certification. Press Ok to continue, or Cancel to cancel without saving.')) "%>
+			<% else %>
+				<% confirmation += "if(true) " %>
+			<% end %>
+			<%= f.text_field :latency_time, :value => "#{ntp2ntp[:latency].latency_time unless ntp2ntp[:latency].nil?}", :size => '10', :style => 'text-align: right;', :onkeypress => "if(event.keyCode==13) { #{ confirmation } $('submit_update_#{ html_id }').click();; return false;}" %>ms
+			&nbsp;
+			<a href="#" onclick="<%= confirmation %>$('submit_update_<%= html_id %>').click(); return false;">
+				Save
+			</a>
+			&nbsp;
+			<a href="#" onclick="$('do_edit_<%= html_id %>').style.display = 'none'; $('do_edit_link_<%= html_id %>').style.display = 'inline'; return false;">
+				Cancel
+			</a>
+			<div style="display: none;">
+				<input type="hidden" id="do_certify_<%= html_id %>" name="do_certify_<%= html_id %>" value="no" />
+				<%= submit_to_remote 'save', 'Save', :url => {:controller => 'latencytimes', :action => 'update'}, :update => "latencytime_#{ html_id }", :html => {:id => "submit_update_#{ html_id }"} %>
+			</div>
+		</div>
+		<div id="do_edit_link_<%= html_id %>">
+			<%= "#{ntp2ntp[:latency].latency_time} ms" unless ntp2ntp[:latency].latency_time.nil? %>	
+			&nbsp;
+			<% if @editable then %>
+				<div name="editable" style="display: none;">
+					<a href="#" onclick="$('do_edit_<%= html_id %>').style.display = 'block'; $('do_edit_link_<%= html_id %>').style.display = 'none'; return false;">
+						<%= if ntp2ntp[:latency].id.blank? then 'Add' else 'Edit' end %>
+					</a>
+				</div>
+			<% end %>
+		</div>
+	<%- end -%>	
+	<script type="text/javascript">
+		if($('can_certify_<%= html_id %>')) {
+		<% if ntp2ntp[:latency].user.nil? %>
+			$('can_certify_<%= html_id %>').style.display = 'block';
+			$('certifying_user_<%= html_id %>').innerHTML = '';
+		<% else %>
+			$('can_certify_<%= html_id %>').style.display = 'none';
+			$('certifying_user_<%= html_id %>').innerHTML = '<%= ntp2ntp[:latency].user.print_name_with_association %>';
+		<% end %>
+		}
+	</script>
+<%- end -%>

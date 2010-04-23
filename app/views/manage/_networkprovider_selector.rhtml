@@ -1,0 +1,64 @@
+<% if @selector_size == nil then @selector_size = 5 end %>
+
+<% if @partial_type == 'selector' then %>
+	<% form_remote_tag(:url => {:action => 'select_networkprovider'}, :update => "#{get_element_to_update('networkprovider')}") do %>
+		<div class="selectionBlock" id="networkprovider_select">
+			
+			<center><span class="selection_box_title">Network Provider</span></center>
+			<% if @list_of_networkproviders == nil then %>
+				You must select a Country first.
+			<% else %>
+				<% if @selected_networkprovider != nil then %>
+					<%= select_tag(:id, 
+								options_for_select(@list_of_networkproviders,@selected_networkprovider), 
+								:size => @selector_size,
+								:class => 'networkprovider_select',
+								:onchange => remote_function(:update => "#{get_element_to_update('networkprovider')}", 
+												   	   :url => { :action => 'select_networkprovider'},
+													   :with => "'id='+value+'&page=#{@page}'")) %>
+				<% else %>
+					<%= select_tag(:id, 
+								options_for_select(@list_of_networkproviders), 
+								:size => @selector_size,
+								:class => 'networkprovider_select',
+								:onchange => remote_function(:update => "#{get_element_to_update('networkprovider')}", 
+												   	   :url => { :action => 'select_networkprovider'},
+													   :with => "'id='+value+'&page=#{@page}'")) %>
+				<% end %>
+			<% end %>
+			
+		</div>
+	<% end %>
+<% else %>
+	<% form_tag do %>
+		<div class="selectionBlock" id="networkprovider_select">
+			
+			<center><span class="selection_box_title">Network Provider</span></center>
+			<% if @list_of_networkproviders == nil then %>
+				<center>You must select a Country first.</center>
+			<% else %>
+				<% if @selected_networkprovider != nil then %>
+					<%= select_tag(:id, 
+								options_for_select(@list_of_networkproviders,@selected_networkprovider), 
+								:size => @selector_size,
+								:class => 'networkprovider_select',
+						     	:onclick => "if(confirmed()) $('edit_np_button').onclick(); else this.value = '#{@selected_networkprovider}';") %>
+				<% else %>
+					<%= select_tag(:id, 
+								options_for_select(@list_of_networkproviders), 
+								:size => @selector_size,
+								:class => 'networkprovider_select',
+						     	:onclick => "if(confirmed()) $('edit_np_button').onclick(); else this.value = '-1';") %>
+				<% end %>
+				<center>
+				<input <%= if @only_edit != nil then 'disabled="disabled"' end %> type="button" value="Add" onClick="this.disabled = true; postAction(this.form,'manage','add_networkprovider')"/>
+				<div style="display: none;">
+					<input id="edit_np_button" type="button" value="Edit" onClick="this.disabled = true; postAction(this.form,'manage','edit_networkprovider',true)"/>
+				</div>
+				<input <%= if @only_edit != nil then 'disabled="disabled"' end %> type="button" value="Delete" onClick="this.disabled = true; postAction(this.form,'manage','delete_networkprovider')"/>
+				</center>
+			<% end %>			
+		</div>
+		<br/>
+	<% end %>
+<% end %>

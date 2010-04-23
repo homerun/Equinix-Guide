@@ -1,0 +1,29 @@
+<% if @selector_size == nil then @selector_size = 5 end %>
+
+<% form_tag do %>
+	<div class="selectionBlock" id="campus_select">
+		
+		<center><span class="selection_box_title">Campus</span></center>
+		<% if @list_of_campuses == nil then %>
+			You must select a Network Termination Point Owner first.
+		<% else %>
+			<% if @selected_campus != nil then %>
+				<%= select_tag(:id, options_for_select(@list_of_campuses,@selected_campus), :class => 'campus_select', :size => @selector_size,
+					     :onclick => "if(confirmed()) $('edit_campus_button').onclick(); else this.value = '#{@selected_campus}';") %>
+			<% else %>
+				<%= select_tag(:id, options_for_select(@list_of_campuses), :class => 'campus_select', :size => @selector_size,
+					     :onclick => "if(confirmed()) $('edit_campus_button').onclick(); else this.value = '-1';") %>
+			<% end %>
+			<center>
+				<input type="button" value="Add" onClick="this.disabled = true; postAction(this.form,'manage','add_campus')"/>
+				<div style="display: none;">
+					<input id="edit_campus_button" type="button" value="Edit" onClick="this.disabled = true; postAction(this.form,'manage','edit_campus',true)"/>
+				</div>
+				<input type="button" value="Delete" onClick="this.disabled = true; postAction(this.form,'manage','delete_campus')"/>
+			</center>
+		<% end %>
+		
+	</div>
+	<br/>
+<% end %>
+	

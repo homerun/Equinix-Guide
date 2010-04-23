@@ -1,0 +1,49 @@
+<%- list_of_markets = Market.find(:all,:order => 'market_name') -%>
+<%- market_latencytime_data = Hash.new -%>
+<%- EquinixInterMarketLatencytime.find(:all).each do |market_latencytime| -%>
+	<%- market_latencytime_data[market_latencytime.a_market_id] = Hash.new if market_latencytime_data[market_latencytime.a_market_id].nil? -%>
+	<%- market_latencytime_data[market_latencytime.a_market_id][market_latencytime.b_market_id] = Array.new if market_latencytime_data[market_latencytime.a_market_id][market_latencytime.b_market_id].nil? -%>
+	<%- market_latencytime_data[market_latencytime.a_market_id][market_latencytime.b_market_id] << market_latencytime -%>
+<%- end -%>
+
+<table class="border_only"><tr><td>
+<table class="list_columns">
+	<thead>
+		<tr>
+			<th>
+			</th>
+			<%- list_of_markets.each do |market| -%>
+				<th>
+					<%= market.market_name %>
+				</th>
+			<%- end -%>
+		</tr>
+	</thead>
+	<tbody>
+		<%- list_of_markets.each do |market_r| -%>
+		<%- hit_the_end = false -%>
+		<tr>
+			<th>
+				<%= market_r.market_name %>
+			</th>
+			<%- list_of_markets.each do |market_c| -%>
+			<%- hit_the_end = true if market_c == market_r %>
+				<td>
+					<%#- unless hit_the_end -%>
+						<%- unless market_latencytime_data[market_r.id].nil? or market_latencytime_data[market_r.id][market_c.id].nil? -%>
+							<%- market_latencytime_data[market_r.id][market_c.id].sort! {|x,y| x.latencytime.latency_time <=> y.latencytime.latency_time}%>
+							<%- hover_over_text = (market_latencytime_data[market_r.id][market_c.id].collect {|l| l.latencytime.print_summary }).join('<br/>') %>
+							<%- the_text = "#{market_latencytime_data[market_r.id][market_c.id][0].latencytime.latency_time} ms" -%>
+							<%= print_message_div('latency_details',the_text,hover_over_text) %>
+						<%- else -%>
+						<%- end -%>
+					<%#- end -%>
+				</td>
+			<%- end -%>
+		</tr>
+		<%- end -%>
+		<div id="latency_details" style="display: none; position: absolute; left: 1; top: 1;" class="connectionTypeDescr" onmouseout="javascript:this.style.display='none';" onmouseover="javascript:this.style.display='block';">
+		</div>
+	</tbody>
+</table>
+</td></tr></table>

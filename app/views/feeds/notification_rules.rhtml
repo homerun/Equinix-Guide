@@ -1,0 +1,71 @@
+<script scope='text/javascript'>
+	function object_name_selected() {
+		$('object_nameDisplay').style.display = 'block';
+		$('object_nameEdit').style.display = 'none';
+		var object_name = $('notificationrule_object_name').options[$('notificationrule_object_name').selectedIndex].text;
+		$('object_nameDescr').innerHTML = object_name;
+		if(object_name == 'News')
+			document.getElementsByName('new_notification_rule_step_one_submit')[0].onclick();
+		else
+			$('scopeEdit').style.display = 'block';
+	}
+	function scope_selected() {
+		$('scopeDisplay').style.display = 'block';
+		$('scopeEdit').style.display = 'none';
+		var types = '';
+		if($('news_notifications').checked) {
+			types += 'News';
+			if($('additions_notifications').checked||$('updates_notifications').checked)
+				types += ', ';
+		}
+		if($('additions_notifications').checked) {
+			types += 'Additions';
+			if($('updates_notifications').checked)
+				types += ', ';
+		}
+		if($('updates_notifications').checked)
+			types += 'Updates';
+		$('scopeDescr').innerHTML = types;
+		document.getElementsByName('new_notification_rule_step_one_submit')[0].onclick();
+	}
+	function field_name_selected(object_name) {
+		$('field_nameDisplay').style.display = 'block';
+		$('field_nameEdit').style.display = 'none';
+		if($('notificationrule_allObjects_yes').checked)
+			$('field_nameDisplay').innerHTML = "<p><center>Track All "+object_name+"</center></p>";
+		else
+			$('field_nameDisplay').innerHTML = "<p><center>Track "+object_name+" based on "+$('notificationrule_field_name').options[$('notificationrule_field_name').selectedIndex].text+"</center></p>";
+		document.getElementsByName('new_notification_rule_step_two_submit')[0].onclick();
+	}
+	function toggle_checkbox_with_value(name,val) {
+		var checkboxes = document.getElementsByName(name)
+		for(var i=0; i < checkboxes.length; i++)
+			if(checkboxes[i].value == val)
+				checkboxes[i].checked = !checkboxes[i].checked;
+	}
+</script>
+
+  <%= stylesheet_link_tag 'mycalendar' %>
+  <%= javascript_include_tag "mycalendar" %>
+
+<div class="title_div"><h1>Notification Rules</h1></div>
+
+<div id="add_notification_rule_div">
+	<input type="button" value="New Rule" onclick="document.getElementsByName('new_notification_rule_submit')[0].onclick(); $('add_notification_rule_div').style.display = 'none'; $('new_notification_rule').style.display = 'block';">
+	<div style="display: none;">	
+		<form>
+			<%= submit_to_remote 'new_notification_rule_submit', 'New Rule', :url => { :action => 'new_notification_rule'}, :update => 'new_notification_rule' %>
+		</form>
+	</div>
+</div>
+
+<div class="green_div" style="width: 800px; font: 12px 'Verdana', Arial, Helvetica, sans-serif; display: none;" id="new_notification_rule">
+</div>
+<br/>
+<% if @notification_rules != nil and @notification_rules.size > 0 then %>
+	<span class="edit_title">Current Notification Rules</span>
+	Click <a href="<%= @feed_url %>">here</a> to access your feed.</br>
+	<div id="current_notification_rules">
+		<%= render :partial => 'current_notification_rules' %>
+	</div>
+<% end %>

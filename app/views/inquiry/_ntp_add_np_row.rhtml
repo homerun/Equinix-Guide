@@ -1,0 +1,30 @@
+
+<tr class="<%= if even then 'even_small' else 'odd_small' end %>">
+	<td>
+		<% unless np_obj[:latest_inquiry] != nil and np_obj[:latest_inquiry].inquiry.nil? %>
+			<center><%= check_box "other_first_time", "", {}, np_obj[:np].id, "" %></center>
+		<% end %>
+	</td>
+	<th style="font: 13px 'Verdana', Arial, Helvetica, sans-serif; font-weight: bold; padding: 3px 10px">
+		<%= np_obj[:np].name %>
+	</th>
+	<td>
+		<% if np_obj[:connection] != nil then %>
+			<%= np_obj[:connection].details %>
+		<% end %>
+	</td>
+	<td>
+		<% if np_obj[:latest_inquiry] != nil then %>
+			<% if np_obj[:latest_inquiry].inquiry.nil? then %>
+				An inquiry for this connection already exists and is waiting to be sent.
+			<% else %>
+				Last inquiry for this connection was made on <%= print_date(np_obj[:latest_inquiry].inquiry.sent_at) %>
+			<% end %>
+		<% end %>
+	</td>
+	<td>
+		<% if np_obj[:last_update] != nil then %>
+			<%= np_obj[:last_update] %>
+		<% end %>
+	</td>
+</tr>

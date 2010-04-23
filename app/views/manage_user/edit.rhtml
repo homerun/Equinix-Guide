@@ -1,0 +1,97 @@
+<div class="title_div">
+	<%= image_tag "add_user.gif", :width => '30' %>
+	<h1>Edit User</h1>
+</div>
+
+<% form_for :user do |form| %>
+	<input type="hidden" id="user_id" name="user[id]" value="<%= @user.id %>" />
+	<input type="hidden" id="id" name="id" value="<%= @user.id %>" />
+	<table>
+		<tr>
+			<td class="edit_field_text">Equinix Association:</td>
+			<td>
+				<% if @current_user.is_equinix_user? -%>
+					<table>
+						<tr>
+							<td><%#= radio_button :user, :associationTable, "Networktermptowner", {:checked => 'checked'} %>Network Termination Point Owner</td>
+							<td><%#= radio_button :user, :associationTable, "Pointsofinterest" %>Point of Interest</td>
+							<td><%#= radio_button :user, :associationTable, "Networkprovider" %>Network Provider</td>
+						</tr>
+						<tr>
+							<td>
+								<%= select_tag(:user_ntp_owner_networktermptowner_id, 
+											options_for_select(@list_of_ntp_owners,(@user.user_ntp_owners.nil?)?('none'):(@user.user_ntp_owners.collect {|ntp_o| "#{ntp_o.networktermptowner_id}"})),
+											:name => 'user_ntp_owner_networktermptowner_id[]',
+											:multiple => 'multiple',
+											:size => 5) %>
+							</td>
+							<td>
+								<%= select_tag(:user_poi_pointsofinterest_id, 
+											options_for_select(@list_of_pois,(@user.user_pois.nil?)?('none'):(@user.user_pois.collect {|poi| "#{poi.pointsofinterest_id}"})),
+											:name => 'user_poi_pointsofinterest_id[]',
+											:multiple => 'multiple',
+											:size => 5,
+											:selectedIndex => 0) %>
+							</td>
+							<td>
+								<%= select_tag(:user_np_networkprovider_id, 
+											options_for_select(@list_of_nps,(@user.user_nps.nil?)?('none'):(@user.user_nps.collect {|np| "#{np.networkprovider_id}"})),
+											:name => 'user_np_networkprovider_id[]',
+											:multiple => 'multiple',
+											:size => 5) %>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="3"><center>**DEFAULT: Network Termination Point Owner > Equinix**</center></td>
+						</tr>
+					</table>
+				<% else %>
+					<input type="hidden" id="user_ntp_owner_networktermptowner_id" name="user_ntp_owner[networktermptowner_id]" value="<%= (@current_user.networktermptowners.collect{|ntp_owner| ntp_owner.id}).join(',') %>" />
+					<input type="hidden" id="user_poi_pointsofinterest_id" name="user_poi[pointsofinterest_id]" value="<%= (@current_user.pointsofinterests.collect{|poi| poi.id}).join(',') %>" />
+					<input type="hidden" id="user_np_networkprovider_id" name="user_np[networkprovider_id]" value="<%= (@current_user.networkproviders.collect{|np| np.id}).join(',') %>" />
+					<%= @current_user.print_association_type %>
+				<% end %>
+			</td>
+		</tr>
+		<tr>
+			<td class="edit_field_text">Customer Security Group: </td>
+			<td>
+				<%= select_tag(:user_customer_group_id, 
+							options_for_select(@list_of_customer_groups,(@user.user_customer_groups.nil?)?(''):(@user.user_customer_groups.collect {|group| "#{group.customer_group_id}"})),
+							:name => 'user_customer_group_id[]',
+							:multiple => 'multiple',
+							:size => 5,
+							:style => 'min-width: 175px') %>
+			</td>
+		</tr>
+		<tr>
+			<td class="edit_field_text">Role: </td>
+			<td>
+				<%= select_tag(:user_role_id, 
+							options_for_select(@list_of_roles,"#{@user.role_id}"),
+							:name => 'user[role_id]') %>
+			</td>
+		</tr>
+		<tr>
+			<td class="edit_field_text">First Name: </td>
+			<td><%= form.text_field :first_name %></td>
+		</tr>
+		<tr>
+			<td class="edit_field_text">Last Name: </td>
+			<td><%= form.text_field :last_name %></td>
+		</tr>
+		<tr>
+			<td class="edit_field_text">Email Address: </td>
+			<td><%= form.text_field :email %></td>
+		</tr>
+		<tr>
+			<td class="edit_field_text">Phone Number: </td>
+			<td><%= form.text_field :phone_number %></td>
+		</tr>
+		<tr>
+		    <td></td>
+		    <td><%= submit_tag 'Save' %>	or <%= link_to 'Back to users', {:controller => 'manage_user', :action => 'index'} %></td>
+		</tr>    
+	</table>
+  
+<% end %>

@@ -1,0 +1,50 @@
+<% if @selector_size.nil? then @selector_size = 5 end %>
+
+<div class="selectionBlock" id="region_select">
+	<center><span class="selection_box_title">Equinix Regions</span></center>
+<% if @partial_type == 'selector' then %>	
+		<% form_remote_tag(:url => {:action => 'select_region'}, :update => "#{get_element_to_update('region')}") do %>
+			<% if @selected_region %>
+				<%= select_tag(:id, 
+							options_for_select(@list_of_regions.insert(0,['All','-1']),@selected_region), 
+							:size => @selector_size,  
+						     :class => 'region_select',
+							:onchange => remote_function(:update => "#{get_element_to_update('region')}", 
+												   :url => { :action => 'select_region'},
+												   :with => "'id='+value+'&page=#{@page}'")) %>
+			<% else %>
+				<%= select_tag(:id, 
+							options_for_select(@list_of_regions.insert(0,['All','-1']),'-1'), 
+							:size => @selector_size, 
+						     :class => 'region_select',
+							:onchange => remote_function(:update => "#{get_element_to_update('region')}", 
+												   :url => { :action => 'select_region' },
+												   :with => "'id='+value+'&page=#{@page}'")) %>
+			<% end %>
+			
+		<% end %>
+<% else %>
+	<% form_tag do %>
+			<% if @selected_region %>
+				<%= select_tag(:id, 
+							options_for_select(@list_of_regions,@selected_region), 
+							:size => @selector_size,
+						     :class => 'region_select',
+						     :onclick => "if(confirmed()) $('edit_region_button').onclick(); else this.value = '#{@selected_region}';") %>
+			<% else %>
+				<%= select_tag(:id, 
+							options_for_select(@list_of_regions), 
+							:size => @selector_size,
+						     :class => 'region_select',
+						     :onclick => "if(confirmed()) $('edit_region_button').onclick(); else this.value = '-1';") %>
+			<% end %>
+			<center>
+				<input type="button" value="Add" onClick="this.disabled = true; postAction(this.form,'manage','add_region')"/>
+				<div style="display: none;">
+					<input id="edit_region_button" type="button" value="Edit" onClick="this.disabled = true; postAction(this.form,'manage','edit_region',true)"/>
+				</div>
+				<input type="button" value="Delete" onClick="this.disabled = true; postAction(this.form,'manage','delete_region')"/>
+			</center>
+	<% end %>
+<% end %>
+</div>

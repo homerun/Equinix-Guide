@@ -1,0 +1,1734 @@
+<% if @networkterminationpoint == nil then %>
+	<br/>
+<% else %>
+	<span class="edit_title"><%= @networkterminationpoint.name %></span>
+	<% if @last_update != nil then %>
+		<span class="updated_on"><%= "(last updated on #{@last_update[:time]} by #{@last_update[:user]})" %></span>
+	<% end %>	
+	<div id="tabs_pane" class="tabs_pane">
+		<% if @networkterminationpoint.networktermpttype_id == 1 and @current_user.is_equinix_user? %>
+			<div id="tab_row_2" class="tab_row">
+				<div id="tab_10" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_10">
+					<a href="#" onclick="select_tab_with_row(10,13,'2',2); return false;">
+						Managed Services
+					</a>
+				</div>
+				<div id="tab_3" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_3">
+					<a href="#" onclick="select_tab_with_row(3,13,'2',2); return false;">
+						Network Providers
+					</a>
+				</div>
+				<div id="tab_2" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_2">
+					<a href="#" onclick="select_tab_with_row(2,13,'2',2); return false;">
+						Points of Interest
+					</a>
+				</div>
+				<div id="tab_12" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_12">
+					<a href="#" onclick="select_tab_with_row(12,13,'2',2); return false;">
+						Competitive Market
+					</a>
+				</div>
+				<div id="tab_4" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_4">
+					<a href="#" onclick="select_tab_with_row(4,13,'2',2); return false;">
+						History
+					</a>
+				</div>
+			</div>
+			<div id="tab_row_1" class="tab_row" style="top: 20px;">
+				<div id="tab_1" class="tab_selected_other">&nbsp;</div><div class="selected_inner_tab_other" id="inner_tab_1">
+					<a href="#" onclick="select_tab_with_row(1,13,'1',2); return false;"> 
+						Location
+					</a>
+				</div>
+				<div id="tab_13" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_13">
+					<a href="#" onclick="select_tab_with_row(13,13,'1',2); return false;">
+						Site Info
+					</a>
+				</div>
+				<div id="tab_5" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_5">
+					<a href="#" onclick="select_tab_with_row(5,13,'1',2); return false;">
+						Transportation Access
+					</a>
+				</div>
+				<div id="tab_6" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_6">
+					<a href="#" onclick="select_tab_with_row(6,13,'1',2); return false;">
+						Security
+					</a>
+				</div>
+				<div id="tab_7" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_7">
+					<a href="#" onclick="select_tab_with_row(7,13,'1',2); return false;">
+						Power
+					</a>
+				</div>
+				<div id="tab_8" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_8">
+					<a href="#" onclick="select_tab_with_row(8,13,'1',2); return false;">
+						HVAC
+					</a>
+				</div>
+				<div id="tab_9" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_9">
+					<a href="#" onclick="select_tab_with_row(9,13,'1',2); return false;">
+						Fire
+					</a>
+				</div>
+				<div id="tab_11" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_11">
+					<a href="#" onclick="select_tab_with_row(11,13,'1',2); return false;">
+						Network Services
+					</a>
+				</div>
+			</div>
+		<% else %>
+			<div id="tab_row_1" class="tab_row">
+				<div id="tab_1" class="tab_selected_other">&nbsp;</div><div class="selected_inner_tab_other" id="inner_tab_1">
+					<a href="#" onclick="select_tab_with_row(1,4,'1',1); return false;">
+						Location
+					</a>
+				</div>
+				<div id="tab_3" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_3">
+					<a href="#" onclick="select_tab_with_row(3,4,'1',1); return false;">
+						Network Providers
+					</a>
+				</div>
+				<div id="tab_2" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_2">
+					<a href="#" onclick="select_tab_with_row(2,4,'1',1); return false;">
+						Points of Interest
+					</a>
+				</div>
+				<div id="tab_4" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_4">
+					<a href="#" onclick="select_tab_with_row(4,4,'1',1); return false;">
+						History
+					</a>
+				</div>
+			</div>
+		<% end %>
+		<div id="tab_3_content" class="tab_content" style="display: none;<%= if @networkterminationpoint.networktermpttype_id == 1 and @current_user.is_equinix_user? then 'top: 21px; ' end %>">
+			<% if "#{@networkterminationpoint.id}" == '' then %>
+				You must save changes before you can add Network Providers
+			<% else %>
+				<%= link_to 'Inquire Network Providers about this Network Termination Point', {:controller => :inquiry, :action => 'add_inquiries_for_ntp_2_np'} %>
+				<div id="networkterminationpoint_networkproviders">
+					<%= render :partial => 'networkterminationpoint_networkproviders' %>
+				</div>
+			<% end %>
+		</div>
+		<div id="tab_2_content" class="tab_content" style="display: none;<%= if @networkterminationpoint.networktermpttype_id == 1 and @current_user.is_equinix_user? then 'top: 21px; ' end %>">
+			<% if "#{@networkterminationpoint.id}" == '' then %>
+				You must save changes before you can add Points of Interest
+			<% else %>
+				<div id="networkterminationpoint_pois">
+					<%= render :partial => 'networkterminationpoint_pois' %>
+				</div>
+			<% end %>
+		</div>
+		<% form_for :networkterminationpoint, :html => {:class => "invisibleForm"} do |form| %>
+			<input type="hidden" name="current_tab_row" value="1" />
+			<input type="hidden" name="current_tab" value="1" />
+			<div id="tab_1_content" class="tab_content" style="<%= if @networkterminationpoint.networktermpttype_id == 1 and @current_user.is_equinix_user? then 'top: 21px; ' end %>">
+				<%= hidden_field :networkterminationpoint, :id, :value => "#{@networkterminationpoint.id}" %>
+				<table>
+					<tr>
+						<% if @networkterminationpoint.id != nil and @networkterminationpoint != '' then %>
+							<td class="edit_field_text">Owner: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:networkterminationpoint_networktermptowner_id, 
+												options_for_select(@list_of_ntp_owners,"#{@networkterminationpoint.networktermptowner_id}"),
+												:name => 'networkterminationpoint[networktermptowner_id]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= @networkterminationpoint.owner.name if @networkterminationpoint.owner != nil %>
+								</div>
+							</td>
+						<% else %>
+							<td class="edit_field_text">Owner: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<input readOnly="true" value="<%= @networkterminationpoint.owner.name if @networkterminationpoint.owner != nil %>" />
+								</div>
+								<div name="read_only">
+									<%= @networkterminationpoint.owner.name if @networkterminationpoint.owner != nil %>
+								</div>
+							</td>
+							<%= hidden_field :networkterminationpoint, :networktermptowner_id, :value => "#{@networkterminationpoint.networktermptowner_id}" %>
+						<% end %>
+					</tr>
+					<tr>
+						<% if @networkterminationpoint.id != nil and @networkterminationpoint != '' then %>
+							<td class="edit_field_text">Type: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:networkterminationpoint_networktermpttype_id, 
+												options_for_select(@list_of_networktermpttype_ids,"#{@networkterminationpoint.networktermpttype_id}"),
+												:name => 'networkterminationpoint[networktermpttype_id]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= @networkterminationpoint.type.name if @networkterminationpoint.type != nil %>
+								</div>
+							</td>
+						<% else %>
+							<td class="edit_field_text">Type: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<input readOnly="true" value="<%= @networkterminationpoint.type.name %>" />
+								</div>
+								<div name="read_only">
+									<%= @networkterminationpoint.type.name if @networkterminationpoint.type != nil %>
+								</div>
+							</td>
+							<%= hidden_field :networkterminationpoint, :networktermpttype_id, :value => "#{@networkterminationpoint.networktermpttype_id}" %>
+						<% end %>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Name: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= text_field :networkterminationpoint, :name, {:value => "#{@networkterminationpoint.name}",
+											 		  				:onchange => remote_function(:update => 'modified', 
+											   												 :url => { :action => 'set_modified'})}  %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.name %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Street Address: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= text_field :networkterminationpoint, :street_address, {:value => "#{@networkterminationpoint.street_address}",
+																	 		  :onchange => remote_function(:update => 'modified', 
+																	   								 :url => { :action => 'set_modified'})} %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.street_address %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Floor: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= text_field :networkterminationpoint, :floor, {:value => "#{@networkterminationpoint.floor}",
+																	   :onchange => remote_function(:update => 'modified', 
+																	   						  :url => { :action => 'set_modified'})} %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.floor %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Suite: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= text_field :networkterminationpoint, :suite, {:value => "#{@networkterminationpoint.suite}",
+																	   :onchange => remote_function(:update => 'modified', 
+																	   						  :url => { :action => 'set_modified'})} %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.suite %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">City: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= text_field :networkterminationpoint, :city, {:value => "#{@networkterminationpoint.city}",
+															 		  :onchange => remote_function(:update => 'modified', 
+										   													 :url => { :action => 'set_modified'})} %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.city %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">State (or Province): </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= text_field :networkterminationpoint, :state_or_province, {:value => "#{@networkterminationpoint.state_or_province}",
+																	 		  :onchange => remote_function(:update => 'modified', 
+												   													 :url => { :action => 'set_modified'})} %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.state_or_province %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Zipcode: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= text_field :networkterminationpoint, :zip_code, {:value => "#{@networkterminationpoint.zip_code}",
+															 		     :onchange => remote_function(:update => 'modified', 
+										   													    :url => { :action => 'set_modified'})} %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.zip_code %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<% if @networkterminationpoint.id != nil and @networkterminationpoint != '' then %>
+							<td class="edit_field_text">Country: </td>
+							<% @list_of_countries.delete_if {|x| x[0] == 'All'} %>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:networkterminationpoint_country_id, 
+												options_for_select(@list_of_countries,"#{@networkterminationpoint.country_id}"),
+												:name => 'networkterminationpoint[country_id]',
+												:onchange => remote_function(:update => 'modified', 
+										   							    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= @country %>
+								</div>
+							</td>
+						<% else %>
+							<td class="edit_field_text">Country: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<input readOnly="true" value="<%= @country %>" />
+								</div>
+								<div name="read_only">
+									<%= @country %>
+								</div>
+							</td>
+							<%= hidden_field :networkterminationpoint, :country_id, :value => "#{@networkterminationpoint.country_id}" %>
+						<% end %>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Latitude: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= text_field :networkterminationpoint, :lat, {:value => "#{@networkterminationpoint.lat}",
+															 		  :onchange => remote_function(:update => 'modified', 
+										   													 :url => { :action => 'set_modified'})} %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.lat %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Longitude: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= text_field :networkterminationpoint, :lon, {:value => "#{@networkterminationpoint.lon}",
+															 		  :onchange => remote_function(:update => 'modified', 
+										   													 :url => { :action => 'set_modified'})} %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.lon %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Exact Coordinates?: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= check_box :networkterminationpoint, :coordinates_exact, {:checked => "#{if @networkterminationpoint.coordinates_exact==true then 'checked' else 'false' end}",
+																			  :onchange => remote_function(:update => 'modified', 
+										   															  :url => { :action => 'set_modified'})} %>
+							</div>
+							<div name="read_only">
+								<%= if @networkterminationpoint.coordinates_exact then 'Yes' else 'No' end %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">NPA-NXX: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= text_field :networkterminationpoint, :npa_nxx, {:value => "#{@networkterminationpoint.npa_nxx}",
+																 		  :onchange => remote_function(:update => 'modified', 
+										   														 :url => { :action => 'set_modified'})} %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.npa_nxx %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Future Build: </td>
+						<td>		
+							<div name="editable" style="display: none;">
+								<%= check_box :networkterminationpoint, :is_future_build, {:checked => "#{if @networkterminationpoint.is_future_build==true then 'checked' else 'false' end}",
+																			  :onchange => "if(this.checked) $('future_build_dateEdit').style.display = 'inline'; else $('future_build_dateEdit').style.display = 'none';" +
+																			  	remote_function(:update => 'modified', 
+										   													 :url => { :action => 'set_modified'})} %>
+								<div id="future_build_dateEdit" style="display: <%= if @networkterminationpoint.is_future_build==true then 'inline' else 'none' end %>;">
+									<b>Estimated Completion Date:</b>
+									<%= text_field :networkterminationpoint, :future_build_date, {:value => "#{@networkterminationpoint.future_build_date}",
+																	 		  :onchange => remote_function(:update => 'modified', 
+											   														 :url => { :action => 'set_modified'})} %>
+								</div>
+							</div>
+							<div name="read_only">
+								<%= if @networkterminationpoint.is_future_build == 'Y' then @networkterminationpoint.future_build_date elsif @networkterminationpoint.coordinates_exact == 'N' then 'No' else '' end %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Campus: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= select_tag(:networkterminationpoint_campus_id, 
+											options_for_select(@list_of_campuses.insert(0,['None','']),"#{@networkterminationpoint.campus_id}"),
+											:name => 'networkterminationpoint[campus_id]',
+											:onchange => remote_function(:update => 'modified', 
+									   							    :url => { :action => 'set_modified'})) %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.campus.name if @networkterminationpoint.campus != nil %>
+							</div>
+						</td>
+					</tr>
+				</table>
+				<% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+					<div name="make_editable">
+						<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+					</div>
+				<% end %>
+				<div name="make_read_only" style="display:none;">
+					<input type="submit" value="Save Changes" onClick="this.disabled = true; postAction(this.form,'manage','save_ntp')"/>
+					<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+				</div>
+			</div>
+			<% if @networkterminationpoint.networktermpttype_id == 1 then %>
+				<div id="tab_13_content" class="tab_content" style="top: 21px; display: none;">
+					<%= hidden_field :datacenterdetail, :id, :value => "#{@datacenterdetail.id}" %>
+					<%= hidden_field :datacenterdetail, :networkterminationpoint_id, :value => "#{@networkterminationpoint.id}" %>
+					<table>
+						<tr>
+							<td class="edit_field_text">Gross Floor Capacity: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, get_fieldname_match_units('gross_floor_capacity'), {:value => "#{get_field_match_units(@datacenterdetail,'gross_floor_capacity')}",
+																									:style => "text-align: right;",
+												 		  		 									:onchange => remote_function(:update => 'modified', 
+												   																			:url => { :action => 'set_modified'})} %>
+									<%= get_long_unit_name('area') %>
+								</div>
+								<div name="read_only">
+									<%= get_field_match_units(@datacenterdetail,'gross_floor_capacity') %>
+									<%= get_long_unit_name('area') if get_field_match_units(@datacenterdetail,'gross_floor_capacity') != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Net Floor Capacity: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, get_fieldname_match_units('floor_capacity'), {:value => "#{get_field_match_units(@datacenterdetail,'floor_capacity')}",
+																									:style => "text-align: right;",
+												 		  		 									:onchange => remote_function(:update => 'modified', 
+												   																			:url => { :action => 'set_modified'})} %>
+									<%= get_long_unit_name('area') %>
+								</div>
+								<div name="read_only">
+									<%= get_field_match_units(@datacenterdetail,'floor_capacity') %>
+									<%= get_long_unit_name('area') if get_field_match_units(@datacenterdetail,'floor_capacity') != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">% Occupied: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, :occupancy_rate, {:value => "#{@datacenterdetail.occupancy_rate}",
+																			:size => "2",
+												 		  					:onchange => remote_function(:update => 'modified', 
+												   													:url => { :action => 'set_modified'})} %>
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.occupancy_rate} %" if @datacenterdetail.occupancy_rate != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Quality Type: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_qualitytype_id, 
+													options_for_select(@list_of_quality_types,"#{@datacenterdetail.qualitytype_id}"),
+													:name => 'datacenterdetail[qualitytype_id]',
+													:onchange => remote_function(:update => 'modified', 
+											   							    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.quality_type.quality_type if @datacenterdetail.quality_type != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Age of Facility: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, :age, {:value => "#{@datacenterdetail.age}",
+																	:style => "text-align: right;",
+												 		  			:onchange => remote_function(:update => 'modified', 
+												   											:url => { :action => 'set_modified'})} %>
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.age} year built" if @datacenterdetail.age != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Customer Work Area: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_customer_work_area, 
+													options_for_select(@list_of_yes_no,"#{@datacenterdetail.customer_work_area}"),
+													:name => 'datacenterdetail[customer_work_area]',
+													:onchange => remote_function(:update => 'modified', 
+											   							    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.customer_work_area == 'Y' then 'Yes' elsif @datacenterdetail.customer_work_area == 'N' then 'No' else '' end %>
+								</div>
+							</td>			   						   
+						</tr>
+						<tr>
+							<td class="edit_field_text">Conference Rooms: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_conference_rooms, 
+													options_for_select(@list_of_yes_no,"#{@datacenterdetail.conference_rooms}"),
+													:name => 'datacenterdetail[conference_rooms]',
+													:onchange => remote_function(:update => 'modified', 
+											   							    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.conference_rooms == 'Y' then 'Yes' elsif @datacenterdetail.conference_rooms == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Site Deliveries: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_site_deliveries, 
+													options_for_select(@list_of_yes_no,"#{@datacenterdetail.site_deliveries}"),
+													:name => 'datacenterdetail[site_deliveries]',
+													:onchange => remote_function(:update => 'modified', 
+											   							    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.site_deliveries == 'Y' then 'Yes' elsif @datacenterdetail.site_deliveries == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Staging Rooms: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_staging_rooms, 
+													options_for_select(@list_of_yes_no,"#{@datacenterdetail.staging_rooms}"),
+													:name => 'datacenterdetail[staging_rooms]',
+													:onchange => remote_function(:update => 'modified', 
+											   							    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.staging_rooms == 'Y' then 'Yes' elsif @datacenterdetail.staging_rooms == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">No Cardboard: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_no_cardboard, 
+													options_for_select(@list_of_yes_no,"#{@datacenterdetail.no_cardboard}"),
+													:name => 'datacenterdetail[no_cardboard]',
+													:onchange => remote_function(:update => 'modified', 
+											   							    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.no_cardboard == 'Y' then 'Yes' elsif @datacenterdetail.no_cardboard == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+					</table>
+					<% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+						<div name="make_editable">
+							<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+						</div>
+					<% end %>
+					<div name="make_read_only" style="display:none;">
+						<input type="submit" value="Save Changes" onClick="this.disabled = true; postAction(this.form,'manage','save_ntp')"/>
+						<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+					</div>
+				</div>
+				<div id="tab_5_content" class="tab_content" style="top: 21px; display: none;">
+					<table>
+						<tr>
+							<td class="edit_field_text">Distance to Bus: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, get_fieldname_match_units('distance_to_bus'), {:value => "#{get_field_match_units(@datacenterdetail,'distance_to_bus')}",
+																									:style => "text-align: right;",
+												 		  		 									:onchange => remote_function(:update => 'modified', 
+												   																			:url => { :action => 'set_modified'})} %>
+									<%= get_long_unit_name('distance') %>
+								</div>
+								<div name="read_only">
+									<%= get_field_match_units(@datacenterdetail,'distance_to_bus') %>
+									<%= get_long_unit_name('distance') if get_field_match_units(@datacenterdetail,'distance_to_bus') != nil%>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Distance to Train: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, get_fieldname_match_units('distance_to_train'), {:value => "#{get_field_match_units(@datacenterdetail,'distance_to_train')}",
+																									:style => "text-align: right;",
+																		 		  					:onchange => remote_function(:update => 'modified', 
+																		   													:url => { :action => 'set_modified'})} %>
+									<%= get_long_unit_name('distance') %>
+								</div>
+								<div name="read_only">
+									<%= get_field_match_units(@datacenterdetail,'distance_to_train') %>
+									<%= get_long_unit_name('distance') if get_field_match_units(@datacenterdetail,'distance_to_train') != nil%>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Parking Spots: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, :parking_spots, {:value => "#{@datacenterdetail.parking_spots}",
+																			:style => "text-align: right;",
+														 		  			:onchange => remote_function(:update => 'modified', 
+														   											:url => { :action => 'set_modified'})} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.parking_spots %>
+								</div>
+							</td>
+						</tr>
+					</table>
+					<% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+						<div name="make_editable">
+							<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+						</div>
+					<% end %>
+					<div name="make_read_only" style="display:none;">
+						<input type="submit" value="Save Changes" onClick="this.disabled = true; postAction(this.form,'manage','save_ntp')"/>
+						<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+					</div>
+				</div>
+				<div id="tab_6_content" class="tab_content" style="top: 21px; display: none;">
+					<table>
+						<tr>
+							<td class="edit_field_text">24x365 Security Personel: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_full_time_security_personnel, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.full_time_security_personnel}"),
+												:name => 'datacenterdetail[full_time_security_personnel]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.full_time_security_personnel == 'Y' then 'Yes' elsif @datacenterdetail.full_time_security_personnel == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">After Hours Access: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_after_hours_access, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.after_hours_access}"),
+												:name => 'datacenterdetail[after_hours_access]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.after_hours_access == 'Y' then 'Yes' elsif @datacenterdetail.after_hours_access == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">CCTV Inside: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_cctv_inside, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.cctv_inside}"),
+												:name => 'datacenterdetail[cctv_inside]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.cctv_inside == 'Y' then 'Yes' elsif @datacenterdetail.cctv_inside == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">CCTV Outside: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_cctv_outside, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.cctv_outside}"),
+												:name => 'datacenterdetail[cctv_outside]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.cctv_outside == 'Y' then 'Yes' elsif @datacenterdetail.cctv_outside == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">CCTV Tape Storage: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_cctv_tape_storage, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.cctv_tape_storage}"),
+												:name => 'datacenterdetail[cctv_tape_storage]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.cctv_tape_storage == 'Y' then 'Yes' elsif @datacenterdetail.cctv_tape_storage == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">BioMetrics: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_bio_metrics, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.bio_metrics}"),
+												:name => 'datacenterdetail[bio_metrics]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.bio_metrics == 'Y' then 'Yes' elsif @datacenterdetail.bio_metrics == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Man Trap: </td>
+							<td>	
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_man_trap, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.man_trap}"),
+												:name => 'datacenterdetail[man_trap]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.man_trap == 'Y' then 'Yes' elsif @datacenterdetail.man_trap == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Cust Sign In: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_cust_sign_in, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.cust_sign_in}"),
+												:name => 'datacenterdetail[cust_sign_in]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.cust_sign_in == 'Y' then 'Yes' elsif @datacenterdetail.cust_sign_in == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Cust Proximity Card: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_cust_proximity_card, 
+												options_for_select(@list_of_yes_no.compact.insert(1,['Provided @ sign in','P']),"#{@datacenterdetail.cust_proximity_card}"),
+												:name => 'datacenterdetail[cust_proximity_card]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.cust_proximity_card == 'Y' then 'Yes' elsif @datacenterdetail.cust_proximity_card == 'P' then 'Provided @ sign in' elsif @datacenterdetail.cust_proximity_card == 'N' then 'No' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Cust Pin Number: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_cust_pin_num, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.cust_pin_num}"),
+												:name => 'datacenterdetail[cust_pin_num]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.cust_pin_num == 'Y' then 'Yes' elsif @datacenterdetail.cust_pin_num == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Rack Key Access: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_rack_key_access, 
+												options_for_select([[' ',''],['Onsite',false],['Offsite','F']],"#{@datacenterdetail.rack_key_access}"),
+												:name => 'datacenterdetail[rack_key_access]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.rack_key_access == 'F' then 'Offsite' elsif @datacenterdetail.rack_key_access == 'N' then 'Onsite' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Cust Access Telco Room: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_cust_access_telco_rm, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.cust_access_telco_rm}"),
+												:name => 'datacenterdetail[cust_access_telco_rm]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.cust_access_telco_rm == 'Y' then 'Yes' elsif @datacenterdetail.cust_access_telco_rm == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Integrated BMS: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_security_integrated_bms, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.security_integrated_bms}"),
+												:name => 'datacenterdetail[security_integrated_bms]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.security_integrated_bms == 'Y' then 'Yes' elsif @datacenterdetail.security_integrated_bms == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+					</table>
+					<% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+						<div name="make_editable">
+							<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+						</div>
+					<% end %>
+					<div name="make_read_only" style="display:none;">
+						<input type="submit" value="Save Changes" onClick="this.disabled = true; postAction(this.form,'manage','save_ntp')"/>
+						<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+					</div>
+				</div>
+				<div id="tab_7_content" class="tab_content" style="top: 21px; display: none;">
+					<table>
+						<tr>
+							<td class="edit_field_text">Power Density: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, get_fieldname_match_units('power_density'), {:value => "#{get_field_match_units(@datacenterdetail,'power_density')}",
+																							:style => "text-align: right;",
+																 		  		 			:onchange => remote_function(:update => 'modified', 
+																   													:url => { :action => 'set_modified'})} %>
+								 	w/<%= get_short_unit_name('area') %>
+								</div>
+								<div name="read_only">
+									<%= get_field_match_units(@datacenterdetail,'power_density') %>
+									<%= "w/#{get_short_unit_name('area')}" if get_field_match_units(@datacenterdetail,'power_density') != nil%>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text"># of Power Grids: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, :power_grids, {:value => "#{@datacenterdetail.power_grids}",
+																		:style => "text-align: right;",
+											 		  					:onchange => remote_function(:update => 'modified', 
+											   													:url => { :action => 'set_modified'})} %>
+									power grids
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.power_grids} power grids" if @datacenterdetail.power_grids != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Mains Power Supply: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, :mains_power_supply, {:value => "#{@datacenterdetail.mains_power_supply}",
+																		:style => "text-align: right;",
+											 		  					:onchange => remote_function(:update => 'modified', 
+											   													:url => { :action => 'set_modified'})} %>
+									Mw
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.mains_power_supply} Mw" if @datacenterdetail.mains_power_supply != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">HV Lines: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, :hv_lines, {:value => "#{@datacenterdetail.hv_lines}",
+											 		  					:onchange => remote_function(:update => 'modified', 
+											   													:url => { :action => 'set_modified'})} %>
+									lines
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.hv_lines} lines" if @datacenterdetail.hv_lines != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text"># of Transformers: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, :transformers, {:value => "#{@datacenterdetail.transformers}",
+																		:style => "text-align: right;",
+																		:size => "4",
+											 		  					:onchange => remote_function(:update => 'modified', 
+											   													:url => { :action => 'set_modified'})} %>
+									transformers
+									<%= select_tag(:datacenterdetail_transformers_plus, 
+													options_for_select(@list_of_n_plus,"#{@datacenterdetail.transformers_plus}"),
+													:name => 'datacenterdetail[transformers_plus]',
+													:onchange => remote_function(:update => 'modified', 
+												   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.transformers} transformers" if @datacenterdetail.transformers != nil %>
+									<%= " N+#{@datacenterdetail.transformers_plus}" if @datacenterdetail.transformers_plus != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">UPS System: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_ups_system_type_id, 
+												options_for_select(@list_of_ups_system_types,"#{@datacenterdetail.ups_system_type_id}"),
+												:name => 'datacenterdetail[ups_system_type_id]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.ups_system_type.ups_system_type if @datacenterdetail.ups_system_type != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">UPS Capacity: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, :ups_capacity_multiplier, {:value => "#{@datacenterdetail.ups_capacity_multiplier}",
+																				:style => "text-align: right;",
+																				:size => "2",
+											 		  							:onchange => remote_function(:update => 'modified', 
+											   															:url => { :action => 'set_modified'})} %>
+									x
+									<%= text_field :datacenterdetail, :ups_capacity, {:value => "#{@datacenterdetail.ups_capacity}",
+																			:style => "text-align: right;",
+												 		  					:onchange => remote_function(:update => 'modified', 
+												   													:url => { :action => 'set_modified'})} %>
+									Kva
+									<%= select_tag(:datacenterdetail_ups_capacity_plus, 
+													options_for_select(@list_of_n_plus,"#{@datacenterdetail.ups_capacity_plus}"),
+													:name => 'datacenterdetail[ups_capacity_plus]',
+													:onchange => remote_function(:update => 'modified', 
+												   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.ups_capacity_multiplier} x" if @datacenterdetail.ups_capacity_multiplier != nil %>
+									<%= "#{@datacenterdetail.ups_capacity} Kva" if @datacenterdetail.ups_capacity != nil %>
+									<%= " N+#{@datacenterdetail.ups_capacity_plus}" if @datacenterdetail.ups_capacity_plus != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">UPS Time (Full Load): </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, :ups_time_full_load, {:value => "#{@datacenterdetail.ups_time_full_load}",
+																		:style => "text-align: right;",
+											 		  					:onchange => remote_function(:update => 'modified', 
+											   													:url => { :action => 'set_modified'})} %>
+									minutes
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.ups_time_full_load} minutes" if @datacenterdetail.ups_time_full_load != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Generator: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, :generator_brand, {:value => "#{@datacenterdetail.generator_brand}",
+											 		  					:onchange => remote_function(:update => 'modified', 
+											   													:url => { :action => 'set_modified'})} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.generator_brand %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Generator Capacity: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, :generator_capacity_multiplier, {:value => "#{@datacenterdetail.generator_capacity_multiplier}",
+																			:style => "text-align: right;",
+																			:size => "2",
+												 		  					:onchange => remote_function(:update => 'modified', 
+												   													:url => { :action => 'set_modified'})} %>
+									x
+									<%= text_field :datacenterdetail, :generator_capacity, {:value => "#{@datacenterdetail.generator_capacity}",
+																			:style => "text-align: right;",
+																			:size => "10",
+												 		  					:onchange => remote_function(:update => 'modified', 
+												   													:url => { :action => 'set_modified'})} %>
+									Mw
+									(<%= text_field :datacenterdetail, :primary_generators, {:value => "#{@datacenterdetail.primary_generators}",
+																			:style => "text-align: right;",
+																			:size => "2",
+												 		  					:onchange => remote_function(:update => 'modified', 
+												   													:url => { :action => 'set_modified'})} %>
+									+
+									<%= text_field :datacenterdetail, :backup_generators, {:value => "#{@datacenterdetail.backup_generators}",
+																			:style => "text-align: right;",
+																			:size => "2",
+												 		  					:onchange => remote_function(:update => 'modified', 
+												   													:url => { :action => 'set_modified'})} %>)
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.generator_capacity_multiplier} x " if @datacenterdetail.generator_capacity_multiplier != nil %>
+									<%= "#{@datacenterdetail.generator_capacity} Mw " if @datacenterdetail.generator_capacity != nil %>
+									<%= "(#{@datacenterdetail.primary_generators} + #{@datacenterdetail.backup_generators})" if @datacenterdetail.primary_generators != nil or @datacenterdetail.backup_generators != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Diesel Storage: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, get_fieldname_match_units('diesel_storage'), {:value => "#{get_field_match_units(@datacenterdetail,'diesel_storage')}",
+																		:style => "text-align: right;",
+											 		  					:onchange => remote_function(:update => 'modified', 
+											   													:url => { :action => 'set_modified'})} %>
+									<%= get_long_unit_name('volume') %>
+								</div>
+								<div name="read_only">
+									<%= get_field_match_units(@datacenterdetail,'diesel_storage') %>
+									<%= "#{get_long_unit_name('volume')}" if get_field_match_units(@datacenterdetail,'diesel_storage') != nil%>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Diesel Time (Full Load): </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, :diesel_fuel_time, {:value => "#{@datacenterdetail.diesel_fuel_time}",
+																		:style => "text-align: right;",
+											 		  					:onchange => remote_function(:update => 'modified', 
+											   													:url => { :action => 'set_modified'})} %>
+									hours
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.diesel_fuel_time} hours" if @datacenterdetail.diesel_fuel_time != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Fuel Supplier Contracts: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_fuel_supplier_contracts, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.fuel_supplier_contracts}"),
+												:name => 'datacenterdetail[fuel_supplier_contracts]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.fuel_supplier_contracts == 'Y' then 'Yes' elsif @datacenterdetail.fuel_supplier_contracts == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Integrated BMS: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_power_integrated_bms, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.power_integrated_bms}"),
+												:name => 'datacenterdetail[power_integrated_bms]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.power_integrated_bms == 'Y' then 'Yes' elsif @datacenterdetail.power_integrated_bms == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+					</table>
+					<% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+						<div name="make_editable">
+							<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+						</div>
+					<% end %>
+					<div name="make_read_only" style="display:none;">
+						<input type="submit" value="Save Changes" onClick="this.disabled = true; postAction(this.form,'manage','save_ntp')"/>
+						<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+					</div>
+				</div>
+				<div id="tab_8_content" class="tab_content" style="top: 21px; display: none;">
+					<table>
+						<tr>
+							<td class="edit_field_text">Temperature Control: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, get_fieldname_match_units('temp_control'), {:value => "#{get_field_match_units(@datacenterdetail,'temp_control')}",
+																							:style => "text-align: right;",
+																							:size => "2",
+																 		  		 			:onchange => remote_function(:update => 'modified', 
+																   													:url => { :action => 'set_modified'})} %>
+									 <%= get_short_unit_name('temperature') %>
+									 (&plusmn;
+									 <%= text_field :datacenterdetail, get_fieldname_match_units('temp_control_plus_minus'), {:value => "#{get_field_match_units(@datacenterdetail,'temp_control_plus_minus')}",
+																											:style => "text-align: right;",
+															 												:size => "2",
+																		 		  		 					:onchange => remote_function(:update => 'modified', 
+																		   															:url => { :action => 'set_modified'})} %>
+									<%= get_short_unit_name('temperature') %>)
+								</div>
+								<div name="read_only">
+									<%= "#{get_field_match_units(@datacenterdetail,'temp_control')} #{get_short_unit_name('temperature')}" if get_field_match_units(@datacenterdetail,'temp_control') != nil %>
+									<%= "(&plusmn;#{get_field_match_units(@datacenterdetail,'temp_control_plus_minus')}#{get_short_unit_name('temperature')})" if get_field_match_units(@datacenterdetail,'temp_control_plus_minus') != nil and get_field_match_units(@datacenterdetail,'temp_control') != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Humidity Control: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, :humidity_control, {:value => "#{@datacenterdetail.humidity_control}",
+																		:style => "text-align: right;",
+																		:size => "2",
+											 		  		 			:onchange => remote_function(:update => 'modified', 
+											   													:url => { :action => 'set_modified'})} %>
+									%
+									(&plusmn;
+									<%= text_field :datacenterdetail, :humidity_control_plus_minus, {:value => "#{@datacenterdetail.humidity_control_plus_minus}",
+																					:style => "text-align: right;",
+																					:size => "2",
+														 		  		 			:onchange => remote_function(:update => 'modified', 
+														   													:url => { :action => 'set_modified'})} %>
+									%)
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.humidity_control}% " if @datacenterdetail.humidity_control != nil %>
+									<%= "(&plusmn;#{@datacenterdetail.humidity_control_plus_minus}%)" if @datacenterdetail.humidity_control_plus_minus != nil and @datacenterdetail.humidity_control != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Raised Floor: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, :raised_floor, {:value => "#{@datacenterdetail.raised_floor}",
+																		:style => "text-align: right;",
+											 		  		 			:onchange => remote_function(:update => 'modified', 
+											   													:url => { :action => 'set_modified'})} %>
+									mm
+									<%= select_tag(:datacenterdetail_anti_static_tiles,
+													options_for_select([[' ',''],['anti-static tiles',true]],"#{@datacenterdetail.anti_static_tiles}"),
+													:name => 'datacenterdetail[anti_static_tiles]',
+													:onchange => remote_function(:update => 'modified', 
+												   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.raised_floor}mm " if @datacenterdetail.raised_floor != nil %>
+									<%= 'anti-static tiles' if @datacenterdetail.anti_static_tiles == 'Y' %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">CRAC Units: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, :crac_units, {:value => "#{@datacenterdetail.crac_units}",
+																		:style => "text-align: right;",
+											 		  		 			:onchange => remote_function(:update => 'modified', 
+											   													:url => { :action => 'set_modified'})} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.crac_units %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">CRAC Type: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, :crac_type, {:value => "#{@datacenterdetail.crac_type}",
+											 		  		 			:onchange => remote_function(:update => 'modified', 
+											   													:url => { :action => 'set_modified'})} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.crac_type %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Integrated BMS: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_hvac_integrated_bms, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.hvac_integrated_bms}"),
+												:name => 'datacenterdetail[hvac_integrated_bms]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.hvac_integrated_bms == 'Y' then 'Yes' elsif @datacenterdetail.hvac_integrated_bms == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Water Chillers: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_water_chillers, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.water_chillers}"),
+												:name => 'datacenterdetail[water_chillers]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.water_chillers == 'Y' then 'Yes' elsif @datacenterdetail.water_chillers == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Water Storage Tank: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_water_storage_tank, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.water_storage_tank}"),
+												:name => 'datacenterdetail[water_storage_tank]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.water_storage_tank == 'Y' then 'Yes' elsif @datacenterdetail.water_storage_tank == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Water Storage Capacity: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, get_fieldname_match_units('water_capacity'), {:value => "#{get_field_match_units(@datacenterdetail,'water_capacity')}",
+																		:style => "text-align: right;",
+											 		  		 			:onchange => remote_function(:update => 'modified', 
+											   													:url => { :action => 'set_modified'})} %>
+									<%= get_long_unit_name('volume') %>
+								</div>
+								<div name="read_only">
+									<%= get_field_match_units(@datacenterdetail,'water_capacity') %>
+									<%= "w/#{get_long_unit_name('volume')}" if get_field_match_units(@datacenterdetail,'water_capacity') != nil%>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Cooling Towers: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_cooling_towers, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.cooling_towers}"),
+												:name => 'datacenterdetail[cooling_towers]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+									<%= select_tag(:datacenterdetail_cooling_towers_plus, 
+													options_for_select(@list_of_n_plus,"#{@datacenterdetail.cooling_towers_plus}"),
+													:name => 'datacenterdetail[cooling_towers_plus]',
+													:onchange => remote_function(:update => 'modified', 
+												   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.cooling_towers == 'Y' then 'Yes' elsif @datacenterdetail.cooling_towers == 'N' then 'No' else '' end %>
+									<%= " N+#{@datacenterdetail.cooling_towers_plus}" if @datacenterdetail.cooling_towers_plus != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Hot/Cold Aisle: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_hot_cold_aisle, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.hot_cold_aisle}"),
+												:name => 'datacenterdetail[hot_cold_aisle]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.hot_cold_aisle == 'Y' then 'Yes' elsif @datacenterdetail.hot_cold_aisle == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+					</table>
+					<% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+						<div name="make_editable">
+							<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+						</div>
+					<% end %>
+					<div name="make_read_only" style="display:none;">
+						<input type="submit" value="Save Changes" onClick="this.disabled = true; postAction(this.form,'manage','save_ntp')"/>
+						<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+					</div>
+				</div>
+				<div id="tab_9_content" class="tab_content" style="top: 21px; display: none;">
+					<table>
+						<tr>
+							<td class="edit_field_text">Fire Suppression: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, :fire_suppression, {:value => "#{@datacenterdetail.fire_suppression}",
+											 		  		 			:onchange => remote_function(:update => 'modified', 
+											   													:url => { :action => 'set_modified'})} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.fire_suppression %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Detection: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, :fire_detection, {:value => "#{@datacenterdetail.fire_detection}",
+											 		  		 			:onchange => remote_function(:update => 'modified', 
+											   													:url => { :action => 'set_modified'})} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.fire_detection %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Sprinkler Type: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_sprinklertype_id, 
+												options_for_select(@list_of_sprinkler_types,"#{@datacenterdetail.sprinklertype_id}"),
+												:name => 'datacenterdetail[sprinklertype_id]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.sprinkler_type.sprinkler_type if @datacenterdetail.sprinkler_type != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Fire Extinguishers: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_fire_extinguishers, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.fire_extinguishers}"),
+												:name => 'datacenterdetail[fire_extinguishers]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.fire_extinguishers == 'Y' then 'Yes' elsif @datacenterdetail.fire_extinguishers == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Integrated BMS: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_fire_integrated_bms, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.fire_integrated_bms}"),
+												:name => 'datacenterdetail[fire_integrated_bms]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.fire_integrated_bms == 'Y' then 'Yes' elsif @datacenterdetail.fire_integrated_bms == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Fire Rating: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= text_field :datacenterdetail, :fire_rating, {:value => "#{@datacenterdetail.fire_rating}",
+											 		  		 			:onchange => remote_function(:update => 'modified', 
+											   													:url => { :action => 'set_modified'})} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.fire_rating %>
+								</div>
+							</td>
+						</tr>
+					</table>
+					<% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+						<div name="make_editable">
+							<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+						</div>
+					<% end %>
+					<div name="make_read_only" style="display:none;">
+						<input type="submit" value="Save Changes" onClick="this.disabled = true; postAction(this.form,'manage','save_ntp')"/>
+						<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+					</div>
+				</div>
+				<div id="tab_10_content" class="tab_content" style="top: 21px; display: none;">
+					<table>
+						<tr>
+							<td class="edit_field_text">Smart Hands: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_smart_hands, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.smart_hands}"),
+												:name => 'datacenterdetail[smart_hands]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.smart_hands == 'Y' then 'Yes' elsif @datacenterdetail.smart_hands == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Tape Backup: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_tape_backup, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.tape_backup}"),
+												:name => 'datacenterdetail[tape_backup]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.tape_backup == 'Y' then 'Yes' elsif @datacenterdetail.tape_backup == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+					</table>
+					<% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+						<div name="make_editable">
+							<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+						</div>
+					<% end %>
+					<div name="make_read_only" style="display:none;">
+						<input type="submit" value="Save Changes" onClick="this.disabled = true; postAction(this.form,'manage','save_ntp')"/>
+						<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+					</div>
+				</div>
+				<div id="tab_11_content" class="tab_content" style="top: 21px; display: none;">
+					<table>
+						<tr>
+							<td class="edit_field_text">Carrier Neutral: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_carrier_neutral, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.carrier_neutral}"),
+												:name => 'datacenterdetail[carrier_neutral]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.carrier_neutral == 'Y' then 'Yes' elsif @datacenterdetail.carrier_neutral == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Diverse Fibre entry: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_diverse_fibre_entry, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.diverse_fibre_entry}"),
+												:name => 'datacenterdetail[diverse_fibre_entry]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+									x
+									<%= text_field :datacenterdetail, :diverse_fibre_entry_multiplier, {:value => "#{@datacenterdetail.diverse_fibre_entry_multiplier}",
+																			:style => "text-align: right;",
+																			:size => "2",
+												 		  		 			:onchange => remote_function(:update => 'modified', 
+												   													:url => { :action => 'set_modified'})} %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.diverse_fibre_entry == 'Y' then 'Yes' elsif @datacenterdetail.diverse_fibre_entry == 'N' then 'No' else '' end %>
+									<%= " x #{@datacenterdetail.diverse_fibre_entry_multiplier}" if @datacenterdetail.diverse_fibre_entry_multiplier != nil %>
+								</div>			   						    
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Secure Telco Room: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_secure_telco_room, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.secure_telco_room}"),
+												:name => 'datacenterdetail[secure_telco_room]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+									x
+									<%= text_field :datacenterdetail, :secure_telco_room_multiplier, {:value => "#{@datacenterdetail.secure_telco_room_multiplier}",
+																			:style => "text-align: right;",
+																			:size => "2",
+												 		  		 			:onchange => remote_function(:update => 'modified', 
+												   													:url => { :action => 'set_modified'})} %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.secure_telco_room == 'Y' then 'Yes' elsif @datacenterdetail.secure_telco_room == 'N' then 'No' else '' end %>
+									<%= " x #{@datacenterdetail.secure_telco_room_multiplier}" if @datacenterdetail.secure_telco_room_multiplier != nil %>
+								</div>	
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">MLPA Platform: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_mlpa_platform, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.mlpa_platform}"),
+												:name => 'datacenterdetail[mlpa_platform]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.mlpa_platform == 'Y' then 'Yes' elsif @datacenterdetail.mlpa_platform == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Coax X-Connect: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_coax_x_connect, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.coax_x_connect}"),
+												:name => 'datacenterdetail[coax_x_connect]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.coax_x_connect == 'Y' then 'Yes' elsif @datacenterdetail.coax_x_connect == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">UTP X-Connect: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_utp_x_connect, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.utp_x_connect}"),
+												:name => 'datacenterdetail[utp_x_connect]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.utp_x_connect == 'Y' then 'Yes' elsif @datacenterdetail.utp_x_connect == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Fibre X-Connect: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_fibre_x_connect, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.fibre_x_connect}"),
+												:name => 'datacenterdetail[fibre_x_connect]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.fibre_x_connect == 'Y' then 'Yes' elsif @datacenterdetail.fibre_x_connect == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Data/Power Segmentation: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_data_power_segmentation, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.data_power_segmentation}"),
+												:name => 'datacenterdetail[data_power_segmentation]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.data_power_segmentation == 'Y' then 'Yes' elsif @datacenterdetail.data_power_segmentation == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">24/365 NOC: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_full_time_noc, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.full_time_noc}"),
+												:name => 'datacenterdetail[full_time_noc]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.full_time_noc == 'Y' then 'Yes' elsif @datacenterdetail.full_time_noc == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">24/365 locally staffed: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_full_time_locally_staffed, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.full_time_locally_staffed}"),
+												:name => 'datacenterdetail[full_time_locally_staffed]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.full_time_locally_staffed == 'Y' then 'Yes' elsif @datacenterdetail.full_time_locally_staffed == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Roof space available: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_roof_space_available, 
+												options_for_select(@list_of_yes_no,"#{@datacenterdetail.roof_space_available}"),
+												:name => 'datacenterdetail[roof_space_available]',
+												:onchange => remote_function(:update => 'modified', 
+											   						    :url => { :action => 'set_modified'})) %>
+								</div>
+								<div name="read_only">
+									<%= if @datacenterdetail.roof_space_available == 'Y' then 'Yes' elsif @datacenterdetail.roof_space_available == 'N' then 'No' else '' end %>
+								</div>
+							</td>
+						</tr>
+					</table>
+					<% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+						<div name="make_editable">
+							<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+						</div>
+					<% end %>
+					<div name="make_read_only" style="display:none;">
+						<input type="submit" value="Save Changes" onClick="this.disabled = true; postAction(this.form,'manage','save_ntp')"/>
+						<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+					</div>
+				</div>
+				<div id="tab_12_content" class="tab_content" style="top: 21px; display: none; width: 800px;">
+					<script type="text/javascript">
+						var market_selection = "<%= @datacenterdetail.market_id %>"
+						function select_market() {
+							var market = $("datacenterdetail_market_id").value;
+							$("market_"+market_selection).style.display = "none";
+							$("market_"+market).style.display = "block";
+							market_selection = market;
+						}
+					</script>
+					<table>
+						<tr>
+							<td class="edit_field_text" style="width: 350px;">Competitive Market for <%= @networkterminationpoint.name %>:</td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= select_tag(:datacenterdetail_market_id, 
+												options_for_select(@list_of_markets,"#{@datacenterdetail.market_id}"),
+												:name => 'datacenterdetail[market_id]',
+												:onchange => "select_market()") %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.market.market_name if @datacenterdetail.market != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2">
+								<% @market_competitors.each do |marketItem| %>
+									<% if "#{marketItem[:market_id]}" == "#{@datacenterdetail.market_id}" then %>
+										<div id="market_<%= marketItem[:market_id] %>" style="display: block;">
+									<% else %>
+										<div id="market_<%= marketItem[:market_id] %>" style="display: none;">
+									<% end %>
+										<% even = false %>
+										<% if marketItem[:competitors] != nil then %>
+											<table class="border_only"><tr><td>
+											<table class="list_columns">
+												<thead >
+													<tr>
+														<th>
+															<div style="width: 350px;">
+																Data Centers in <%= marketItem[:market_name] %>
+															</div>
+														</th>
+														<th>
+															<div style="width: 400px;">
+																<center><b>Distance from <%= @networkterminationpoint.name %></b></center>
+															</div>
+														</th>
+													</tr>
+												</thead>
+												<tbody >
+													<% (marketItem[:competitors].sort {|x,y| x.networkterminationpoint.name <=> y.networkterminationpoint.name}).each do |datacenter| %>
+														<tr class="<%= if !even then 'odd_small' else 'even_small' end %>">
+															<td>
+																<%= link_to datacenter.networkterminationpoint.name, { :controller => 'networkterminationpoints', :action => 'edit', :id => "#{datacenter.networkterminationpoint_id}"}, :onclick => "return confirmed();" %>
+															</td>
+															<td>
+																<center><%= get_miles_distance(@networkterminationpoint,datacenter.networkterminationpoint) %></center>
+															</td>
+														</tr>
+														<% even = ! even %>
+													<% end %>
+												</tbody>
+											</table>
+											</td></tr></table>
+										<% else %>
+											No competitors in this market.<br/>
+										<% end %>
+									</div>
+								<% end %>
+							</td>
+						</tr>
+					</table>
+					<% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+						<div name="make_editable">
+							<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+						</div>
+					<% end %>
+					<div name="make_read_only" style="display:none;">
+						<input type="submit" value="Save Changes" onClick="this.disabled = true; postAction(this.form,'manage','save_ntp')"/>
+						<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+					</div>
+				</div>
+				<div id="tab_4_content" class="tab_content" style="<%= if @networkterminationpoint.networktermpttype_id == 1 and @current_user.is_equinix_user? then 'top: 21px; ' end %> display: none; width: 800;">
+					<% if "#{@networkterminationpoint.id}" == '' then %>
+						You must save before you can view history items.
+					<% else %>
+						<div id="history_pane">
+							<%= render :partial => '/shared/history_pane' %>
+						</div>
+					<% end %>
+				</div>
+				<% if @selected_tab != nil and @selected_tab_row != nil then %>
+					<input type="hidden" value="<%= "select_tab_with_row(#{@selected_tab.to_i},13,'#{@selected_tab_row}',2)" %>" id="do_select_tab" />
+				<% end %>
+			<% end %>
+		<% end %>
+	</div>
+<% end %>

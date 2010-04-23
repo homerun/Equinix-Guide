@@ -1,0 +1,76 @@
+<tbody>
+	<tr class="<%= if !is_even then 'odd_small' else 'even_small' end %>" style="border: 0px;">
+		<td colspan="2" style="height: 0%;" style="border: 0px;">	
+			<% form_remote_tag :url => {:action => 'add_poi2ntp_prospect'}, :update => "view_poi2ntp_prospect_#{ sales_prospect.id }_div" do %>
+				<%= hidden_field :poi, :id, :value => "#{current_poi.id}" %>
+				<%= hidden_field :poi2ntp, :id, :value => "#{sales_prospect.id}" %>
+				<div id="edit_poi2ntp_prospect_<%= sales_prospect.id %>_div" class="connectionTypeDescr" style="width: 800px; display: none;">
+					<p>
+						<span class="bold_label">Point of Interest</span>
+						<br/>
+						<%= select_tag(:poi2ntp_pointsofinterest_id, options_for_select(current_poi.associated_pois_list, "#{sales_prospect.pointsofinterest_id}"), {:name => 'poi2ntp[pointsofinterest_id]'}) %>
+					</p>
+					<p>
+						<span class="bold_label">Network Termination Point</span>
+						<br/>
+						<%- if sales_prospect.networkterminationpoint.owner.name == 'Equinix' then -%>
+							<%= select_tag("poi2ntp_networkterminationpoint_id", options_for_select(@list_of_equinix_ntps, sales_prospect.networkterminationpoint_id), {:name => 'poi2ntp[networkterminationpoint_id]'}) %>
+						<%- else -%>
+							<%= hidden_field :poi2ntp, :networkterminationpoint_id, :value => sales_prospect.networkterminationpoint.id %>
+							<%= text_field :poi2ntp, :networkterminationpoint_id, :value => sales_prospect.networkterminationpoint.name, :readonly => 'readonly', :disabled => 'disabled' %>
+						<%- end -%>
+					</p>
+					<p>
+						<span class="bold_label">Connection Type</span>
+						<br/>
+						<%= select_tag("poi2ntp_poiconnectiontype_id", options_for_select(@poi_connection_types, sales_prospect.poiconnectiontype_id), {:name => 'poi2ntp[poiconnectiontype_id]'}) %>
+					</p>
+					<p>
+						<span class="bold_label">Status</span>
+						<br/>
+						<%= select_tag("poi2ntp_prospectstatustype_id", options_for_select(@list_of_prospect_status_types, sales_prospect.prospectstatustype_id), {:name => 'poi2ntp[prospectstatustype_id]'}) %>
+					</p>
+					<p>
+						<span class="bold_label">Public</span>
+						<br/>
+						<%= check_box :poi2ntp, :public, {:checked => "#{if sales_prospect.public then 'checked' else 'false' end}"} %>
+						Yes (If private, only equinix users can see this connection)
+					</p>
+					<input type="button" onclick="$('edit_poi2ntp_prospect_<%= sales_prospect.id %>_link').style.display = 'inline'; $('edit_poi2ntp_prospect_<%= sales_prospect.id %>_div').style.display = 'none'; document.getElementsByName('edit_poi2ntp_prospect_<%=sales_prospect.id%>')[0].onclick(); return false;" value="Save" />
+					or <a onclick="$('edit_poi2ntp_prospect_<%= sales_prospect.id %>_link').style.display = 'inline'; $('edit_poi2ntp_prospect_<%= sales_prospect.id %>_div').style.display = 'none'; return false;">Cancel</a>
+					<div style="display: none;">
+						<%= submit_to_remote "edit_poi2ntp_prospect_#{sales_prospect.id}", 'Edit', :url => { :action => 'add_poi2ntp_prospect'}, :update => "view_poi2ntp_prospect_#{ sales_prospect.id }_div" %>
+					</div>
+				</div>
+			<% end %>
+		</td>	
+	</tr>
+	<tr class="<%= if !is_even then 'odd_small' else 'even_small' end %>" style="border: 0px;">
+		<td style="border: 0px;">
+			<div style="width: 200px;">
+				<div id="view_poi2ntp_prospect_<%= sales_prospect.id %>_div" style="display: inline;">
+					<b><%= sales_prospect.networkterminationpoint.name %></b>
+					<br/>
+					<%= sales_prospect.connectiontype.description %>
+					<br/>
+					<b>Prospect Status:</b> <i><%= sales_prospect.status.status_description if sales_prospect.status != nil %></i>
+					<br/>
+					<div name="editable" style="display: none;">
+						<div id="edit_poi2ntp_prospect_<%= sales_prospect.id %>_link" style="display: inline;">
+							<a href="#" onclick="$('edit_poi2ntp_prospect_<%= sales_prospect.id %>_link').style.display = 'none'; $('edit_poi2ntp_prospect_<%= sales_prospect.id %>_div').style.display = 'block'; return false;">Edit</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</td>
+		<td style="border: 0px;">
+			<div style="width: 600px;">
+				<% if sales_prospect.notes != nil then %>
+					<div id="poi2ntp_prospect_<%= sales_prospect.id %>_notes">
+						<%= render :partial => 'poi2ntp_prospect_notes', :locals => {:poi => current_poi, :sales_prospect => sales_prospect} %>
+					</div>
+				<% end %>
+			</div>
+		</td>
+	</tr>
+</tbody>

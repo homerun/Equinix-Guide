@@ -1,0 +1,246 @@
+<div class="title_div">
+    <h1>Campuses</h1>
+</div>
+
+<script type="text/javascript">
+	function toggle_campus_selection() {
+		if ($('select_campus_div').style.display == 'none') {
+			$('select_campus_link').innerHTML = 'Cancel Select Campus';
+			$('select_campus_div').style.display = 'block';
+		}
+		else {
+			$('select_campus_link').innerHTML = 'Select Campus';
+			$('select_campus_div').style.display = 'none';
+		}
+	}
+	function toggle_add_campus(){
+		if ($('add_campus_div').style.display == 'none') {
+			$('add_campus_div').style.display = 'inline';
+			$('add_campus_link').style.display = 'none';
+		}
+		else {
+			$('add_campus_div').style.display = 'none';
+			$('add_campus_link').style.display = 'block';
+		}
+	}
+</script>
+
+<a id="select_campus_link" href="#" onclick="toggle_campus_selection(); return void(false);"><%= if @campus.nil? then "Cancel Select Campus" else "Select Campus" end %></a>
+<div id="select_campus_div" <%= "style=\"display: none;\"" unless @campus.nil? %>>
+	<table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead>
+			<tr>
+				<th>
+					<div style="width: 200px;">
+						<center>Campus Name</center>
+					</div>
+				</th>
+				<th>
+					<div style="width: 200px;">
+						<center>Owner</center>
+					</div>
+				</th>
+				<th>
+					<div style="width: 400px;">
+						<center>Network Termination Points</center>
+					</div>
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<%- Campus.find(:all,:order => 'name').each do |campus| -%>
+					<td>
+						<%= link_to campus.name, {:action => 'edit', :id => campus.id} %>
+					</td>
+					<td>
+						<%= campus.networktermptowner.name %>
+					</td>
+					<td>
+						<%= (campus.networkterminationpoints.collect{|ntp| ntp.name}).join(', ') %>
+					</td>
+				</tr>
+			<%- end -%>
+			<%- if @current_user.can_edit_campus?() then %>
+			<tr>
+				<td colspan="3">
+					<div id="add_campus_link" style="display: inline; margin-right: 40px;">
+						<a href="#" onclick="toggle_add_campus();">Add New</a>
+					</div>
+					<div id="add_campus_div" style="display: none;">
+						<%- form_tag "/campus/add", :html => {:style => "display: inline;"} do -%>
+							<b>Campus Name:</b><input name="campus_name">
+							&nbsp;&nbsp;
+							<b>Campus Owner:</b><select name="campus_owner">
+								<%= options_for_select(Networktermptowner.find(:all,:order => 'name').collect{|o| [o.name,o.id]}) %>
+							</select>
+							<input type="submit" value="Add">
+							or <a onclick="toggle_add_campus();">Cancel</a>
+						<%- end -%>
+					</div>
+				</td>
+			</tr>
+			<%- end -%>
+		</tbody>
+	</table>
+	</tr></td></table>
+</div>
+
+<%- unless @campus.nil? -%>
+
+	<div id="tabs_pane" class="tabs_pane">
+		<ul id="tab_row_1" class="tab_row">
+			<li id="tab_1" class="selected">
+				<span><a href="#" onclick="select_tab(1,2); return false;">Campus</a></span>
+			</li>
+			<li id="tab_2">
+				<span><a href="#" onclick="select_tab(2,2); return false;">History</a></span>
+			</li>
+		</ul>
+		<div id="tab_1_content" class="tab_content">
+			<div id="tab_padding">
+				<% form_for @campus, :url => {:action => 'update', :id => @campus.id}, :html => {:id => "campus_form"} do |f| %>
+					<input type="hidden" name="current_tab" value="1" />
+					<input type="hidden" name="campus[id]" value="<%= @campus.id %>">
+					<table>
+						<tr>
+							<td class="edit_field_text">Name: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= f.text_field :name %> 
+								</div>
+								<div name="read_only">
+									<%= @campus.name %> <%= link_to "Delete", {:action => "destroy", :id => @campus.id}, :confirm => 'Are you sure?', :method => :delete unless @limited_access %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Owner: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<select id="campus_networktermptowner_id" name="campus[networktermptowner_id]">
+										<%- ntp_owner_list = Networktermptowner.find(:all,:order => 'name').collect {|o| [o.name,o.id]} %>
+										<%= options_for_select(ntp_owner_list,@campus.networktermptowner_id) %>
+									</select>
+								</div>
+								<div name="read_only">
+									<%= @campus.networktermptowner.name%>
+								</div>
+							</td>
+						</tr>
+					</table>
+					<div style="display: none;">
+						<input type="submit" id="campus_form_submit">
+					</div>
+					<div id="campus_changes" style="display: none;">
+					</div>
+				<%- end -%>
+				
+				<table>
+					<tr>
+						<td class="edit_field_text">Network Termination Points: </td>
+						<td>
+							<p>
+								<div name="editable" style="display: none;">
+									<div id="add_ntp_link"> 
+										<a href="#" onclick="$('add_ntp_div').style.display = 'block'; $('add_ntp_link').style.display = 'none'; return false;">Add Network Termination Point</a>
+									</div>
+								</div>
+							</p>	
+							<div id="add_ntp_div" class="green_div" style="width: 800px; display: none;">
+								<p class="selection_box_title">Step 1: Select search parameters</p>
+								<form action="/networkterminationpoints" method="get" id="select_ntp_list">
+									<input type="hidden" id="id" name="id" value="<%= @campus.id %>">
+								<div class="yui-g">
+								    <div class="yui-u first">   
+								        <p>
+								            <span class="selection_box_title">Region:</span><br/>
+								            <select id="region_selector" name="search[region_id]">
+								                <%= options_for_select((Equinixregion.find(:all,:order => 'region_name').collect {|reg| [reg.region_name,reg.id]}).insert(0,'All')) %>
+								            </select>
+								        </p>
+								        <p>
+								            <span class="selection_box_title">Country:</span><br/>
+								            <select id="country_selector" name="search[country_id]">
+								            	<%= render :partial => 'select_country' %>
+								            </select>
+								        </p>
+								    </div>
+								    <div class="yui-u"> 
+								        <p>
+								            <span class="selection_box_title">Network Termination Point Type:</span><br/>
+								            <select id="ntp_type_selector" name="search[networktermpttype_id]">
+								                <%= options_for_select((Networktermpttype.find(:all,:order => 'name').collect {|typ| [typ.name,typ.id]}).insert(0,'All')) %>
+								            </select>
+								        </p> 
+								        <p>
+								            <span class="selection_box_title">Network Termination Point Owner:</span><br/>
+								            <select id="ntp_owner_selector" name="search[networktermptowner_id]">
+								                <%= options_for_select(Networktermptowner.find(:all, :order => 'name').collect { |o| [o.name, o.id]}.insert(0,'All')) %>
+								            </select>
+								        </p> 
+								    </div>
+								</div>
+								</form>
+								
+								<%= observe_field "region_selector", 
+										:url => {:action => 'select_region'},
+										:update => "country_selector",
+										:with => "region_id" %>
+										
+								<%= observe_form  :select_ntp_list, 
+												  :update => 'ntp_selector_list',
+												  :url => {:action =>'get_ntps'} %> 
+								<br/>
+								<p class="selection_box_title">Step 2: Select Network Termination Point to add</p>
+								<div id="ntp_selector_list">
+								    <%= render :partial => 'ntp_selector' %>
+								</div>
+							</div>
+							<br/>
+							<div id="ntp_list">
+								<%= render :partial => 'ntp_list' %>
+							</div>
+						</td>
+					</tr>
+				</table>
+				
+				<table>
+					<tr>
+						<td class="edit_field_text">Campus Connections: </td>
+						<td>
+							<div id="campus_connections">
+								<%= render :partial => 'view_campus_connections' %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+					    <td></td>
+					    <td>
+					        <% if @current_user.can_edit_campus?(@campus.id) -%>
+            					<div name="make_editable">
+            						<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+            					</div>
+            				<% end %>
+            				<div name="make_read_only" style="display:none;">
+            					<input type="button" value="Save Changes" onclick="$('campus_form_submit').click();" >
+            					<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+            				</div>
+					    </td>
+					</tr>    
+				</table>
+				
+			</div>
+		</div>
+		<div id="tab_2_content" style="display: none;" class="tab_content">
+			<div id="tab_padding">
+				<% if "#{@campus.id}" == '' then %>
+					You must save before you can view history items.
+				<% else %>
+					<%= render :partial => '/shared/history_pane', :locals => {:table_name => 'Campus', :table_id => @campus.id, :tab_number => 2} %>
+				<% end %>
+			</div>
+		</div>
+	</div>
+
+<%- end -%>

@@ -1,0 +1,27 @@
+<form action="/networkterminationpoints" method="get" id="select_ntp_list">
+    <input type="hidden" id="search_region_id_nav" name="search[region_id]" value="@region_id">
+    <input type="hidden" id="search_country_id_nav" name="search[country_id]" value="@country_id">
+    <input type="hidden" id="search_networktermpttype_id_nav" name="search[networktermpttype_id]" value="@networktermpttype_id">
+    <input type="hidden" id="search_networktermptowner_id_nav" name="search[networktermptowner_id]" value="@networktermptowner_id">
+    <input type="hidden" id="search_networkterminationpoint_id_nav" name="search[networkterminationpoint_id]" value="@networkterminationpoint_id">
+	<%- if @all_list_size > 0 -%>
+		<div style="margin-right: 20px;">
+			<input type="radio" id="view_type_all" name="view_type[all]" value="all" />
+			All (<%= "#{@list_index}/" if @view_type = 'all' %><%= @all_list_size %>)
+		</div>
+		<div style="margin-right: 20px;">
+			<input type="radio" id="view_type_new" name="view_type[new]" value="new" />
+			New (<%= "#{@list_index}/" if @view_type = 'new' %><%= @new_list_size %>)
+		</div>
+		<div style="margin-right: 20px;">
+			<input type="radio" id="view_type_skipped" name="view_type[skipped]" value="skipped" />
+			Skipped (<%= "#{@list_index}/" if @view_type = 'skipped' %><%= @skipped_list_size %>)
+		</div>
+		<div style="margin-right: 20px;">
+			<input type="radio" id="view_type_done" name="view_type[done]" value="done" />
+			Done (<%= "#{@list_index}/" if @view_type = 'done' %><%= @done_list_size %>)
+		</div>
+	<%- else -%>
+		No results!
+	<%- end -%>
+</form>

@@ -1,0 +1,26 @@
+<% if @selector_size == nil then @selector_size = 5 end %>
+
+	<div class="country_select selectionBlock">
+		<% form_remote_tag(:url => {:action => 'select_countries'}, :update => 'ntp_selector') do %>
+			<center><span class="selection_box_title">Countries</span></center>
+			<% if @selected_countries != nil then %>
+				<select class="country_select" id="country_ids[]" multiple="multiple" name="country_ids[]" onchange="document.getElementsByName('country_select_submit')[0].onclick();" size="<%= @selector_size %>">
+					<%= options_for_select(@list_of_countries.insert(0,['All','-1']),@selected_countries) %>
+				</select>			
+			<% else %>
+				<select class="country_select" id="country_ids[]" multiple="multiple" name="country_ids[]" onchange="document.getElementsByName('country_select_submit')[0].onclick();" size="<%= @selector_size %>">
+					<%= options_for_select(@list_of_countries.insert(0,['All','-1']),'-1') %>
+				</select>				
+			<% end %>
+			<div style="display: none;">
+				<%= submit_to_remote 'country_select_submit', 'Select Countries', :url => {:action => 'select_countries'}, :update => 'ntp_selector' %>
+			</div>
+		<% end %>
+	</div>
+		
+<% if @update_child then %>
+	<script type="text/javascript">
+		document.getElementsByName('country_select_submit')[0].onclick();
+	</script>
+<% end %>
+	

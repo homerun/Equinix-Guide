@@ -1,0 +1,108 @@
+<% unless @step3_list.nil? -%>
+	<p class="selection_box_title">Step <%= (@edit_page == 'Networkterminationpoint')?(3):(2) %>: Click Add/Edit to create or modify the latency time for a given connection</p>
+	<% if @step3_list.size == 0 then -%>
+		<p style="margin-left: 20px;">
+			No available connections to add latency times to.
+		</p>
+	<% else -%>
+		<p>
+		<% if @b_ntp.nil? then -%>
+			<%= link_to 'Inquire Network Providers about these connections for latency times', 
+						{:controller => :inquiry, 
+						 :action => 'add_inquiries_for_networkprovider', 
+						 :networkterminationpoint_id => @networkterminationpoint.id,
+						 :networkprovider_id => @networkprovider.id,
+						 :edit_page => @edit_page} %>
+		<% else -%>
+			<%= link_to 'Inquire Network Providers about these connections for latency times', 
+						{:controller => :inquiry, 
+						 :action => 'add_inquiries_for_networkprovider', 
+						 :networkterminationpoint_id => @networkterminationpoint.id,
+						 :b_ntp_id => @b_ntp.id,
+						 :edit_page => @edit_page} %>
+		<% end -%>
+		</p>
+			<table class="border_only" style="margin-left: 20px;"><tr><td>
+			<table class="list_columns">
+				<thead>
+					<tr>
+						<th>
+							<div style="width: 275px">Network Termination Point A</div>
+						</th>
+						<th>
+							<div style="width: 200px">Network Provider</div>
+						</th>
+						<th>
+							<div style="width: 275px">Network Termination Point B</div>
+						</th>
+						<th>
+							<div style="width: 200px">Add/Edit</div>
+						</th>
+						<th>
+							<div style="width: 130px">Certified?</div>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+				<% @step3_list.each do |ntp2ntp| -%>
+					<% html_id = "#{[ntp2ntp[:a_np2ntp].id,ntp2ntp[:b_np2ntp].id].min}_#{[ntp2ntp[:a_np2ntp].id,ntp2ntp[:b_np2ntp].id].max}" %>
+					<tr class="<%= cycle('even_small','odd_small') %>">
+						<td>
+							<center>
+								<%= ntp2ntp[:a_np2ntp].networkterminationpoint.name %>
+								-
+								<%= ((ntp2ntp[:a_np2ntp].connectiontype.nil?)?(''):(ntp2ntp[:a_np2ntp].connectiontype.name)) %>
+							</center>
+						</td>
+						<td>
+							<center>
+								<%= ntp2ntp[:a_np2ntp].networkprovider.name %>
+							</center>
+						</td>
+						<td>
+							<center>
+								<%= ntp2ntp[:b_np2ntp].networkterminationpoint.name %>
+								-
+								<%= ((ntp2ntp[:b_np2ntp].connectiontype.nil?)?(''):(ntp2ntp[:b_np2ntp].connectiontype.name)) %>
+							</center>
+						</td>
+						<td>
+							<center>
+								<div id="latencytime_<%= html_id %>">
+								    <%= render :partial => 'edit', :locals => {:ntp2ntp => ntp2ntp} %>
+								</div>
+							</center>	
+						</td>
+						<td>
+							<center>
+								<div id="latencytime_certified_by_<%= html_id %>">
+									<% unless ntp2ntp[:latency].nil? %>
+										<span id="certifying_user_<%= html_id %>"><%= ntp2ntp[:latency].user.print_name_with_association unless ntp2ntp[:latency].user.nil? %></span>										
+									<% end %>
+								</div>
+								<div name="editable" style="display: none;">
+									<div id="can_certify_<%= html_id %>" style="display: <%= if ntp2ntp[:latency].nil? or ntp2ntp[:latency].user.nil? then 'block' else 'none' end %>;">
+										<% if !ntp2ntp[:latency].nil? and !ntp2ntp[:latency].id.blank? and @current_user.is_np_editor? and @current_user.associated_with_networkprovider?(ntp2ntp[:a_np2ntp].networkprovider_id) %>
+											<%= link_to_remote 'Certify', :url => {:controller => 'latencytimes', :action => 'certify', :id => ntp2ntp[:latency].id}, :confirm => 'Do you certify that the information you are about to submit is accurate? If you click OK, your name will be associated with this data as one certifying its accuracy.', :update => "latencytime_#{html_id}" %>
+										<% end %>
+									</div>
+								</div>
+							</center>
+						</td>
+					</tr>
+				<% end -%>
+				</tbody>
+			</table>
+			</td></tr></table>
+		
+		<% if @editable == 'Y' then -%>
+			<div name="make_editable">
+				<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+			</div>
+		<% end %>
+		<div name="make_read_only" style="display:none;">
+			<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+		</div>
+	<% end -%>
+<% end -%>
+		

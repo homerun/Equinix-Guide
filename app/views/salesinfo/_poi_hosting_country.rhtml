@@ -1,0 +1,76 @@
+<% with_params = "'fixed_income=#{(@fixed_income_class)?('true'):('false')}&foreign_exchange=#{(@foreign_exchange_class)?('true'):('false')}&futures=#{(@futures_class)?('true'):('false')}&equities=#{(@equities_class)?('true'):('false')}&all_classes=#{(@all_classes)?('true'):('false')}&type_1=#{(@type_1)?('true'):('false')}&type_2=#{(@type_2)?('true'):('false')}'" %>
+<%- if @selected_region then -%>
+	<center>
+		<table class="border_only"><tr><td>
+		<table class="list_columns">
+			<thead>
+				<tr>
+					<th colspan="<%= @list_of_countries.size + 2 %>" style="cursor: pointer;" onmouseover="$('region_link').style.color = 'red'" onmouseout="$('region_link').style.color = 'white'" onclick="country_to_region();">
+						<span id="region_link">Region: <%= @selected_region.region_name %></span>
+					</th>
+				</tr>
+				<tr>
+					<th><div style="width: 130px;">Countries:</div></th>
+					<% country_totals = Hash.new %>
+					<% @list_of_countries.each do |country| %>
+						<%- unless country.markets.nil? or country.markets.size < 1 -%>
+						<th style="width: 100px; cursor: pointer;" onmouseover="$('th_<%= country.id %>').style.color = 'red'" onmouseout="$('th_<%= country.id %>').style.color = 'white'" onclick="<%= remote_function :url => {:action => 'poi_hosting_market', :country_id => country.id}, :update => 'market_view', :complete => "country_to_market(#{country.id})", :with => with_params %>">
+						<%- else -%>
+						<th style="width: 100px;">
+						<%- end -%>
+							<% country_totals[country] = 0 %>
+							<span id="th_<%= country.id %>"><%= country.name %></span>
+						</th>
+					<% end %>
+					<th>
+							<div style="width: 100px;">
+								Total
+							</div>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<% is_even = true %>
+				<% @list_of_country_datacenter_owners.each do |dc_owner| %>
+					<tr class="<%= if !is_even then 'odd_small' else 'even_small' end %>">
+						<td>
+							<span<%= ' style="font: 12px Arial, Helvetica, sans-serif;"' if dc_owner.name == 'Equinix' %>><b>
+								<%= link_to dc_owner.name, {:controller => 'manage', :action => 'edit_ntp_owner', :id => dc_owner.id} %>
+							</b></span>
+						</td>
+						<% dc_owner_total = 0 %>
+						<% @list_of_countries.each do |country| %> 
+							<td style='text-align: right;'>
+								<% country_totals[country] += (@country_numbers[dc_owner][country].nil? ? 0 : @country_numbers[dc_owner][country].size) %>
+								<% dc_owner_total += (@country_numbers[dc_owner][country].nil? ? 0 : @country_numbers[dc_owner][country].size) %>
+								<% if dc_owner.name == 'Equinix' then %>
+									<span style="font: 12px Arial, Helvetica, sans-serif;"><b><%= print_poi_hosting_details(@country_numbers[dc_owner][country],'poi_hosting_country_details') %></b></span>
+								<% else %>
+									<%= print_poi_hosting_details(@country_numbers[dc_owner][country],'poi_hosting_country_details') %>
+								<% end %>
+							</td>
+						<% end %>
+						<% if dc_owner.name == 'Equinix' then %>
+							<td style='text-align: right;'><span style="font: 12px 'Verdana', Arial, Helvetica, sans-serif;"><b><%= dc_owner_total %></b></span></td>
+						<% else %>
+							<td style='text-align: right;'><%= dc_owner_total %></td>
+						<% end %>
+					</tr>
+					<% is_even = !is_even %>
+				<% end %>
+				<tr>
+					<td><b>Totals</b></td>
+					<% @list_of_countries.each do |country| %>
+						<td style='text-align: right;'>
+							<%= country_totals[country] %>
+						</td>
+					<% end %>
+					<td>&nbsp;</td>
+				</tr>
+				<div id="poi_hosting_country_details" style="display: none; position: absolute; left: 1; top: 1;" class="connectionTypeDescr" onmouseout="javascript:this.style.display='none';" onmouseover="javascript:this.style.display='block';">
+				</div>
+			</tbody>
+		</table>
+		</td></tr></table>
+	</center>
+<%- end -%>

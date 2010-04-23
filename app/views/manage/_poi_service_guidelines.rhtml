@@ -1,0 +1,70 @@
+
+<% unless flash[:notice].blank? %>
+	<div id="service_guideline_notification" class="notification">
+		<%= image_tag("/images/flash_img.jpg",{:class => 'title_img'}) %>
+		<div style="vertical-align: top; display: inline;">
+ 			<%= flash[:notice] %>
+ 			<% flash[:notice] = '' %>
+ 		</div>
+	</div>
+ 	<script type="text/javascript">
+ 		setTimeout("$('service_guideline_notification').style.display = 'none'",10000)
+ 	</script>
+<%end%>
+
+<div id="edit_poi_service_<%= service.id %>_guideline_unsubmit">
+	<div name="editable" style="display: none;">
+		<a href="#" onclick="$('edit_poi_service_<%= service.id %>_guideline_submit').style.display = 'block'; $('edit_poi_service_<%= service.id %>_guideline_unsubmit').style.display = 'none'; return false;">Add Guideline</a>
+		<%= '<hr/>' if service.guidelines != nil and service.guidelines.size != 0 %>
+	</div>
+</div>
+
+<div id="edit_poi_service_<%= service.id %>_guideline_submit" class="connectionTypeDescr" style="z-index: 1; display: none;">
+	<% form_remote_tag :url => {:action => 'add_poi_service_guideline'}, :update => "poi_service_#{service.id}_guidelines" do %>
+		<%= hidden_field :guideline, :service_id, :value => "#{service.id}" %>
+		<center>
+			<b>Effective Date</b>
+			<%= text_field :guideline, :effective_date, {:value => print_date(Date.today), :size => "10"} %>
+			<br />
+			<b>Guideline</b>
+			<%= text_field :guideline, :guideline_text, {:value => "Number of Messages: / Bandwidth Needed: ", :size => "47"} %>
+		</center>
+		<center>
+			<input type="button" onclick="$('edit_poi_service_<%= service.id %>_guideline_unsubmit').style.display = 'block'; $('edit_poi_service_<%= service.id %>_guideline_submit').style.display = 'none'; document.getElementsByName('add_service_<%= service.id %>_guideline')[0].onclick(); return false;" value="Add" />
+			or <a onclick="$('edit_poi_service_<%= service.id %>_guideline_unsubmit').style.display = 'block'; $('edit_poi_service_<%= service.id %>_guideline_submit').style.display = 'none'; return false;">Cancel</a>
+		</center>
+		<div style="display: none;">
+			<%= submit_to_remote "add_service_#{service.id}_guideline", 'Add', :url => { :action => 'add_poi_service_guideline'}, :update => "poi_service_#{service.id}_guidelines" %>
+		</div>
+	<% end %>
+</div>
+
+<% first_time = true %>
+<% if service.guidelines != nil then %>
+	<% (service.guidelines.sort { |x,y| y.effective_date <=> x.effective_date}).each do |guideline| %>
+		<% if first_time then %>
+			<% first_time = false %>
+		<% else %>
+			<hr/>
+		<% end %>
+		<%= print_date(guideline.effective_date) %>
+		&nbsp
+		<div name="editable" style="display: none;">
+			<div id="edit_service_action_read_only_<%= service.id %>" style="display: inline;">
+				<a href="#" onclick="<%= remote_function(  :update => "poi_service_#{service.id}_guidelines", 
+															:url => { :action => 'remove_poi_service_guideline', 
+																	:id => service.id, 
+																	:deleteId => guideline.id}) %>; return false;">Delete</a> 
+			</div>
+		</div>
+		<div style="display: block; margin: 0px 0px 0px 40px;">
+			<%= guideline.guideline_text %>
+		</div>
+	<% end %>
+<% end %>
+
+<% if @change_to_edit then %>
+	<script type="text/javascript">
+		toggle_read_only(false);
+	</script>
+<% end %>

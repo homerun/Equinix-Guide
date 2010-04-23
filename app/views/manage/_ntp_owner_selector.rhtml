@@ -1,0 +1,58 @@
+<% if @selector_size == nil then @selector_size = 5 end %>
+
+<% if @partial_type == 'selector' then %>
+	<div class="selectionBlock" id="ntp_owner_select">
+		<% form_remote_tag(:url => {:action => 'select_ntp_owner'}, :update => "#{get_element_to_update('ntp_owner')}") do %>
+			
+			<center><span class="selection_box_title">Network Termination Point Owners</span></center>
+			<% if @selected_ntp_owner != nil then %>
+				<%= select_tag(:id, 
+							options_for_select(@list_of_ntp_owners.insert(0,['(No Owner)','']),@selected_ntp_owner), 
+							:size => @selector_size,
+						     :class => 'ntp_owner_select',
+							:onchange => remote_function(:update => "#{get_element_to_update('ntp_owner')}", 
+												   :url => { :action => 'select_ntp_owner'},
+												   :with => "'id='+value+'&page=#{@page}'")) %>
+			<% else %>
+				<%= select_tag(:id, 
+							options_for_select(@list_of_ntp_owners.insert(0,['(No Owner)','-1']),'-1'), 
+							:size => @selector_size,
+						     :class => 'ntp_owner_select',
+							:onchange => remote_function(:update => "#{get_element_to_update('ntp_owner')}", 
+												   :url => { :action => 'select_ntp_owner'},
+												   :with => "'id='+value+'&page=#{@page}'")) %>
+			<% end %>
+			
+		<% end %>
+	</div>
+<% else %>
+	<% form_tag do %>
+		<div class="selectionBlock" id="ntp_owner_select">
+			
+			<center><span class="selection_box_title">Network Termination Point Owners</span></center>
+			<% if @selected_ntp_owner != nil then %>
+				<%= select_tag(:id, 
+							options_for_select(@list_of_ntp_owners,@selected_ntp_owner), 
+							:size => @selector_size,
+						     :class => 'ntp_owner_select',
+						     :onclick => "if(confirmed()) $('edit_ntp_owner_button').onclick(); else this.value = '#{@selected_ntp_owner}';") %>
+			<% else %>
+				<%= select_tag(:id, 
+							options_for_select(@list_of_ntp_owners), 
+							:size => @selector_size,
+						     :class => 'ntp_owner_select',
+						     :onclick => "if(confirmed()) $('edit_ntp_owner_button').onclick(); else this.value = '-1';") %>
+			<% end %>
+			<center>
+				<input type="button" value="Add" onClick="this.disabled = true; postAction(this.form,'manage','add_ntp_owner')"/>
+				<div style="display: none;">
+					<input id="edit_ntp_owner_button" type="button" value="Edit" onClick="this.disabled = true; postAction(this.form,'manage','edit_ntp_owner',true)"/>
+				</div>
+				<input type="button" value="Delete" onClick="this.disabled = true; postAction(this.form,'manage','delete_ntp_owner')"/>
+			</center>
+			
+		</div>
+		<br/>
+	<% end %>
+<% end %>
+	

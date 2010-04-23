@@ -1,0 +1,90 @@
+<%= GOOGLE_MAPS_KEY %>
+
+
+<div class="title_div">
+    <h1>Equinix Metro Report</h1>
+</div>
+<div id="sorted_by_country">
+	<table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead>
+			<tr>
+				<th>
+					<div style="width: 250px;">
+						Country
+					</div>
+				</th>
+				<th>
+					<div style="width: 250px;">
+						<a href="#" onclick="$('sorted_by_country').style.display = 'none'; $('sorted_by_market').style.display = 'block'; return false;">
+							Market
+						</a>
+					</div>
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% even = true %>
+			<% (@markets.sort {|x,y| "#{x.country.name} #{x.market_name}" <=> "#{y.country.name} #{y.market_name}"}).each do |market| %>
+				<tr class="<%= if !even then 'odd_small' else 'even_small' end %>">
+					<td>
+						<%= market.country.name %>
+					</td>
+					<td>
+						<%- if market.datacenters.empty? then %>
+							<%= market.market_name %>
+						<%- else %>
+							<%= link_to_remote market.market_name, :url => {:controller => 'campus', :action => 'equinix_metro_report_preload', :market_id => market.id, :update_field => "link_market_#{market.id}"}, :before => "$('link_market_#{market.id}').innerHTML = 'Loading...';", :update => 'preload_div' %>
+						<%- end %>
+						<span id="link_market_<%= market.id %>"></span>
+					</td>
+				</tr>
+				<% even = !even %>
+			<% end %>
+		</tbody>
+	</table>
+	</td></tr></table>
+</div>
+<div id="sorted_by_market" style="display: none;">
+	<table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead>
+			<tr>
+				<th>
+					<div style="width: 250px;">
+						<a href="#" onclick="$('sorted_by_market').style.display = 'none'; $('sorted_by_country').style.display = 'block'; return false;">
+							Country
+						</a>
+					</div>
+				</th>
+				<th>
+					<div style="width: 250px;">
+						Market
+					</div>
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% even = true %>
+			<% (@markets.sort {|x,y| x.market_name <=> y.market_name}).each do |market| %>
+				<tr class="<%= if !even then 'odd_small' else 'even_small' end %>">
+					<td>
+						<%= market.country.name %>
+					</td>
+					<td>
+						<%- if market.datacenters.empty? then %>
+							<%= market.market_name %>
+						<%- else %>
+							<%= link_to_remote market.market_name, :url => {:controller => 'campus', :action => 'equinix_metro_report_preload', :market_id => market.id, :update_field => "link_country_#{market.id}"}, :before => "$('link_country_#{market.id}').innerHTML = 'Loading...';", :update => 'preload_div' %>
+						<%- end %>
+						<span id="link_country_<%= market.id %>"></span>
+					</td>
+				</tr>
+				<% even = !even %>
+			<% end %>
+		</tbody>
+	</table>
+	</td></tr></table>
+</div>
+
+<div id="preload_div"></div>

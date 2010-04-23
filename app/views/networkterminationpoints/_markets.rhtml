@@ -1,0 +1,34 @@
+<% unless @market_competitors.blank? %>
+    <table class="border_only"><tr><td>
+        <table class="list_columns">
+            <thead >
+                <tr>
+                    <th>
+                        <div style="width: 350px;">
+                            Data Centers in <%= @market.market_name %>
+                        </div>
+                    </th>
+					<th>
+						<div style="width: 400px;">
+							<center><b>Distance from <%= @networkterminationpoint.name %></b></center>
+						</div>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<% @market_competitors.each do |datacenter| %>
+				    <tr class="<%= cycle('odd_small','even_small') %>">
+						<td>
+							<%= link_to datacenter.networkterminationpoint.name, { :controller => 'networkterminationpoints', :action => 'edit', :id => "#{datacenter.networkterminationpoint_id}"}, :onclick => "return confirmed();" %>
+						</td>
+						<td>
+							<center><%= get_preferred_distance(@networkterminationpoint,datacenter.networkterminationpoint) %></center>
+						</td>
+					</tr>
+				<% end %>
+			</tbody>
+		</table>
+	</td></tr></table>
+<% else %>
+    No competitors in this market.<br/>
+<% end %>

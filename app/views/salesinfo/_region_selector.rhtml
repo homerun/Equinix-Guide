@@ -1,0 +1,22 @@
+<% if @selector_size == nil then @selector_size = 5 end %>
+
+	<div class="region_select selectionBlock">
+		<% form_remote_tag(:url => { :action => 'select_regions'}, :update => 'country_selector') do %>
+			<center><span class="selection_box_title">Equinix Regions</span></center>
+			<% if @selected_regions != nil then %>
+				<select class="region_select" id="region_ids[]" multiple="multiple" name="region_ids[]" onchange="document.getElementsByName('region_select_submit')[0].onclick();" size="<%= @selector_size %>">
+					<%= options_for_select(@list_of_regions.insert(0,['All','-1']),@selected_regions) %>
+				</select>				
+			<% else %>
+				<select class="region_select" id="region_ids[]" multiple="multiple" name="region_ids[]" onchange="document.getElementsByName('region_select_submit')[0].onclick();" size="<%= @selector_size %>">
+					<%= options_for_select(@list_of_regions.insert(0,['All','-1']),'-1') %>
+				</select>				
+			<% end %>
+			<div style="display: none;">
+				<%= submit_to_remote 'region_select_submit', 'Select Regions', :url => {:action => 'select_regions'}, :update => 'country_selector' %>
+			</div>
+		<% end %>
+	</div>
+	<input id='region_callback' type='hidden' onchange="<%= remote_function(:update => 'ntp_selector', 
+														 :url => { :action => 'select_countries', :country_ids => '[-1]'}) %>">
+	

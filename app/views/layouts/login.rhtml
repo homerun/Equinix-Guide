@@ -1,0 +1,41 @@
+<!--
+Database/Web Design: Lance Homer
+Data Research/Entry: Lance Homer
+Web Interface/Logic: Kelv Cutler
+-->
+
+<html>
+
+<head>
+	<title>Equinix Tools</title>
+	<link rel="shortcut icon" href="http://www.equinix.com/equinix/favicon.ico" type="image/x-icon" />
+	<%= stylesheet_link_tag 'main_app' %>
+	<%= javascript_include_tag :defaults %>
+
+</head>
+
+<body>
+	
+	<div id="doc3">
+		
+		<div id="nav">
+		<div id="headerTitle">
+		    <div id="user_info_logout">	
+				<%= link_to @current_user.print_name_with_association, :controller => "manage_user", :action => "preferences" if @current_user %>
+				<b> LOGIN </b>
+			</div>
+			<div class="right_logo">
+				<%= image_tag "equinix_logo_trans.png", :align => 'right', :style => 'margin-top: 20px; margin-right: 30px;' %>
+			</div>
+			<%= image_tag "equinix_guide_trans.png", :style => 'margin-top: 20px; margin-left: 20px;' %>
+		</div>
+		<div id="pageContent">
+			<center>
+				<%= yield %>
+			</center>
+		</div>
+	</div>
+	
+    <%= render :partial => 'layouts/google_analytics' %>
+</body>
+</html>

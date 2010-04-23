@@ -1,0 +1,32 @@
+<% unless @step2_list.nil? -%>
+	<p class="selection_box_title">Step <%= (@edit_page == 'Networkterminationpoint')?(2):(1) %>: Select <%= "the first" if @edit_page == 'networkprovider' %> <%= if @list_type == 'networkterminationpoints' then 'Network Termination Point' else 'Network Provider' end %></p>
+	<form action="/latency_times/edit_step2_submit" method="get" id="step2_submit">
+		<input type="hidden" id="list_type" name="list_type" value="<%= @list_type %>" />
+		<input type="hidden" id="edit_page" name="edit_page" value="<%= @edit_page %>" />
+		<input type="hidden" id="editable" name="editable" value="<%= @editable %>" />
+		<% if @edit_page == 'Networkterminationpoint' then -%>
+			<input type="hidden" id="networkterminationpoint_id" name="networkterminationpoint_id" value="<%= @networkterminationpoint.id %>" />
+		<% else -%>
+			<input type="hidden" id="networkprovider_id" name="networkprovider_id" value="<%= @networkprovider.id %>" />
+		<% end -%>
+        <p style="margin-left: 20px;">
+			<% if @step2_list.size > 0 then -%>
+	            <%= if @list_type == 'networkterminationpoints' then 'Network Termination Point' else 'Network Provider' end %>:
+	            <select id="list_id" name="list_id">
+	                <%= options_for_select(@step2_list.insert(0,'')) %>
+	            </select>
+			<% else -%>
+				Currently, there are no connections for which you can add latency times to.
+			<% end -%>
+        </p>
+	</form>
+	
+	<%= observe_form  :step2_submit, 
+					  :update => 'edit_step3',
+					  :url => {:controller => :latencytimes, :action =>'edit_step2_submit'} %> 
+	<br>
+	<div id="edit_step3">
+		<%= render :partial => 'latencytimes/edit_step3' %>
+	</div>
+<% end -%>
+				

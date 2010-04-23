@@ -1,0 +1,27 @@
+<% if @selector_size == nil then @selector_size = 5 end %>
+
+	<div class="selectionBlock" id="ntp_type_select">
+		<% form_remote_tag(:url => {:action => 'select_networktermpttype_id'}, :update => "#{get_element_to_update('networktermpttype_id')}") do %>
+			
+			<center><span class="selection_box_title">Network Termination Point Types</span></center>
+			<% if @selected_networktermpttype_id != nil then %>
+				<%= select_tag(:id, 
+							options_for_select(@list_of_networktermpttype_ids,@selected_networktermpttype_id), 
+						     :size => @selector_size,
+						     :class => 'ntp_type_select',
+							:onchange => remote_function(:update => "#{get_element_to_update('networktermpttype_id')}", 
+												   :url => { :action => 'select_networktermpttype_id'},
+												   :with => "'id='+value+'&page=#{@page}'")) %>
+			<% else %>
+				<%= select_tag(:id, 
+							options_for_select(@list_of_networktermpttype_ids), 
+							:size => @selector_size,
+						     :class => 'ntp_type_select',
+							:onchange => remote_function(:update => "#{get_element_to_update('networktermpttype_id')}", 
+												   :url => { :action => 'select_networktermpttype_id'},
+												   :with => "'id='+value+'&page=#{@page}'")) %>
+			<% end %>
+			
+		<% end %>
+	</div>
+	

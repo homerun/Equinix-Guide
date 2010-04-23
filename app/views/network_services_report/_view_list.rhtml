@@ -1,0 +1,18 @@
+<form action="/networkterminationpoints/remove_selected_ntps" method="get" id="remove_selected_ntps">
+	<%= submit_to_remote 'remove_ntps_submit', 'Remove Network Termination Points', :url => {:action => 'remove_selected_ntps'}, :update => 'view_list', :html => {:id => 'remove_ntps_submit', :disabled => true}, :before => 'this.selectedIndex = -1' %>
+	<br/>
+	<select id="remove_ntps" name="remove_ntps[]" multiple="multiple" size="<%= @remove_from_ntp_list_size %>" style="*width: 340px; min-width: 300px;" onchange="if(this.selectedIndex>=0) $('remove_ntps_submit').disabled=false; else $('remove_ntps_submit').disabled=true; $('build_report').disabled = (this.options.length>0);">
+		<%= options_for_select(@list_of_selected_ntps) %>
+	</select>
+</form>
+
+<script type="text/javascript">
+	if($('view_report'))
+		$('view_report').disabled = ($('remove_ntps').options.length==0);
+	if($('print_report'))
+		$('print_report').disabled = ($('remove_ntps').options.length==0);
+	if($('csv_report'))
+		$('csv_report').disabled = ($('remove_ntps').options.length==0);
+	if($('pdf_report'))
+		$('pdf_report').disabled = ($('remove_ntps').options.length==0);
+</script>

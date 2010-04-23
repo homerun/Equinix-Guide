@@ -1,0 +1,118 @@
+
+<% if printable then %>
+	<% border_table = 'style="border: 1px solid #000; border-spacing: 0px; border-collapse: collapse;"' %>
+	<% list_columns_table = 'style="border: 0px solid #444; border-spacing: 0px; border-collapse: collapse; background: #aaa;"' %>
+	<% even_row = '' %>
+	<% odd_row = '' %>
+	<% header_cell = 'style="text-align: center; background: #000000; color: #FFF; text-transform: uppercase; border: 1pt solid #444; margin: 0px;"' %>
+	<% header_cell_left = 'style="text-align: center; background: #000000; color: #FFF; text-transform: uppercase; border: 1pt solid #444; margin: 0px; text-align: left;"' %>
+	<% not_heading_cell = 'style="border-bottom: 1pt solid #ccc; border-top: 1pt solid #ccc; border-left: 1pt solid #888; border-right: 1pt solid #888; background: #FFFFFF;"' %>
+	<% vertical_header_cell = 'style="text-align: center; background: #000000; color: #FFF; text-transform: uppercase; border: 1px solid #444; margin: 0px; writing-mode: tb-rl; filter: flipV flipH;"' %>
+	<% even_header_cell = 'style="border-bottom: 1pt solid #ccc; border-top: 1pt solid #ccc; border-left: 1pt solid #888; border-right: 1pt solid #888; background: #D7D9DB; height: 20px;  font-size: 16px; font-weight: bold;"' %>
+	<% odd_header_cell = 'style="border-bottom: 1pt solid #ccc; border-top: 1pt solid #ccc; border-left: 1pt solid #888; border-right: 1pt solid #888; background: #FFFFFF; height: 20px; font-size: 16px; font-weight: bold;"' %>
+	<% even_cell = 'style="border-bottom: 1pt solid #ccc; border-top: 1pt solid #ccc; border-left: 1pt solid #888; border-right: 1pt solid #888; background: #D7D9DB; height: 20px;"' %>
+	<% odd_cell = 'style="border-bottom: 1pt solid #ccc; border-top: 1pt solid #ccc; border-left: 1pt solid #888; border-right: 1pt solid #888; background: #FFFFFF; height: 20px;"' %>
+<% else %>
+	<% border_table = 'class="border_only"' %>
+	<% list_columns_table = 'class="list_columns" style="free"' %>
+	<% even_row = 'class="even_small"' %>
+	<% odd_row = 'class="odd_small"' %>
+	<% header_cell = '' %>
+	<% header_cell_left = ' style="text-align: left;"' %>
+	<% not_heading_cell = 'class="not_heading"' %>
+	<% vertical_header_cell = 'style="writing-mode: tb-rl; filter: flipV flipH;"' %>
+	<% even_header_cell = 'style="text-align: left;"' %>
+	<% odd_header_cell = 'style="text-align: left;"' %>
+	<% even_cell = '' %>
+	<% odd_cell = '' %>
+<% end %>
+
+<%- list_of_ntps = PoiNtpPoi.find(:all,:conditions => ["a_pointsofinterest_id in (:poi_list)", {:poi_list => (poi_list.collect {|poi| poi[1].id}) }]).collect {|poi_ntp_poi| poi_ntp_poi.networkterminationpoint } -%>
+<%- list_of_ntps.uniq! -%>
+<%- list_of_ntps.sort! {|x,y| x.distance_to(@datacenter,@current_user.unit_preference,true) <=> y.distance_to(@datacenter,@current_user.unit_preference,true) }%>
+
+<table <%= border_table %>><tr><td>
+<table <%= list_columns_table %>>
+	<thead>
+		<% is_even = true %>
+		<tr>	
+			<th <%= header_cell %> colspan="4"><center><%= image_tag("/images/new_logo.jpg") %></center></th>
+			<th <%= header_cell %> colspan="<%= list_of_ntps.size + ((list_of_ntps.size==0)?2:1) %>" valign="middle"><font size="2">Network Provider Availability Report For Selected Services<br/>
+				At <%= @datacenter.name %> located in:<br/><%= print_full_addr(@datacenter) %></font>
+			</th>
+		</tr>
+		<tr>
+			<th <%= header_cell %>>Region</th>
+			<th <%= header_cell %>><div style="width: 150px;"><%= if type == 'exchanges' then 'Exchange' else 'Provider' end %></div></th>
+			<th <%= header_cell %>><div style="width: 150px;">Provider Categories</div></th>
+			<th <%= header_cell %>><div style="width: 150px;">Access to:</div></th>
+			<%- list_of_ntps.each do |ntp| -%>
+				<th <%= header_cell %>>
+					<div style="min-width: 100px;"><%= ntp.name %></div>
+				</th>
+			<%- end -%>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td colspan="4"><center><i>Distance from <%= @datacenter.name %></i></center></td>
+			<%- list_of_ntps.each do |ntp| %>
+				<td><%= ntp.distance_to(@datacenter,@current_user.unit_preference) %></td>
+			<%- end -%>
+		</tr>
+		<% poi_list.each do |poiItem| %>
+			<%- if poiItem[1].aggregations.nil? then poi_aggregations = [] else poi_aggregations = poiItem[1].aggregations end -%>
+			<%#- poi_aggregations.delete_if {|x| not(poiItem[4].include?("#{x.id}") or poiItem[4].include?(x.id)) } %>
+			<%- poi_aggregations.sort! {|x,y| x.name.downcase <=> y.name.downcase } -%>
+			<tr <%= if is_even then even_row else odd_row end %>>
+				<td <%= if is_even then even_cell else odd_cell end %> rowspan="<%= (poi_aggregations.size==0 ? 1 : poi_aggregations.size) %>"> 
+					<%= poiItem[0] %> 
+				</td>
+				<th <%= if is_even then even_cell else odd_cell end %> rowspan="<%= (poi_aggregations.size==0 ? 1 : poi_aggregations.size) %>"> 
+					<%= poiItem[1].name %>
+				</th>
+				<td <%= if is_even then even_cell else odd_cell end %> rowspan="<%= (poi_aggregations.size==0 ? 1 : poi_aggregations.size) %>">
+					<%= "(#{(poiItem[1].provider_categories.collect {|category| category.category }).join(', ')})" if poiItem[1].poitype.name == 'Provider' %>
+				</td>
+				<% if poi_aggregations.size == 0 then %>
+					<td <%= if is_even then even_cell else odd_cell end %>></td>
+					<% unless list_of_ntps.size == 0 %>
+						<%- list_of_ntps.each do |ntp| -%>
+							<td <%= if is_even then even_cell else odd_cell end %>> </td>
+						<%- end -%>
+					<% end %>
+					</tr>
+				<% else %>
+					<% first_aggregation = true %>
+					<% poi_aggregations.each_with_index do |aggregation,index| %>
+						<% if !first_aggregation then %>
+							<tr <%= if is_even then even_row else odd_row end %>>
+						<% else %>
+							<% first_aggregation = false %>
+						<% end %>
+						<% if index+1 == poi_aggregations.size or poi_aggregations.size <= 1 then border_style = '' else border_style = 'style="border-bottom: solid #888 1px;"' end %>
+						<td <%= if is_even then even_cell else odd_cell end %> <%= border_style %>>
+							<%- if poiItem[4].include?(aggregation.id) or poiItem[4].include?("#{aggregation.id}") then -%>
+								<b><%= aggregation.name %></b>
+							<%- else -%>
+								<%= aggregation.name %>
+							<%- end -%>
+						</td>
+						<% if list_of_ntps.size == 0 then %>
+							<td <%= if is_even then even_cell else odd_cell end %> <%= border_style %>> </td>
+						<%- else -%>
+							<%- aggregation_connections = PoiNtpPoi.find(:all,:conditions => ["a_pointsofinterest_id = :poi_a and b_pointsofinterest_id = :poi_b", {:poi_a => poiItem[1].id, :poi_b => aggregation.id}]) %>
+							<%- aggregation_connections_hash = Hash.new %>
+							<%- aggregation_connections.each {|agg| aggregation_connections_hash[agg.networkterminationpoint.id] = agg } -%>
+							<%= (list_of_ntps.collect { |ntp| "<td #{if is_even then even_cell else odd_cell end} #{border_style}><center>#{'X' unless aggregation_connections_hash[ntp.id].nil?}</center></td>" }).join %>
+						<% end %>
+						</tr>
+					<% end %>
+				<% end %>
+			<% is_even = !is_even %>
+		<% end %>
+	</tbody>
+	<div id="connectionTypeDescr" style="display: none; position: absolute; left: 1; top: 1;" class="connectionTypeDescr" onmouseout="javascript:this.style.display='none'">
+	</div>	
+</table>
+</td></tr></table>

@@ -1,0 +1,26 @@
+<div class="title_div">
+	<%= image_tag "np.gif", :width => '30' %>
+	<h1>Network Providers</h1>
+</div>
+
+<%= @message %>
+<%= error_messages_for :networkprovider %>
+
+<% unless @limited_access %>
+
+<span class="selection_box_title">Step 1: Choose Network Provider Type</span><br/>
+<select id="type_selector" name="type_selector">
+    <%= options_for_select(@list_of_types.insert(0,['',0]), @selected_type) %>
+</select>
+<br/><br/>
+<% end %>
+
+<span class="selection_box_title">Step 2: Choose Network Provider or <%= link_to "Add New", {:action => "new"} %></span><br/>
+<div id="np_selector">
+    <%= render :partial => "select_np" %>
+</div>
+
+<%= observe_field "type_selector", 
+		:url => {:action => 'select_np_type'},
+		:update => "np_selector",
+		:with => "np_type" %>

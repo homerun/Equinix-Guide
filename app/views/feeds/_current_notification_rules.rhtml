@@ -1,0 +1,33 @@
+<form>
+	<table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead>
+			<tr>
+				<th>
+					Action
+				</th>
+				<th>
+					Notification Rule
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% @notification_rules.each do |notification_rule| %>
+				<tr class="<%= cycle('even_small','odd_small') %>">
+					<td>
+						<a href="#" onclick="<%= remote_function(  :update => 'current_notification_rules', 
+														:url => { :action => 'remove_notification_rule', 
+																:deleteId => notification_rule.id}) %>; return false;">
+							Remove
+						</a>
+					</td>
+					<td>
+						<%= notification_rule.print %>
+					</td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>
+	</td></tr></table>
+</form>
+			

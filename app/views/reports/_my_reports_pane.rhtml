@@ -1,0 +1,97 @@
+<%= image_tag("/images/folder_img.jpg",{:class => 'title_img'}) %>
+<span class="edit_title">My Reports: <%= @current_user.print_name %></span>
+<% form_tag do %>
+	<table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead>
+			<tr>
+				<th>
+					<div style="width: 250px;">
+						Action
+					</div>
+				</th>
+				<th>
+					<div style="width: 170px;">
+						Report Title
+					</div>
+				</th>
+				<th>
+					<div style="width: 170px;">
+						Type of Report
+					</div>
+				</th>
+				<th>
+					<div style="width: 250px;">
+						Notes
+					</div>
+				</th>
+			</tr>
+		</thead>
+		<tbody >
+			<% if @list_of_saved_reports == nil or @list_of_saved_reports.size == 0 then %>
+				<tr>
+					<td colspan="5">You have not saved any reports.</td>
+				</tr>
+			<% else %>
+				<% even = false %>
+				<% @list_of_saved_reports.each do |report| %>
+					<tr class="<%= if even then 'even_small' else 'odd_small' end %>">
+						<td class="item_button" style="background: #fff; width: 230px; border-top: 1px solid #ddd;">
+							
+							<a class="report_link" href="/reports/edit/<%= report.id %>">
+								<%= image_tag("/images/edit_report_img.jpg",{:style => 'vertical-align: middle;', :width => '28',:class => 'item_img'}) %>
+								Edit Report
+							</a><br/>
+							<a class="report_link" href="#" onclick="<%= remote_function(:update => 'my_reports_pane', 
+															   :url => { :action => 'destroy',
+																		:deleteId => report.id}) %>">
+								<%= image_tag("/images/delete_report_img.jpg",{:style => 'vertical-align: middle;', :width => '28',:class => 'item_img'}) %>
+								Delete
+							</a><br/>
+							<%= image_tag("/images/sharing_img.jpg",{:style => 'vertical-align: middle;', :width => '36',:class => 'item_img'}) %>
+							<span style="font: 12px 'Verdana'; text-align: right; font-weight: bold;">Sharing...</span>
+							<br/>
+							<div class="indent">&nbsp;</div>
+							<div class="indent">&nbsp;</div>
+							<a class="report_link" href="/reports/edit/<%= report.id %>">
+								<%= image_tag("/images/share_with_img.jpg",{:style => 'vertical-align: middle;', :width => '20',:class => 'item_img'}) %>
+								Share with another user
+							</a>
+							<% unless report.sharedreports.nil? -%>
+								<% report.sharedreports.each do |shared_report| %>
+									<% if shared_report.shared_user != nil then %>
+										<br/>
+										<div class="indent">&nbsp;</div>
+										<div class="indent">&nbsp;</div>
+										<a class="report_link" href="#" onclick="<%= remote_function(:update => 'my_reports_pane', 
+																		   :url => { :action => 'unshare_report',
+																					:unshareId => shared_report.id,
+																					:update => 'my_reports_pane',
+																					:id => @current_user.id}) %>">
+											<%= image_tag("/images/unshare_img.jpg",{:style => 'vertical-align: middle;', :width => '20',:class => 'item_img'}) %>
+											Unshare with <%=  shared_report.shared_user.print_name %> 
+										</a>
+									<% end %>
+								<% end %>
+							<% end %>
+							<br/>&nbsp;
+						</td>
+						<td style="vertical-align: top;">
+							<span style="font-size:12px">
+								<%= link_to "#{report.report_title}", {:action => 'open_report', :id => (report.id*9999-321), :sharable => 'yes'} %>
+							</span>
+						</td>
+						<td style="vertical-align: top;">
+							<%= report.reporttype.type_title %>
+						</td>
+						<td style="vertical-align: top;">
+							<%= report.notes %>
+						</td>
+					</tr>
+					<% even = !even %>
+				<% end %>
+			<% end %>
+		</tbody>
+	</table>
+	</td></tr></table>
+<% end %>

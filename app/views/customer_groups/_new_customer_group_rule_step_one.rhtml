@@ -1,0 +1,52 @@
+
+
+<% form_tag do %>
+	<input type="hidden" id="customer_group_rule_customer_group_id" name="customer_group_rule[customer_group_id]" value="<%= @customer_group_id %>" />
+	<div id="page_title_div" style="display: none;">
+		<p>
+			<center>
+				View Access for the page: <span id="page_title_span"></span>
+			</center>
+		</p>
+	</div>
+	<div id="page_name_div">
+		<p>
+			<center>
+				Select the page to grant view access for 
+				<%= select_tag(:customer_group_rule_page_name,
+							options_for_select(@page_name_options),
+							:name => 'customer_group_rule[page_name]') %> &nbsp;
+				<br/>
+				<input type="button" value="Next" onclick="page_name_selected();" />
+				or <a onclick="$('add_customer_group_rule_div').style.display = 'block'; $('new_customer_group_rule_step_one').style.display = 'none'; $('new_customer_group_rule_step_one').innerHTML = '';" >Cancel</a>
+			</center>
+		</p>
+	</div>
+	
+	<div id="all_objects_div" style="display: none;">
+		<hr/>
+		<p>
+			<center>
+				<span id="all_objects_span"></span>
+			</center>
+		</p> 
+	</div>
+	<div id="all_objects_select_div" style="display: none;">
+		<hr/>
+		<center>
+			<%= radio_button :customer_group_rule, :all_objects, 'yes', {:checked => 'checked'} %>View access for ALL objects.
+			<br/>or<br/>
+			<%= radio_button :customer_group_rule, :all_objects, 'no' %>View access for objects I select.
+			<center>
+				<input type="button" value="Next" onclick="all_objects_selected()" />
+				or <a onclick="$('add_customer_group_rule_div').style.display = 'block'; $('new_customer_group_rule_step_one').style.display = 'none'; $('new_customer_group_rule_step_one').innerHTML = '';" >Cancel</a>
+			</center>
+		</center>
+		<div style="display: none;">	
+			<%= submit_to_remote 'new_customer_group_rule_step_one_submit', 'Next', :url => { :action => 'new_customer_group_rule_step_two'}, :update => 'new_customer_group_rule_step_two' %>
+		</div>
+	</div>
+<% end %>
+
+<div id="new_customer_group_rule_step_two">
+</div>

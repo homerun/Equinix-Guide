@@ -1,0 +1,16 @@
+<% unless @list_of_ntps.blank? -%>
+
+<% form_remote_tag :url => {:action => 'add_ntp'}, :update => 'ntp_list' do %>
+	<select id="select_ntp" name="networkterminationpoint_id">
+		<%= options_for_select(@list_of_ntps.insert(0,['',0])) %>
+	</select>
+	<input type="button" onclick="$('add_ntp_div').style.display = 'none'; $('add_ntp_link').style.display = 'block'; document.getElementsByName('Add_NTP')[0].click(); return false;" value="Add" />
+	or <a onclick="$('add_ntp_div').style.display = 'none'; $('add_ntp_link').style.display = 'block';  return false;" >Cancel</a>
+	<div style="display: none;">
+		<%= submit_to_remote 'Add_NTP', 'Add', :url => { :action => 'add_ntp', :id => @campus.id}, :update => 'ntp_list' %>
+	</div>
+<% end %>
+
+<% else -%>
+No Network Termination Points meet your search criteria
+<% end -%>

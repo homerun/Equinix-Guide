@@ -1,0 +1,197 @@
+
+<% if printable then %>
+	<% border_table = 'style="border: 1px solid #000; border-spacing: 0px; border-collapse: collapse;"' %>
+	<% list_columns_table = 'style="border: 0px solid #444; border-spacing: 0px; border-collapse: collapse; background: #aaa;"' %>
+	<% even_row = '' %>
+	<% odd_row = '' %>
+	<% header_cell = 'style="text-align: center; background: #000000; color: #FFF; text-transform: uppercase; border: 1pt solid #444; margin: 0px;"' %>
+	<% header_cell_left = 'style="text-align: center; background: #000000; color: #FFF; text-transform: uppercase; border: 1pt solid #444; margin: 0px; text-align: left;"' %>
+	<% not_heading_cell = 'style="border-bottom: 1pt solid #ccc; border-top: 1pt solid #ccc; border-left: 1pt solid #888; border-right: 1pt solid #888; background: #FFFFFF;"' %>
+	<% vertical_header_cell = 'style="text-align: center; background: #000000; color: #FFF; text-transform: uppercase; border: 1px solid #444; margin: 0px; writing-mode: tb-rl; filter: flipV flipH;"' %>
+	<% even_header_cell = 'style="border-bottom: 1pt solid #ccc; border-top: 1pt solid #ccc; border-left: 1pt solid #888; border-right: 1pt solid #888; background: #D7D9DB; height: 20px;  font-size: 16px; font-weight: bold;"' %>
+	<% odd_header_cell = 'style="border-bottom: 1pt solid #ccc; border-top: 1pt solid #ccc; border-left: 1pt solid #888; border-right: 1pt solid #888; background: #FFFFFF; height: 20px; font-size: 16px; font-weight: bold;"' %>
+	<% even_cell = 'style="border-bottom: 1pt solid #ccc; border-top: 1pt solid #ccc; border-left: 1pt solid #888; border-right: 1pt solid #888; background: #D7D9DB; height: 20px;"' %>
+	<% odd_cell = 'style="border-bottom: 1pt solid #ccc; border-top: 1pt solid #ccc; border-left: 1pt solid #888; border-right: 1pt solid #888; background: #FFFFFF; height: 20px;"' %>
+<% else %>
+	<% border_table = 'class="border_only"' %>
+	<% list_columns_table = 'class="list_columns" style="free"' %>
+	<% even_row = 'class="even_small"' %>
+	<% odd_row = 'class="odd_small"' %>
+	<% header_cell = '' %>
+	<% header_cell_left = ' style="text-align: left;"' %>
+	<% not_heading_cell = 'class="not_heading"' %>
+	<% vertical_header_cell = 'style="writing-mode: tb-rl; filter: flipV flipH;"' %>
+	<% even_header_cell = 'style="text-align: left;"' %>
+	<% odd_header_cell = 'style="text-align: left;"' %>
+	<% even_cell = '' %>
+	<% odd_cell = '' %>
+<% end %>
+
+<table <%= border_table %>><tr><td>
+<table <%= list_columns_table %>>
+	<thead>
+		<% is_even = true %>
+		<tr>	
+			<th <%= header_cell %> colspan="6" rowspan="<%= (4 + contact_rows) %>"><center><%= image_tag("/images/new_logo.jpg") %></center></th>
+			<th <%= header_cell %> colspan="<%= networkproviders.size + ((networkproviders.size==0)?2:1) + ( has_campus_connection ? 1 : 0) %>" valign="middle"><font size="2">Network Provider Availability Report For Selected Services<br/>
+				At <%= @datacenter.name %> located in:<br/><%= print_full_addr(@datacenter) %></font>
+			</th>
+		</tr>
+		<tr> 
+			<th <%= header_cell_left %>><div style="width: 230px;">Network</div></th>
+			<%= "<th #{header_cell}><div style='width: 120px;'>#{((@datacenter.campus.nil?)?((@datacenter.owner.nil?)?('Campus'):(@datacenter.owner.name)):(@datacenter.campus.name))}</div></th>" if has_campus_connection %>
+			<%= (networkproviders.collect { |np| "<th #{header_cell}>#{h(np.name)}</th>" }).join %>
+			<% if networkproviders.size == 0 then %>
+				<td <%= not_heading_cell %> rowspan="<%= (3 + contact_rows) %>"><div style="width: 200;">No Network Providers available</div></td>
+			<% end %>
+		</tr>
+		<tr> <th <%= header_cell_left %>>Website</th>
+			<% if has_campus_connection then %>
+				<td <%= not_heading_cell %>></td>
+			<% end %>
+			<%= (networkproviders.collect { |np| "<td #{not_heading_cell}>#{np.url}</td>" }).join %>
+		</tr>
+		<% if regions_present[2] then %>
+			<tr> <th <%= header_cell_left %>>Asia Pacific Contact</th>
+				<% if has_campus_connection then %>
+					<td <%= not_heading_cell %>></td>
+				<% end %>
+				<%= (networkproviders.collect { |np| "<td #{not_heading_cell}>#{np.region2contact.print_name if np.region2contact != nil}<br/>#{np.region2contact.email if np.region2contact != nil}<br/>#{np.region2contact.phone_number if np.region2contact != nil}</td>" }).join %>
+			</tr>
+		<% end %>
+		<% if regions_present[3] then %>
+			<tr> <th <%= header_cell_left %>>Europe Contact</th>
+				<% if has_campus_connection then %>
+					<td <%= not_heading_cell %>></td>
+				<% end %>
+				<%= (networkproviders.collect { |np| "<td #{not_heading_cell}>#{np.region3contact.print_name if np.region3contact != nil}<br/>#{np.region3contact.email if np.region3contact != nil}<br/>#{np.region3contact.phone_number if np.region3contact != nil}</td>" }).join %>
+			</tr>
+		<% end %>
+		<% if regions_present[4] then %>
+			<tr> <th <%= header_cell_left %>>Other Contact</th>
+				<% if has_campus_connection then %>
+					<td <%= not_heading_cell %>></td>
+				<% end %>
+				<%= (networkproviders.collect { |np| "<td #{not_heading_cell}>#{np.region4contact.print_name if np.region4contact != nil}<br/>#{np.region4contact.email if np.region4contact != nil}<br/>#{np.region4contact.phone_number if np.region4contact != nil}</td>" }).join %>
+			</tr>
+		<% end %>
+		<% if regions_present[1] then %>
+			<tr> <th <%= header_cell_left %>>United States Contact</th>
+				<% if has_campus_connection then %>
+					<td <%= not_heading_cell %>></td>
+				<% end %>
+				<%= (networkproviders.collect { |np| "<td #{not_heading_cell}>#{np.region1contact.print_name if np.region1contact != nil}<br/>#{np.region1contact.email if np.region1contact != nil}<br/>#{np.region1contact.phone_number if np.region1contact != nil}</td>" }).join %>
+			</tr>
+		<% end %>
+		<tr> <th <%= header_cell_left %>>Network Connectivity at <%= @datacenter.name %></th>
+			<% if has_campus_connection then %>
+				<td <%= not_heading_cell %>></td>
+			<% end %>
+			<%= (networkproviders.collect { |np| "<td #{not_heading_cell}>#{routing_text(np)}#{print_np2ntp_connection_types(np,@datacenter,'<br/>')}</td>" }).join %>
+		</tr>
+		<tr>	
+			<th <%= header_cell %>>Region</th>
+			<th <%= header_cell %>><div style="width: 150px;"><%= if type == 'exchanges' then 'Exchange' else 'Provider' end %></div></th>
+			<th <%= header_cell %>><%= if type == 'exchanges' then '<div style="width: 100px;">Services</div>' else '<div style="width: 150px;">Access to:</div>' end %></th>
+			<th <%= header_cell %>><div style="width: 180px;">Preferred Network Providers</div></th>
+			<th <%= header_cell %>><div style="width: 175px;">Network Termination Points</div></th>
+			<th <%= header_cell %>><div style="width: 200px;">Point of Interest's Connectivity at location</div></th>
+			<th <%= header_cell %>>
+				<center>
+					Line of Site Distance<br/>
+					Theoretical Lowest Round-Trip Latency
+				</center>
+			</th>
+			<% if networkproviders.size != 0 then %> 
+				<th <%= header_cell %> colspan="<%= networkproviders.size + ( has_campus_connection ? 1 : 0) %>">
+					<center>
+					<div style="min-width: 440px;">
+						Connectivity Availability by Network Provider<br/>
+						Network Connectivity at Network Termination Point<br/>
+						Reported Round-Trip Latency from Network Provider
+					</div>
+					</center>
+				</th>
+			<% end %>
+		</tr>
+	</thead>
+	<tbody>
+		<% poi_list.each do |poiItem| %>
+			<tr <%= if is_even then even_row else odd_row end %>>
+				<td <%= if is_even then even_cell else odd_cell end %> rowspan="<%= (poiItem[2].size==0 ? 1 : poiItem[2].size) %>"> 
+					<%= poiItem[0] %> 
+				</td>
+				<th <%= if is_even then even_cell else odd_cell end %> rowspan="<%= (poiItem[2].size==0 ? 1 : poiItem[2].size) %>" style> 
+					<%= poiItem[1].name %>
+					<p style="text-transform: capitalize; font-weight: normal;">
+						<%= "(#{(poiItem[1].provider_categories.collect {|category| category.category }).join(',')})" if poiItem[1].poitype.name == 'Provider' %>
+					</p>
+				</th>
+				<td <%= if is_even then even_cell else odd_cell end %> rowspan="<%= (poiItem[2].size==0 ? 1 : poiItem[2].size) %>"> 
+					<% if type == 'exchanges' then -%>
+						<%= ((poiItem[3].collect { |service| "#{service.service_acronym} #{ "(#{service.current_guideline_summary})" if service.current_guideline_summary != nil}" }).sort {|x,y| x.downcase <=> y.downcase}).join('<br/>') %> 
+					<% else -%>
+						<% poiItem[1].aggregations.each do |poi_aggregation| %>
+							<% if poiItem[4].include?("#{poi_aggregation.id}") or poiItem[4].include?(poi_aggregation.id) then -%>
+								<%= poi_aggregation.name %><br/>
+							<% end -%>
+						<% end if poiItem[1].aggregations %>
+					<% end -%>
+				</td>
+				<td <%= if is_even then even_cell else odd_cell end %> rowspan="<%= (poiItem[2].size==0 ? 1 : poiItem[2].size) %>"> 
+					<%= ((poiItem[1].preferred_nps.collect { |preferred_np| "<b>#{preferred_np.networkprovider.name}</b>" }).sort {|x,y| x.downcase <=> y.downcase}).join('<br/>') if poiItem[1].preferred_nps != nil%> 
+				</td>
+				<% if poiItem[2] == nil or poiItem[2].size == 0 then %>
+					<% if networkproviders.size == 0 then %>
+						<td <%= if is_even then even_cell else odd_cell end %>></td>
+						<td <%= if is_even then even_cell else odd_cell end %>></td>
+						<td <%= if is_even then even_cell else odd_cell end %>></td>
+						<td <%= if is_even then even_cell else odd_cell end %>></td>
+						<%= "<td #{if is_even then even_cell else odd_cell end}></td>" if has_campus_connection %>
+					<% else %>
+						<td <%= if is_even then even_cell else odd_cell end %>></td>
+						<td <%= if is_even then even_cell else odd_cell end %>></td>
+						<td <%= if is_even then even_cell else odd_cell end %>></td>
+						<td <%= if is_even then even_cell else odd_cell end %> colspan="<%= (networkproviders.size+( has_campus_connection ? 1 : 0)) %>"><center> </center></td>
+					<% end %>
+					</tr>
+				<% else %>
+					<% first_location = true %>
+					<% poiItem[2].each_with_index do |location,index| %>
+						<% if !first_location then %>
+							<tr <%= if is_even then even_row else odd_row end %>>
+						<% else %>
+							<% first_location = false %>
+						<% end %>
+						<% if index+1 == poiItem[2].size then border_style = '' else border_style = 'style="border-bottom: solid #888 1px;"' end %>
+						<td <%= if is_even then even_cell else odd_cell end %> <%= border_style %>>
+							<b><%= location[1].name %></b><br/>
+							<%= print_full_addr(location[1]) %>
+						</td>
+						<td <%= if is_even then even_cell else odd_cell end %> <%= border_style %>>
+							<%= location[0].connectiontype.description%>
+						</td>
+						<td <%= if is_even then even_cell else odd_cell end %> <%= border_style %>>
+							<center><%= get_distance_with_theoretical_latency(@datacenter,location[1]) %></center>
+						</td>
+						<% if has_campus_connection then %>
+							<td <%= if is_even then even_cell else odd_cell end %> <%= border_style %>>
+								<% if @datacenter == location[1] or (!@datacenter.campus.nil? and @datacenter.campus.contains_ntp(location[1])) then %>
+									<center><b><%= "On Campus" %></b></center>
+								<% end %>
+							</td>
+						<% end %>
+						<% if networkproviders.size == 0 then %>
+							<td <%= if is_even then even_cell else odd_cell end %> <%= border_style %>> </td>
+						<% end %>
+						<%= (networkproviders.collect { |np| "<td #{if is_even then even_cell else odd_cell end} #{border_style}><center>#{print_latency_time(np,@datacenter,location[1])}</center></td>" }).join %>
+						</tr>
+					<% end %>
+				<% end %>
+			<% is_even = !is_even %>
+		<% end %>
+	</tbody>
+	<div id="connectionTypeDescr" style="display: none; position: absolute; left: 1; top: 1;" class="connectionTypeDescr" onmouseout="javascript:this.style.display='none'">
+	</div>	
+</table>
+</td></tr></table>

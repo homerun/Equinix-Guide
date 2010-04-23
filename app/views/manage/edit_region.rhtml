@@ -1,0 +1,689 @@
+<%= GOOGLE_MAPS_KEY %>
+
+<% @selector_size = 5 %>
+
+<%= @show_password %>
+
+<div class="title_div">
+	<%= image_tag "region.gif", :width => '30' %>
+    <h1>Equinix Regions</h1>
+</div>
+
+
+<table class="full">
+<tr><td>
+	<div style="min-width: 1100px;">
+		<% @partial_type = 'editor' %>
+		<div id='region_selector'>
+			<%= render :partial => 'region_selector' %>
+		</div>
+	</div>
+</td></tr>
+<tr><td>
+	<div id="editPane">
+		<% if @region == nil then %>
+			<br/> 
+		<% else %>
+			<span class="edit_title"><%= @region.region_name %></span>
+
+			<% unless @region.nil? or @region.id.blank? -%>	
+				<table border=1>
+				  <tr>
+				    <td>
+						<div id="market_map" style="width: 800px; height: 450px;"></div>
+				    </td>
+				    <td min-width="150px" valign="top" rowspan="2">
+				       <div id="side_bar" style="overflow: auto; height: 530px;"></div>
+				    </td>
+				  </tr>
+				  <tr>
+				  	<td>
+				  		<%= image_tag "competitive_market_legend.jpg" %>
+				  	</td>
+				  </tr>
+				</table>
+			<% end -%>
+			
+			<div id="tabs_pane" class="tabs_pane">
+				<div id="tab_row_1" class="tab_row">
+					<div id="tab_1" class="tab_selected_other">&nbsp;</div><div class="selected_inner_tab_other" id="inner_tab_1">
+						<a href="#" onclick="select_tab_old(1,3); return false;">
+							Region Name
+						</a>
+					</div>
+					<div id="tab_2" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_2">
+						<a href="#" onclick="select_tab_old(2,3); return false;">
+							History
+						</a>
+					</div>
+					<div id="tab_3" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_3">
+						<a href="#" onclick="select_tab_old(3,3); return false;">
+							News
+						</a>
+					</div>
+				</div>
+				<div id="tab_1_content" class="tab_content" style="width: 700px;">
+				    <div id="tab_padding">
+					<% form_for :equinixregion do |form| %>
+						<%= form.hidden_field :id, :value => "#{@region.id}" %>
+						<input type="hidden" name="current_tab_row" value="1" />
+						<input type="hidden" name="current_tab" value="1" />
+						<table>
+							<tr>
+								<td class="edit_field_text">Name: </td>
+								<td>
+									<div name="editable" style="display: none;">
+										<%= form.text_field :region_name, {:value => "#{@region.region_name}",
+															  :onchange => remote_function(:update => 'modified', 
+															   						 :url => { :action => 'set_modified'})} %>
+									</div>
+									<div name="read_only">
+										<%= @region.region_name %>
+									</div>
+								</td>
+							</tr>
+							<tr>
+							    <td></td>
+							    <td>
+							        <% if has_editor_role then %>
+            							<div name="make_editable">
+            								<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+            							</div>
+            						<% end %>
+            						<div name="make_read_only" style="display:none;">
+            							<input type="submit" value="Save Changes" onClick="this.disabled = true; postAction(this.form,'manage','save_region')"/>
+            							<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+            						</div>
+							    </td>
+							</tr>    
+						</table> 
+						
+					<% end %> 
+					</div>
+				</div> 
+				<div id="tab_2_content" class="tab_content" style="display: none; min-width: 800px;">
+				    <div id="tab_padding">
+					<% if "#{@region.id}" == '' then %>
+						You must save before you can view history items.
+					<% else %>
+						<%= render :partial => '/shared/history_pane', :locals => {:table_name => 'Equinixregion', :table_id => @region.id, :tab_number => 2} %>
+					<% end %>
+					</div>
+				</div> 
+				<div id="tab_3_content" class="tab_content" style="display: none; min-width: 800px;">
+				    <div id="tab_padding">
+					<% if "#{@region.id}" == '' then %>
+						You must save before you can view news items.
+					<% else %>
+						<div id="news_pane">
+							<%= render :partial => '/shared/news_pane' %>
+						</div>
+					<% end %>
+					</div>
+				</div>
+			</div>
+		<% end %>
+	</div>
+</td></tr>
+</table>
+
+<% if @selected_tab != nil and @selected_tab_row != nil then %>
+	<input type="hidden" value="<%= "select_tab_old(#{@selected_tab.to_i},3,'#{@selected_tab_row}',1)" %>" id="do_select_tab" />
+<% end %>
+
+<% if @change_to_edit then %>
+	<script type="text/javascript">
+		toggle_read_only(false);
+	</script>
+<% end %>
+
+
+<% unless @region.nil? or @region.id.blank? %>
+<script type="text/javascript">
+	    //<![CDATA[
+
+	
+	function build_map() {
+	}
+	
+	function update_map_dimensions(map) {
+        /* establish zoom scale, in miles */
+        var bounds = map.getBounds();
+        var southWest = bounds.getSouthWest();
+        var northEast = bounds.getNorthEast();
+
+        var hypotenuse = southWest.distanceFrom(northEast);
+        var theta = Math.atan(map.getSize().height / map.getSize().width);
+
+        screen_width = hypotenuse * Math.cos(theta);
+        screen_height = hypotenuse * Math.sin(theta);
+		if(view_mode == 'market')
+			draw_datacenter_circles();
+		else
+			draw_grouped_circles();
+    }
+	
+	function Datacenter(index) {
+		this.index = index;
+		this.visible = true;
+	}
+	
+	function Datacenter_Owner(index,name) {
+		this.index = index;
+		this.visible = true;
+		this.name = name;
+		this.datacenters = new Array();
+		this.total_floor_space = 0;
+	}
+	
+	function Market(index,market_name) {
+		this.index = index;
+		this.visible = true;
+	}
+	
+    if (GBrowserIsCompatible()) {
+      var side_bar_html = "";
+	  var current_marker;
+	  var screen_height;
+	  var screen_width;
+	  
+function get_occupancy_color(datacenter) {
+	if(datacenter.total_occupied_floor_space == 'Unknown')
+	    return "#0000ff";
+    if(datacenter.total_occupied_floor_space / datacenter.total_floor_capacity >= 0.9)
+      return "#ff0000";
+    if(datacenter.total_occupied_floor_space / datacenter.total_floor_capacity >= 0.6)
+      return "#ff8833";
+    else
+      return "#00ff00";
+}
+
+
+/*
+ * Returns the center point for a circle with the radius determined by the floor capacity
+ * at the angle specified such that the circle is at the appropriate angle but far enough away
+ * from the center provided that there is no overlap
+ */
+function get_center_at_angle(center,floor_capacity,angle) {
+	with (Math) {
+		var lat1 = (PI / 180.0) * center.lat(), lng1 = (PI / 180) * center.lng();
+		var d = (sqrt(floor_capacity)) * (screen_height * 0.00000000003);// + screen_height * 0.000000005;
+		var tc = (PI / 180.0) * angle;
+		var y = asin(sin(lat1) * cos(d) + cos(lat1) * sin(d) * cos(tc));
+		var dlng = atan2(sin(tc) * sin(d) * cos(lat1), cos(d) - sin(lat1) * sin(y));
+		var x = ((lng1 - dlng + PI) % (2 * PI)) - PI; // MOD function
+		var point = new GLatLng(parseFloat(y * (180 / PI)), parseFloat(x * (180 / PI)));
+	}
+	return point
+}
+
+
+/*
+ * Returns 101 points that for a circle around lat and lon, with radius determined by floor_capacity
+ */
+function get_circle_points(lat, lon, floor_capacity) {	
+	var circlePoints = new Array();
+	with (Math) {
+		var d = (sqrt(floor_capacity)) * (screen_height * 0.00000000003); // + screen_height * 0.000000005; // radians
+		var lat1 = (PI / 180) * lat; // radians
+		var lng1 = (PI / 180) * lon; // radians
+		for (var a = 0; a < 101; a++) {
+			var tc = (PI / 180) * (a * 3.6);
+			var y = asin(sin(lat1) * cos(d) + cos(lat1) * sin(d) * cos(tc));
+			var dlng = atan2(sin(tc) * sin(d) * cos(lat1), cos(d) - sin(lat1) * sin(y));
+			var x = ((lng1 - dlng + PI) % (2 * PI)) - PI; // MOD function
+			var point = new GLatLng(parseFloat(y * (180 / PI)), parseFloat(x * (180 / PI)));
+			circlePoints.push(point);
+		}
+	}
+	return circlePoints;
+}
+
+
+/* 
+ * Used for when view_mode == 'region'
+ * Aggregates the datacenter owners and circles the circles
+ * around the center of the market
+ */
+function draw_grouped_circles() {
+	var circlePoints;
+	for (var i = 0; i < markets.length; i++) {
+		var filtered_owners = new Array();
+		var count = i*26;
+		var total_sqrt_floor_capacity = 0;
+		/* Put the datacenters in to a sorted array (by size)
+		 * and total up the floor capacity in sqrt amounts 
+		 * (roughly the radius of the cirle - pi*r^2)
+		 */
+		for (var j = 0; j < markets[i].datacenter_owners.length; j++) {
+			if (markets[i].datacenter_owners[j].circle) 
+				map.removeOverlay(markets[i].datacenter_owners[j].circle);
+			if (markets[i].datacenter_owners[j].marker) 
+				map.removeOverlay(markets[i].datacenter_owners[j].marker);
+			if (markets[i].datacenter_owners[j].visible) {
+				var k = 0;
+				for (k = 0; k < filtered_owners.length; k++) 
+					if (markets[i].datacenter_owners[j].total_floor_capacity > filtered_owners[k].total_floor_capacity) 
+						break;
+				filtered_owners.splice(k, 0, markets[i].datacenter_owners[j])
+				total_sqrt_floor_capacity += Math.sqrt(markets[i].datacenter_owners[j].total_floor_capacity);
+			}
+		}
+		var current_angle = 0.0;
+		markets[i].point = markets[i].bounds.getCenter();
+		markets[i].index = count;
+		createMarker("market_center", markets[i]);
+		count++;
+		for(var k=0; k<filtered_owners.length; k++) {
+			filtered_owners[k].point = get_center_at_angle(markets[i].bounds.getCenter(),filtered_owners[k].total_floor_capacity+(filtered_owners.length*filtered_owners.length*filtered_owners.length*100),current_angle+(180 * (Math.sqrt(filtered_owners[k].total_floor_capacity) / total_sqrt_floor_capacity)));
+			// Count/object.index is used in the letter of the icon
+			filtered_owners[k].index = count;
+			createMarker("datacenter_owner",filtered_owners[k]);
+			circlePoints = get_circle_points(filtered_owners[k].point.lat(),filtered_owners[k].point.lng(),filtered_owners[k].total_floor_capacity)
+			filtered_owners[k].circle = new GPolygon(circlePoints, get_occupancy_color(filtered_owners[k]), 2, 1, get_occupancy_color(filtered_owners[k]), 0.25);
+			if(filtered_owners[k].visible)
+				map.addOverlay(filtered_owners[k].circle);
+			current_angle += 360 * (Math.sqrt(filtered_owners[k].total_floor_capacity) / total_sqrt_floor_capacity);
+			count += 1;
+		}
+	}	
+}
+
+
+/*
+ * Used for view_mode == 'market' and draws circles for individual datacenters
+ */
+function draw_datacenter_circles() {
+
+	for (var i = 0; i < datacenters.length; i++) {
+		if(circles[i])
+			map.removeOverlay(circles[i]);
+		var circle;
+		var circlePoints = Array();
+		
+		circlePoints = get_circle_points(datacenters[i].lat,datacenters[i].lon,datacenters[i].total_floor_capacity)
+		
+		circle = new GPolygon(circlePoints, datacenters[i].color, 2, 1, datacenters[i].color, 0.25);
+		if(datacenters[i].visible)
+			map.addOverlay(circle);
+		circles[i] = circle;
+		datacenters[i].circle = circle;
+	}
+}
+
+      // A function to create the marker and set up the event window
+      function createMarker(type,datacenter_object) {
+		var letter = String.fromCharCode("A".charCodeAt(0) + (datacenter_object.index % 26));
+		var letteredIcon;
+		if(view_mode == 'region')
+			letteredIcon = new GIcon(regionIcon);
+		else
+			letteredIcon = new GIcon(baseIcon);
+		if(datacenter_object.index>=156)
+			letteredIcon.image = "http://www.circuitclout.com/images/markers/blue_Marker" + letter + ".png";
+		else if(datacenter_object.index>=130)
+			letteredIcon.image = "http://www.circuitclout.com/images/markers/red_Marker" + letter + ".png";
+		else if(datacenter_object.index>=104)
+			letteredIcon.image = "http://www.circuitclout.com/images/markers/paleblue_Marker" + letter + ".png";
+		else if(datacenter_object.index>=78)
+			letteredIcon.image = "http://www.circuitclout.com/images/markers/green_Marker" + letter + ".png";
+		else if(datacenter_object.index>=52)
+			letteredIcon.image = "http://www.circuitclout.com/images/markers/yellow_Marker" + letter + ".png";
+		else if(datacenter_object.index>=26)
+			letteredIcon.image = "http://www.circuitclout.com/images/markers/blue_Marker" + letter + ".png";
+		else
+			letteredIcon.image = "http://www.circuitclout.com/images/markers/red_Marker" + letter + ".png";
+		
+		// Set up our GMarkerOptions object
+		markerOptions = { icon:letteredIcon };
+        var marker;
+		var tabs = [];
+		if (type == 'datacenter') {
+			marker = new GMarker(datacenter_object.point,markerOptions);
+			tabs.push(new GInfoWindowTab('Building', datacenter_object.building_tab));
+			tabs.push(new GInfoWindowTab('Exchanges', datacenter_object.exchanges_tab));
+			tabs.push(new GInfoWindowTab('Providers', "<div style='width: 450px;'>" + datacenter_object.providers_tab + "</div>"));
+	        marker.tooltip = '<div class="tooltip">'+datacenter_object.name+'<\/div>';
+			datacenter_object.sidebar_html_single_view = '<div id="datacenter_control_'+datacenter_object.index+'" style="display: block;">'
+	        datacenter_object.sidebar_html_single_view += '<a href="javascript:datacenter_click(' + datacenter_object.index + ');" onmouseover="datacenter_mouseover('+datacenter_object.index+')" onmouseout="mymouseout()">' + datacenter_object.name + '<\/a> - ';
+			datacenter_object.sidebar_html_single_view += '<a id="marker_toggle_'+datacenter_object.index+'" href="javascript:marker_toggle('+datacenter_object.index+');">On<\/a></div>';
+			datacenter_object.marker = marker;
+			datacenter_object.tabs = tabs;
+			if(view_mode=="market")
+		        map.addOverlay(marker);
+		}
+		else if (type == 'datacenter_owner') {
+			marker = new GMarker(datacenter_object.point,markerOptions);
+			if(datacenter_object.datacenters.length <= 4) {
+				for (var i = 0; i < datacenter_object.datacenters.length; i++) {
+					list_of_datacenters += '<br/>' + datacenters[datacenter_object.datacenters[i]].name
+					tabs.push(new GInfoWindowTab('Datacenter '+(i+1), '<div style="width: 400px;">'+datacenters[datacenter_object.datacenters[i]].building_tab+'</div>'));
+				}
+			}
+			else {
+				var list_of_datacenters = '';
+				for(var i=0;i<datacenter_object.datacenters.length;i++)
+					list_of_datacenters += '<br/>'+datacenters[datacenter_object.datacenters[i]].name
+				tabs.push(new GInfoWindowTab(datacenter_object.name,'<b>Datacenters Owned by '+datacenter_object.name+' in the market:</b>'+list_of_datacenters));			
+			}
+	        marker.tooltip = '<div class="tooltip">'+datacenter_object.name+'<\/div>';
+			datacenter_object.marker = marker;
+			datacenter_object.tabs = tabs;
+			if(view_mode=="region")
+		        map.addOverlay(marker);
+		}
+		else /* if (type == 'market_center') */ {
+			marker = new GMarker(datacenter_object.point,markerOptions);
+			tabs.push(new GInfoWindowTab('Market', '<h2>'+datacenter_object.name+' Market</h2>'+'There are '+datacenter_object.datacenters.length+' datacenters in this market.'));
+	        marker.tooltip = '<div class="tooltip">'+datacenter_object.name+' Market<\/div>';
+			datacenter_object.marker = marker;
+			datacenter_object.tabs = tabs;
+			if(view_mode=="region")
+		        map.addOverlay(marker);
+		}
+		
+        // === store the name so that the tooltip function can use it ===
+        GEvent.addListener(marker, "click", function() {
+          marker.openInfoWindowTabsHtml(tabs);
+        });
+
+        //  ======  The new marker "mouseover" and "mouseout" listeners  ======
+        GEvent.addListener(marker,"mouseover", function() {
+          showTooltip(marker);
+        });        
+		
+        GEvent.addListener(marker,"mouseout", function() {
+			tooltip.style.visibility="hidden"
+        });
+      }
+
+      // ====== This function displays the tooltip ======
+      // it can be called from an icon mousover or a side_bar mouseover
+      function showTooltip(marker) {
+      	tooltip.innerHTML = marker.tooltip;
+		var point=map.getCurrentMapType().getProjection().fromLatLngToPixel(map.getBounds().getSouthWest(),map.getZoom());
+		var offset=map.getCurrentMapType().getProjection().fromLatLngToPixel(marker.getPoint(),map.getZoom());
+		var anchor=marker.getIcon().iconAnchor;
+		var width=marker.getIcon().iconSize.width;
+		var pos = new GControlPosition(G_ANCHOR_BOTTOM_LEFT, new GSize(offset.x - point.x - anchor.x + width,- offset.y + point.y +anchor.y)); 
+		pos.apply(tooltip);
+		tooltip.style.visibility="visible";
+      }
+
+      // ===== This function is invoked when the mouse goes over an entry in the side_bar =====
+      // It launches the tooltip on the icon      
+      function datacenter_mouseover(i) {
+        showTooltip(datacenters[i].marker)
+      }   
+	  
+      function market_center_mouseover(i) {
+        showTooltip(markets[i].marker)
+      }
+	  
+      function datacenter_owner_mouseover(i,j) {
+        showTooltip(markets[i].datacenter_owners[j].marker)
+      }
+	  
+      // ===== This function is invoked when the mouse leaves an entry in the side_bar =====
+      // It hides the tooltip      
+      function mymouseout() {
+		tooltip.style.visibility="hidden";
+      }
+
+      function datacenter_click(i) {
+        datacenters[i].marker.openInfoWindowTabsHtml(datacenters[i].tabs);
+      }
+
+      function market_center_click(i) {
+        markets[i].marker.openInfoWindowTabsHtml(markets[i].tabs);
+      }
+
+      function datacenter_owner_click(i,j) {
+        markets[i].datacenter_owners[j].marker.openInfoWindowTabsHtml(markets[i].datacenter_owners[j].tabs);
+      }
+
+      // This function picks up the side_bar click and shows or hides the corresponding marker and circle
+      function marker_toggle(i,on_off) {
+	  	if (on_off=='Off'||($('marker_toggle_' + i).innerHTML == 'On'&&(typeof on_off == "undefined"))) {
+			datacenters[i].visible = false;
+			map.removeOverlay(datacenters[i].marker);
+			map.removeOverlay(datacenters[i].circle);
+			$('marker_toggle_' + i).innerHTML = 'Off';
+		}
+		else {
+			datacenters[i].visible = true;
+			map.addOverlay(datacenters[i].marker);
+			map.addOverlay(datacenters[i].circle);
+			$('marker_toggle_' + i).innerHTML = 'On';
+		}
+      }
+
+      // This function picks up the side_bar click and shows or hides the corresponding marker and circle
+      function owner_marker_toggle(i,j,on_off) {
+	  	if (on_off=='Off'||($('owner_marker_toggle_'+i+'_'+j).innerHTML == 'On'&&(typeof on_off == "undefined"))) {
+			markets[i].datacenter_owners[j].visible = false;
+			map.removeOverlay(markets[i].datacenter_owners[j].marker);
+			map.removeOverlay(markets[i].datacenter_owners[j].circle);
+			$('owner_marker_toggle_'+i+'_'+j).innerHTML = 'Off';
+		}
+		else {
+			markets[i].datacenter_owners[j].visible = true;
+			map.addOverlay(markets[i].datacenter_owners[j].marker);
+			map.addOverlay(markets[i].datacenter_owners[j].circle);
+			$('owner_marker_toggle_'+i+'_'+j).innerHTML = 'On';
+		}
+      }
+	  
+      // This function picks up the side_bar click and shows or hides all the children markers and circles
+      function toggle_owner(checkbox,market_index,owner_index) {
+	  	if (checkbox.checked) {
+			for(var i=0; i<markets[market_index].datacenter_owners[owner_index].datacenters.length; i++) {
+				$('datacenter_control_'+markets[market_index].datacenter_owners[owner_index].datacenters[i]).style.display = 'block';
+				marker_toggle(markets[market_index].datacenter_owners[owner_index].datacenters[i],'On');
+			}
+		}
+		else {
+			for(var i=0; i<markets[market_index].datacenter_owners[owner_index].datacenters.length; i++) {
+				$('datacenter_control_'+markets[market_index].datacenter_owners[owner_index].datacenters[i]).style.display = 'none';
+				marker_toggle(markets[market_index].datacenter_owners[owner_index].datacenters[i],'Off');
+			}
+		}
+      }
+
+	  function sort_owner(a,b) {
+	  	return a < b;
+	  }
+	  
+	  function sort_by_name(a,b) {
+	  	return a.name > b.name;
+	  }
+
+	  function sort_by_floor_capacity(a,b) {
+	  	return a.total_floor_capacity < b.total_floor_capacity;
+	  }
+	  
+	  function only_owner(market_index,datacenter_owner_index) {
+		for (var i = 0; i < markets[market_index].datacenter_owners.length; i++) {
+			if (typeof(markets[market_index].datacenter_owners[i]) == 'undefined') 
+				continue;
+			if (((i != datacenter_owner_index) && ($('owner_checkbox_' + market_index + '_' + i).checked))||((i == datacenter_owner_index) && !($('owner_checkbox_' + market_index + '_' + i).checked)))
+				$('owner_checkbox_' + market_index + '_' + i).click();
+		}
+	  }
+	  
+	  function all_owners(market_index) {
+		for (var i = 0; i < markets[market_index].datacenter_owners.length; i++) {
+			if (typeof(markets[market_index].datacenter_owners[i]) == 'undefined') 
+				break;
+			if (!$('owner_checkbox_' + market_index + '_' + i).checked)
+				$('owner_checkbox_' + market_index + '_' + i).click();
+		}
+	  }
+
+	  function add_to_datacenter_owner(datacenter,market_index) {
+		var found = -1;
+		for(var i=0; i<markets[market_index].datacenter_owners.length; i++)
+		  	if(markets[market_index].datacenter_owners[i].name==datacenter.owner) {
+				found = i;
+				break;
+			}
+		if(found<0) {
+			found = markets[market_index].datacenter_owners.length;
+			markets[market_index].datacenter_owners[found] = new Datacenter_Owner(datacenter.owner);
+			markets[market_index].datacenter_owners[found].name = datacenter.owner;
+			markets[market_index].datacenter_owners[found].datacenters = new Array();
+			markets[market_index].datacenter_owners[found].total_floor_capacity = 0;
+			markets[market_index].datacenter_owners[found].total_occupied_floor_space = 0;
+			markets[market_index].datacenter_owners[found].bounds = new GLatLngBounds();
+		}
+		if(datacenter.total_occupied_floor_space == 'Unknown' || markets[market_index].datacenter_owners[found].total_occupied_floor_space == 'Unknown')
+			markets[market_index].datacenter_owners[found].total_occupied_floor_space = 'Unknown';
+		else
+			markets[market_index].datacenter_owners[found].total_occupied_floor_space += datacenter.total_occupied_floor_space;
+		markets[market_index].datacenter_owners[found].total_floor_capacity += datacenter.total_floor_capacity;
+		markets[market_index].datacenter_owners[found].datacenters.push(datacenter.index);
+		markets[market_index].datacenter_owners[found].bounds.extend(new GLatLng(datacenter.lat,datacenter.lon));
+	  }
+
+	  function add_to_market(datacenter,market_name) {
+		var found = -1;
+		for(var i=0; i<markets.length; i++)
+		  	if(markets[i].name==market_name) {
+				found = i;
+				break;
+			}
+		if(found<0) {
+			found = markets.length;
+			market = new Market(market_name);
+			markets[found] = market;
+			markets[found].name = market_name;
+			markets[found].datacenters = new Array();
+			markets[found].datacenter_owners = new Array();
+			markets[found].total_floor_capacity = 0;
+			markets[found].total_occupied_floor_space = 0;
+			markets[found].bounds = new GLatLngBounds();
+		}
+		if(datacenter.total_occupied_floor_space == 'Unknown' || markets[found].total_occupied_floor_space == 'Unknown')
+			markets[found].total_occupied_floor_space = 'Unknown';
+		else
+			markets[found].total_occupied_floor_space += datacenter.total_occupied_floor_space;
+		markets[found].total_floor_capacity += datacenter.total_floor_capacity;
+		add_to_datacenter_owner(datacenter,found);
+		markets[found].datacenters.push(datacenter);
+		markets[found].bounds.extend(new GLatLng(datacenter.lat,datacenter.lon));
+	  }
+	  
+	  function create_sidebar_html() {
+	  	var html = '';
+		if (view_mode == 'market') {
+		  for (var i = 0; i < markets.length; i++) {
+			if (typeof(markets[i]) == 'undefined') continue;
+			if (markets.length > 1) {
+				html += "<a href='#' onclick=\"if($('market_sidebar_" + i + "').style.display=='none') $('market_sidebar_" + i + "').style.display = 'block'; else $('market_sidebar_" + i + "').style.display = 'none'; return false\">" + markets[i].name + "</a>\n";
+				html += "<br/><div id='market_sidebar_" + i + "' style='display: none;'>";
+			}
+			html += "<a href='#' onclick='all_owners(" + i + "); return false'>All</a> <b>Datacenter Owners:</b><br/>\n";
+		  	for (var j = 0; j < markets[i].datacenter_owners.length; j++) {
+				if (typeof(markets[i].datacenter_owners[j]) == 'undefined') continue;
+				html += markets[i].datacenter_owners[j].sidebar_html_single_view;
+			}
+			html += '<hr/>';
+		  	for (var j = 0; j < markets[i].datacenters.length; j++) {
+				if (typeof(markets[i].datacenters[j]) == 'undefined') continue;
+				html += markets[i].datacenters[j].sidebar_html_single_view;
+			}
+			if(markets.length > 1) 
+				html += '</div><br/><br/>';
+		  }
+		}
+		else /* if (view_mode == 'region') */ {
+		  for (var i = 0; i < markets.length; i++) {
+			if (typeof(markets[i]) == 'undefined') continue;
+			html += '<a href="javascript:market_center_click(' + i + ');" onmouseover="market_center_mouseover('+i+')" onmouseout="mymouseout()">' + markets[i].name + '<\/a><hr/>';
+		  	for (var j = 0; j < markets[i].datacenter_owners.length; j++) {
+				if (typeof(markets[i].datacenter_owners[j]) == 'undefined') continue;
+				html += '<a href="javascript:datacenter_owner_click('+i+','+j+');" onmouseover="datacenter_owner_mouseover('+i+','+j+')" onmouseout="mymouseout()">' + markets[i].datacenter_owners[j].name + '<\/a> &nbsp; ';
+				html += '<a id="owner_marker_toggle_'+i+'_'+j+'" href="javascript:owner_marker_toggle('+i+','+j+');">On<\/a><br/>';
+			}
+			html += '<br/><br/>';
+		  }
+		}
+	  	$('side_bar').innerHTML = html;
+	  }
+	  
+      // create the map
+      var map = new GMap2($('market_map'));
+      map.addControl(new GLargeMapControl());
+      map.addControl(new GMapTypeControl());
+      map.setCenter(new GLatLng(<%= "#{@center[:lat]},#{@center[:lon]}" %>), 2);
+	  var baseIcon = new GIcon();
+	  baseIcon.shadow = "http://www.google.com/mapfiles/shadow50.png";
+	  baseIcon.iconSize = new GSize(20, 34);
+	  baseIcon.shadowSize = new GSize(37, 34);
+	  baseIcon.iconAnchor = new GPoint(9, 34);
+	  baseIcon.infoWindowAnchor = new GPoint(9, 2);
+	  baseIcon.infoShadowAnchor = new GPoint(18, 25);
+	  var regionIcon = new GIcon();
+	  regionIcon.shadow = "http://www.google.com/mapfiles/shadow50.png";
+	  regionIcon.iconSize = new GSize(12, 20);
+	  regionIcon.shadowSize = new GSize(21, 20);
+	  regionIcon.iconAnchor = new GPoint(5, 20);
+	  regionIcon.infoWindowAnchor = new GPoint(5, 1);
+	  regionIcon.infoShadowAnchor = new GPoint(11, 15);
+	  var circles = new Array();
+	  var bounds = new GLatLngBounds();
+	  var datacenter_owners = new Array();
+	  var datacenters = new Array();
+	  var markets = new Array();
+	  var view_mode = 'region';
+	  var viewing_market_index = 0;
+
+      // ====== set up marker mouseover tooltip div ======
+      var tooltip = document.createElement("div");
+      $('market_map').appendChild(tooltip);
+      tooltip.style.visibility="hidden";
+	  update_map_dimensions(map);
+	  var index = 0;
+<% unless @region.markets.nil? %><% @region.markets.each do |market| %>
+<% if market.datacenters != nil then %><% ((market.datacenters.sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).each do |datacenter| %><% if !datacenter.networkterminationpoint.lat.blank? and !datacenter.networkterminationpoint.lon.blank? and (datacenter.networkterminationpoint.lat != 0 or datacenter.networkterminationpoint.lon != 0) then %>
+	  datacenters[index] = new Datacenter(index);
+	  datacenters[index].index = index
+	  datacenters[index].lat = <%= datacenter.networkterminationpoint.lat %>;
+	  datacenters[index].lon = <%= datacenter.networkterminationpoint.lon %>;
+	  datacenters[index].point = new GLatLng(datacenters[index].lat,datacenters[index].lon)
+	  datacenters[index].name = "<%= datacenter.networkterminationpoint.name %>";
+	  datacenters[index].building_tab = "<%= datacenter_building_tab(datacenter).gsub('"','\"') %>";
+	  datacenters[index].exchanges_tab = "<%= datacenter_exchanges_tab(datacenter).gsub('"','\"') %>";
+	  datacenters[index].providers_tab = "<%= datacenter_providers_tab(datacenter).gsub('"','\"') %>";
+	  datacenters[index].total_floor_capacity = <%= datacenter.floor_capacity + 15000 %>;
+	  datacenters[index].color = "#<%= datacenter.floor_capacity_color %>";
+	  datacenters[index].owner = "<%= datacenter.networkterminationpoint.owner.name.chomp %>";
+	  datacenters[index].market = "<%= market.market_name.chomp %>";
+	  datacenters[index].total_occupied_floor_space = <%= datacenter.occupied_floor_space %>;
+	  createMarker('datacenter',datacenters[index]);
+	  add_to_market(datacenters[index],'<%= market.market_name.chomp %>');
+	  index++;
+	  <% end %><% end %><% end %><% end %><% end %>
+	  markets.sort(sort_by_name);
+	  for (var i = 0; i < markets.length; i++) {
+		if (typeof(markets[i]) == 'undefined') 
+			continue;
+	  	for (var j = 0; j < markets[i].datacenter_owners.length; j++) {
+			if (typeof(markets[i].datacenter_owners[j]) == 'undefined') 
+				continue;
+			markets[i].datacenter_owners[j].sidebar_html_single_view = "<input id='owner_checkbox_" + i + "_" + j + "' type='checkbox' onchange='toggle_owner(this," + i + ","+j+");' checked /> ";
+			markets[i].datacenter_owners[j].sidebar_html_single_view += "<a href='#' onclick='only_owner(" + i + "," + j + "); return false'>Only</a> " + markets[i].datacenter_owners[j].name + "<br/>";
+		}
+	  }
+	  create_sidebar_html();
+	    GEvent.addListener(map, 'zoomend', function() {
+		    update_map_dimensions(map);
+	    });
+	  map.setZoom(map.getZoom()+1);
+	}
+    else {
+      alert("Sorry, the Google Maps API is not compatible with this browser");
+    }
+    //]]>
+</script>
+<% end %>

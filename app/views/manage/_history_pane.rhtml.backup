@@ -1,0 +1,54 @@
+<% if @history_items == nil or @history_items.size == 0 then %>
+	<div style="width: 800;">No recorded history items.</div>
+<% else %>
+	<% audits = (@history_items.collect { |audit| audit.id }).join(',') %>
+	<table>
+		<tr>
+			<th>Rollback to...</th>
+			<th>Field Type</th>
+			<th>Property</th>
+			<th>Old Value</th>
+			<th>New Value</th>
+			<th>Time</th>
+			<th>User</th>
+		</tr>
+		<% @history_items.each do |audit| %>
+			<tr>
+				<td>
+					<center>
+						<%= link_to 'Here', { :controller => 'audits',
+										  :action => 'rollback', 
+										  :id => audit.id, 
+										  :audits => audits } %>
+					</center>
+				</td>
+				<td>
+					<%= print_field_type(@history_page,audit.table_name) %>
+				</td>
+				<td>
+					<%= audit.field_name %>
+				</td>
+				<td>
+					<% if audit.old_value == nil then %>
+						(None)
+					<% else %>
+						<%= audit.old_value %>
+					<% end %>
+				</td>
+				<td>
+					<% if audit.new_value == nil then %>
+						(None)
+					<% else %>
+						<%= audit.new_value %>
+					<% end %>
+				</td>
+				<td>
+					<%= audit.created_at.to_s(:long) %>
+				</td>
+				<td>
+					<%= print_name_with_association_from_id(audit.user_id) %>
+				</td>
+			</tr>
+		<% end %>
+	</table>
+<% end %>

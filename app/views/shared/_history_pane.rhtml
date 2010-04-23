@@ -1,0 +1,28 @@
+<% if table_name then %>
+	<% form_tag :url => {:controller => 'audits', :action => 'load_history'}, :update => 'history_items' do %>
+		<input type="hidden" id="table_name" name="table_name" value="<%= table_name %>" />
+		<input type="hidden" id="table_id" name="table_id" value="<%= table_id %>" />
+		<center>
+			<%= radio_button :range_option, :type, 'number', {:checked => 'checked'} %>View last
+			<%= select('range_parameter','number_of_items',[3,5,10,20,50]) %>
+			grouped history items.
+			<br/>or<br/>
+			<%= radio_button :range_option, :type, 'date' %>View history items from
+			<%= select_tag('range_parameter[begin_month]',options_for_select(Date.const_get(:MONTHNAMES),"January")) %>
+			<%= select_tag('range_parameter[begin_year]',options_for_select((2008..Date.today.year),2008)) %>
+			to
+			<%= select_tag('range_parameter[end_month]',options_for_select(Date.const_get(:MONTHNAMES),Date.const_get(:MONTHNAMES)[Date.today.month])) %>
+			<%= select_tag('range_parameter[end_year]',options_for_select((2008..Date.today.year),Date.today.year)) %>
+			<center>
+				<input type="button" value="Retrieve" onclick="$('history_items').innerHTML = 'Loading...'; document.getElementsByName('retrieve_button')[0].click();" />
+				<div style="display: none;">
+					<input type="button" value="focus" id="tab_<%= tab_number %>_on_focus" onclick="document.getElementsByName('retrieve_button')[0].click(); return false;" />
+					<%= submit_to_remote 'retrieve_button', 'Retrieve', :url => { :controller => :audits, :action => 'load_history'}, :update => 'history_items' %>
+				</div>
+			</center>
+		</center>
+	<% end %>
+<% end %>
+<br/>
+<div id="history_items">
+</div>

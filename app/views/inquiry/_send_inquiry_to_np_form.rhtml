@@ -1,0 +1,46 @@
+
+<% form_tag do %>
+
+	<input type="hidden" id="networkprovider_id" name="networkprovider_id" value="<%= np_obj[:np].id %>" />
+	<input type="hidden" id="inquiries" name="inquiries" value="<%= np_obj[:inquiry].id %>" />
+	
+	<table>
+		<% if np_obj[:user_list] == nil or np_obj[:user_list].size == 0 then %>
+			<tr>
+				<td colspan="2">
+					Name: <input name="name" id="name" />
+				</td>
+				<td>
+					Email Address: <input name="email_address" id="email_address" />
+				</td>
+			</tr>
+		<% else %>
+			<tr>
+				<td>
+					<%= radio_button :inquiry, :send_to, "user_edit", {:checked => 'checked'} %>
+				</td>
+				<td>
+					Name: <input name="name" id="name" />
+				</td>
+				<td>
+					Email Address: <input name="email_address" id="email_address" />
+				</td>
+			</tr>
+		<% end %>
+		<% if np_obj[:user_list] != nil and np_obj[:user_list].size != 0 then %>
+			<tr>
+				<td>
+					<%= radio_button :inquiry, :send_to, "user_select" %>
+				</td>
+				<td colspan="2">
+					<select id="user_list" name="user_list">
+						<%= options_for_select(np_obj[:user_list]) %>
+					</select>
+				</td>
+			</tr>
+		<% end %>
+	</table>
+	
+	<%= submit_to_remote 'send_to_np_submit', 'Send to Network Provider', :url => {:action => 'send_email_to_np'}, :update => "np_table_#{ np_obj[:np].id}", :before => 'this.disabled = true'  %>
+	<%= submit_to_remote 'discard_inquiry_submit', 'Discard Inquiry', :url => {:action => 'discard_np_inquiry'}, :update => "np_table_#{ np_obj[:np].id}", :before => 'this.disabled = true'  %>
+<% end %>

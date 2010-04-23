@@ -1,0 +1,40 @@
+<%- list_of_ntps = @campus.networkterminationpoints -%>
+
+<table class="border_only"><tr><td>
+<table class="list_columns">
+	<thead>
+		<tr>
+			<th>
+			</th>
+			<%- list_of_ntps.each do |ntp| -%>
+				<th>
+					<%= ntp.name %>
+				</th>
+			<%- end -%>
+		</tr>
+	</thead>
+	<tbody>
+		<%- list_of_ntps.each do |ntp_r| -%>
+		<tr>
+			<th>
+				<%= ntp_r.name %>
+			</th>
+			<%- list_of_ntps.each do |ntp_c| -%>
+				<td>
+					<%- connection = CampusNtp2ntp.find(:first, :conditions => ["a_networkterminationpoint_id = :a_ntp_id and b_networkterminationpoint_id = :b_ntp_id", {:a_ntp_id => [ntp_r.id,ntp_c.id].min, :b_ntp_id => [ntp_r.id,ntp_c.id].max}]) %>
+					<%- unless connection.nil? -%>
+						<center>
+							<%= if connection.campus_access_type.nil? then "Not Specified" else connection.campus_access_type.name end %>
+							<br/>
+							<%= "#{connection.latency_time} ms" unless connection.latency_time.blank? %>
+						</center>
+					<%- end -%>
+				</td>
+			<%- end -%>
+		</tr>
+		<%- end -%>
+	</tbody>
+</table>
+</tr></td></table>
+
+			

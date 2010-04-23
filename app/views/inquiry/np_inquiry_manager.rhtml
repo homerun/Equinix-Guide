@@ -1,0 +1,29 @@
+<script lang="text/javascript">
+	function toggle_div(me,name) {
+		if($(name).style.display == 'none') {
+			$(name).style.display = 'block';
+			me.innerHTML = '-';
+		}
+		else {
+			$(name).style.display = 'none';
+			me.innerHTML = '+';
+		}
+	}
+	
+	function check_all_in_form(me) {
+		checkBoxObjs = me.form.elements['inquiries[]']
+		if(!checkBoxObjs) {
+			checkBoxObjs.checked = me.checked;
+			return;
+		}
+		for(var i=0; i<checkBoxObjs.length; i++)
+			checkBoxObjs[i].checked = me.checked;
+	}
+</script>
+<% even = false %>
+<% @list_of_np_objs.each do |np_obj| %>
+	<div id="np_table_<%= np_obj[:np].id %>">
+		<%= render :partial => 'np_inquiry_manager_table', :locals => {:np_obj => np_obj, :even => even} %>
+	</div>
+	<% even = !even %>
+<% end %>		

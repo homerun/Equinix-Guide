@@ -1,0 +1,60 @@
+<%= image_tag("/images/folder_img.jpg",{:class => 'title_img'}) %>
+<span class="edit_title">Others' Shared Reports</span>
+<% form_tag do %>
+		<% if @list_of_users_and_other_reports == nil or @list_of_users_and_other_reports.size == 0 then %>
+	<table>
+			<tr>
+				<td colspan="5">No one is sharing reports with you.</td>
+			</tr>
+	</table>
+		<% else %>
+			<% @list_of_users_and_other_reports.each do |user_pair| %>
+	<table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead >
+				<tr>
+					<td class="not_heading" colspan="5">
+						<span class="selection_box_title"><%= user_pair[:user].print_name_with_association %></span>
+					</td>
+				</tr>
+				<tr>
+					<th><div style="width: 100px;">Action</div></th>
+					<th><div style="width: 175px;">Report Title</div></th>
+					<th><div style="width: 200px;">Type of Report</div></th>
+					<th><div style="width: 225px;">Notes</div></th>
+				</tr>
+		</thead>
+		<tbody >
+				<% even = false %>
+				<% user_pair[:shared_reports].each do |shared_report| %>
+					<tr class="<%= if even then 'even_small' else 'odd_small' end %>">
+						<td class="item_button" style="background: #fff; width: 130px; border-top: 1px solid #ddd;">
+							<a class="report_link" href="#" onclick="<%= remote_function(:update => 'other_shared_reports_pane', 
+															   :url => { :action => 'unshare_report',
+															   			:update => 'other_shared_reports_pane',
+																		:unshareId => shared_report.id}) %>">
+								<%= image_tag("/images/decline_img.jpg",{:style => 'vertical-align: middle;', :width => '20',:class => 'item_img'}) %>
+								Decline
+							</a>
+						</td>
+						<td>
+							<span style="font-size:12px">
+								<%= link_to "#{shared_report.report.report_title}", {:action => 'open_report', :id => (shared_report.report.id*9999-321), :sharable => 'yes'} %>
+							</span>
+						</td>
+						<td>
+							<%= shared_report.report.reporttype.type_title %>
+						</td>
+						<td>
+							<%= shared_report.report.notes %>
+						</td>
+					</tr>
+					<% even = !even %>
+				<% end %>
+		</tbody>
+	</table>
+	</td></tr></table>
+	<br/>
+			<%end%>
+		<%end%>
+<% end %>

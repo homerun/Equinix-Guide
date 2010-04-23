@@ -1,0 +1,145 @@
+
+<% @selector_size = 5 %>
+
+<div class="title_div">
+	<%= image_tag("/images/ntp_owners.jpg",{:class => 'title_img'}) %>
+	<h1>Network Termination Point Owners</h1>
+</div>
+
+
+<table class="full">
+<tr><td>
+	<div style="min-width: 400px;">
+		<% if @limited_access then %>
+			
+		<% else %>
+			<% @partial_type = 'editor' %>
+			<div id='ntp_owner_selector'>
+				<%= render :partial => 'ntp_owner_selector' %>
+			</div>
+		<% end %>
+	</div>
+</td></tr>
+<tr><td>
+	<div id="editPane">
+		<% if @ntp_owner == nil then %>
+			<br/> 
+		<% else %>
+			<span class="edit_title"><%= @ntp_owner.name %></span>
+			<div id="tabs_pane" class="tabs_pane">
+				<div id="tab_row_1" class="tab_row">
+					<div id="tab_1" class="tab_selected_other">&nbsp;</div><div class="selected_inner_tab_other" id="inner_tab_1">
+						<a href="#" onclick="select_tab_old(1,4); return false;">
+							Name
+						</a>
+					</div>
+					<div id="tab_2" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_2">
+						<a href="#" onclick="select_tab_old(2,4); return false;">
+							Network Termination Points
+						</a>
+					</div>
+					<div id="tab_3" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_3">
+						<a href="#" onclick="select_tab_old(3,4); return false;">
+							History
+						</a>
+					</div>
+					<div id="tab_4" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_4">
+						<a href="#" onclick="select_tab_old(4,4); return false;">
+							News
+						</a>
+					</div>
+				</div>
+				<div id="tab_1_content" class="tab_content" style="width: 800px;">
+					<div id="tab_padding">
+					<% form_for :networktermptowner do |form| %>
+						<input type="hidden" name="current_tab_row" value="1" />
+						<input type="hidden" name="current_tab" value="1" />
+						<%= form.hidden_field :id, :value => "#{@ntp_owner.id}" %>
+						<table>
+							<tr>
+								<td class="edit_field_text">Name: </td>
+								<td>
+									<div name="editable" style="display: none;">
+										<%= form.text_field :name, {:value => "#{@ntp_owner.name}",
+															  :onchange => remote_function(:update => 'modified', 
+															   						 :url => { :action => 'set_modified'})} %>
+									</div>
+									<div name="read_only">
+										<%= @ntp_owner.name %>
+									</div>
+								</td>
+							</tr>
+						</table>
+						<% if has_editor_role then %>
+							<div name="make_editable">
+								<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+							</div>
+						<% end %>
+						<div name="make_read_only" style="display:none;">
+							<input type="submit" value="Save Changes" onClick="this.disabled = true; postAction(this.form,'manage','save_ntp_owner')"/>
+							<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+						</div>
+					<% end %> 
+					</div>
+				</div>
+				<div id="tab_2_content" class="tab_content" style="display: none; width: 800px;">
+					<div id="tab_padding">
+					<table class="border_only"><tr><td>
+					<table class="list_columns">
+						<thead>
+							<tr>
+								<th><div style="width:400px;">Network Termination Points</div></th>
+							</tr>
+						</thead>
+						<tbody>
+							<% if @ntp_owner.networkterminationpoints != nil then %>
+								<% is_even = true %>
+								<% @ntp_owner.networkterminationpoints.each do |ntp| %>
+									<tr class="<%= if !is_even then 'odd_small' else 'even_small' end %>">
+										<td>
+											<%= link_to ntp.name, { :controller => 'networkterminationpoints', :action => 'edit', :id => ntp.id}, :onclick => "return confirmed();" %>
+										</td>
+									</tr>
+									<% is_even = !is_even %>
+								<% end %>
+							<% end %>
+						</tbody>
+					</table>	
+					</td></tr></table>
+					</div>
+				</div>
+				<div id="tab_3_content" class="tab_content" style="display: none; width: 800px;">
+					<div id="tab_padding">
+					<% if "#{@ntp_owner.id}" == '' then %>
+						You must save before you can view history items.
+					<% else %>
+						<%= render :partial => '/shared/history_pane', :locals => {:table_name => 'Networktermptowner', :table_id => @ntp_owner.id, :tab_number => 3} %>
+					<% end %>
+					</div>
+				</div>
+				<div id="tab_4_content" class="tab_content" style="display: none; width: 800px;">
+					<div id="tab_padding">
+					<% if "#{@ntp_owner.id}" == '' then %>
+						You must save before you can view news items.
+					<% else %>
+						<div id="news_pane">
+							<%= render :partial => '/shared/news_pane' %>
+						</div>
+					<% end %>
+					</div>
+				</div>
+			</div> 
+		<% end %>
+	</div>
+</td></tr>
+</table>
+
+<% if @selected_tab != nil and @selected_tab_row != nil then %>
+	<input type="hidden" value="<%= "select_tab_old(#{@selected_tab.to_i},13,'#{@selected_tab_row}',1)" %>" id="do_select_tab" />
+<% end %>
+
+<% if @change_to_edit then %>
+	<script type="text/javascript">
+		toggle_read_only(false);
+	</script>
+<% end %>

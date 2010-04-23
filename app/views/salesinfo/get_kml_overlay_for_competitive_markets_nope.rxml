@@ -1,0 +1,42 @@
+xml.instruct!
+
+xml.kml "xmlns" => "http://earth.google.com/kml/2.1" do
+  xml.Document do
+    xml.hello "HELLO!"
+    @market.datacenters.each do |datacenter|
+    
+    xml.Placemark do
+      xml.Style do
+        xml.PolyStyle do
+          xml.color "4400ff00"
+          xml.fill "1"
+          xml.outline "1"
+        end
+        xml.LineStyle do
+          xml.color "ff00ff00"
+          xml.width "2"
+        end
+      end
+      xml.MultiGeometry do
+        xml.Polygon do
+          xml.outerBoundaryIs do
+            xml.LinearRing do
+              xml.coordinates do
+                x = datacenter.networkterminationpoint.lat
+                y = datacenter.networkterminationpoint.lon
+                radius = 0.l
+                (0..100).each do |point_number|
+                  xml.puts "#{x+radius*Math.cos(point_number*((Math::PI/2)/100))}, #{y+radius*Math.sin(point_number*((Math::PI/2)/100))}, 0"
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+    
+    end
+  end
+end
+
+end

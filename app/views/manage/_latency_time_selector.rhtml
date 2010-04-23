@@ -1,0 +1,60 @@
+<% if @selector_size == nil then @selector_size = 5 end %>
+
+<% if @partial_type == 'selector' then %>
+	<div class="latency_time_select selectionBlock">
+		<% form_tag do %>
+			
+			<center><span class="selection_box_title">Latency Times</span></center>
+			<% if @selected_poi != nil then %>
+				<%= select_tag(:id, 
+							options_for_select(@list_of_latency_times,@selected_latency_time), 
+							:size => @selector_size, 
+						     :class => 'latency_time_select',
+						     :onchange => "postAction(this.form,'select_latency_time')") %>
+			<% else %>
+				<%= select_tag(:id, 
+							options_for_select(@list_of_latency_times,@selected_latency_time), 
+							:size => @selector_size, 
+						     :class => 'latency_time_select',
+						     :onchange => "postAction(this.form,'select_latency_time')") %>
+			<% end %>
+			
+		<% end %>
+	</div>
+<% else %>
+	<% form_tag do %>
+		<div class="latency_time_select selectionBlock">
+			
+			<center><span class="selection_box_title">Latency Times</span></center>
+			<% if @list_of_latency_times == nil or @selected_networkprovide == '-1' then %>
+				<center>You must select a Network Provider first.</center>
+			<% else %>
+				<% if @selected_latency_time != nil then %>
+					<%= select_tag(:id, 
+								options_for_select(@list_of_latency_times,@selected_latency_time), 
+								:size => @selector_size, 
+							     :class => 'latency_time_select',
+						     	:onclick => "if(confirmed()) $('edit_latency_button').onclick(); else this.value = '#{@selected_latency_time}';") %>
+				<% else %>
+					<%= select_tag(:id, 
+								options_for_select(@list_of_latency_times), 
+								:size => @selector_size, 
+							     :class => 'latency_time_select',
+						     	:onclick => "if(confirmed()) $('edit_latency_button').onclick(); else this.value = '-1';") %>
+				<% end %>
+			<% end %>
+			<% if @list_of_latency_times != nil then %>
+				<center>
+				<input type="button" value="Add" onClick="this.disabled = true; postAction(this.form,'manage','add_latency_time')"/>
+				<div style="display: none;">
+					<input id="edit_latency_button" type="button" value="Edit" onClick="this.disabled = true; postAction(this.form,'manage','edit_latency_time',true)"/>
+				</div>
+				<input type="button" value="Delete" onClick="this.disabled = true; postAction(this.form,'manage','delete_latency_time')"/>
+				</center>
+			<% end %>
+			
+		</div>
+		<br/>
+	<% end %>
+<% end %>
+		

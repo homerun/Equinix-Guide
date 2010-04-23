@@ -1,0 +1,107 @@
+<% if @inquiries.nil? then %>
+	<center><h1>You have a corrupt url.</h1></center>
+<% elsif @inquiries.size == 0 then %>
+	<center><h1>You do not have any inquiries to respond to.</h1></center>
+<% else %>
+<div class="title_div"><h1>Inquiry Response</h1></div>
+
+
+	<% @inquiries.each do |inquiry| %>
+		<% unless inquiry.inquiry_np2ntps.blank? and inquiry.inquiry_latency_times.blank? -%>
+			<table class="border_only"><tr><td>
+			<table class="list_columns">
+				<thead>
+					<th colspan="2">Inquiry sent on <%= print_date(inquiry.sent_at) %></th>
+				</thead>
+				<% unless inquiry.inquiry_np2ntps.blank? -%>
+					<thead>
+						<th>
+							Connection:
+						</th>
+						<th>
+							<div style="min-width: 300px;">Connection Type:</div>
+						</th>
+					</thead>
+					<tbody>
+				<% end -%>
+				<% inquiry.inquiry_np2ntps.each do |np2ntp_inquiry| %>
+					<tr class="<%= cycle('even_small','odd_small')%>">
+						<th>
+							<div style="width: 350px;"><%= np2ntp_inquiry.networkprovider.name %> to <%= np2ntp_inquiry.networkterminationpoint.name %></div>
+						</th>
+						<td>
+							<div id="np2ntp_response_<%= np2ntp_inquiry.id %>" style="padding: 4px 0px 3px 0px;">
+								<% form_tag do %>
+									<input type="hidden" id="np2ntp_inquiry_id" name="np2ntp_inquiry_id" value="<%= np2ntp_inquiry.id %>" />
+									<input type="hidden" id="user_id" name="user_id" value="<%= @current_user.id %>" />
+									<% current_connection = Np2ntp.find(:first,:conditions => ["networkprovider_id = :np_id and networkterminationpoint_id = :ntp_id", {:np_id => np2ntp_inquiry.networkprovider_id, :ntp_id => np2ntp_inquiry.networkterminationpoint_id}]) %>
+									<% unless current_connection.nil? -%>
+										<center><b>Current Connection: </b><%= current_connection.details %></center>
+									<% else -%>
+										<center><b>Connection is Currently Unknown</b></center>
+									<% end -%>
+									<%= select_tag(:connectiontype_id, 
+														options_for_select(@list_of_connection_types,"#{current_connection.connectiontype_id unless current_connection.nil?}"),
+														:name => "connectiontype_id",
+														:onchange => remote_function(:update => 'modified', 
+													   						    :url => { :action => 'set_modified'})) %>
+									<a href="#" onclick="if(confirm('Do you verify that the information you are about to submit is accurate? If you click OK, your name will be associated with this data as one verifying its accuracy.')) { $('submit_np2ntp_response_<%= np2ntp_inquiry.id %>').style.display = 'block'; this.innerHTML = ''; } return false;">Submit Inquiry Response</a>
+									<div id="submit_np2ntp_response_<%= np2ntp_inquiry.id %>" style="display: none;">
+										<%= submit_to_remote 'submit_np2ntp_inquiry_response', 'Submit Response', :url => {:action => 'submit_np2ntp_inquiry_response'}, :update => "np2ntp_response_#{ np2ntp_inquiry.id}", :before => 'this.disabled = true'  %>
+									</div>
+								<% end %>
+							</div>
+						</td>
+					</tr>
+				<% end %>
+				<%= "</tbody>" unless inquiry.inquiry_np2ntps.blank? %>
+				<% unless inquiry.inquiry_latency_times.blank? -%>
+					<thead>
+						<th>
+							Connection:
+						</th>
+						<th>
+							<div style="min-width: 300px;">Latency Times:</div>
+						</th>
+					</thead>
+					<tbody>
+				<% end -%>
+				<% inquiry.inquiry_latency_times.each do |latency_time_inquiry| %>
+					<tr class="<%= cycle('even_small','odd_small')%>">
+						<th>
+							<div style="width: 350px;"><%= latency_time_inquiry.to_str %></div>
+						</th>
+						<td>
+							<div id="latency_time_response_<%= latency_time_inquiry.id %>" style="padding: 4px 0px 3px 0px;">
+								<% form_tag do %>
+									<input type="hidden" id="latency_time_inquiry_id" name="latency_time_inquiry_id" value="<%= latency_time_inquiry.id %>" />
+									<input type="hidden" id="user_id" name="user_id" value="<%= @current_user.id %>" />
+									<% current_latency_time = Latencytime.find(:first,:conditions => "a_np2ntp_id = #{[latency_time_inquiry.a_np2ntp_id,latency_time_inquiry.b_np2ntp_id].min} and b_np2ntp_id = #{[latency_time_inquiry.a_np2ntp_id,latency_time_inquiry.b_np2ntp_id].max} and networkprovider_id = #{latency_time_inquiry.networkprovider_id}") %>
+									<% unless current_latency_time.nil? -%>
+										<center><b>Current Latency Time:</b> <%= current_latency_time.latency_time %> ms</center>
+									<% else -%>
+										<center>Latency Time is Currently Unknown</center>
+									<% end -%>
+									<p>
+										<b>Enter Latency Time:</b> <input style="text-align: right;" type="text" id="latency_time_text" name="latency_time_text" />
+										<b>(ms)</b>
+									</p>
+									<p>
+										<a href="#" onclick="if(confirm('Do you verify that the information you are about to submit is accurate? If you click OK, your name will be associated with this data as one verifying its accuracy.')) { $('submit_latency_time_response_<%= latency_time_inquiry.id %>').style.display = 'block'; this.innerHTML = ''; } return false;">Submit Inquiry Response</a>
+										<div id="submit_latency_time_response_<%= latency_time_inquiry.id %>" style="display: none;">
+												<%= submit_to_remote 'submit_latency_time_inquiry_response', 'Submit Response', :url => {:action => 'submit_latency_time_inquiry_response'}, :update => "latency_time_response_#{ latency_time_inquiry.id}", :before => 'this.disabled = true'  %>
+										</div>
+									</p>
+								<% end %>
+							</div>
+						</td>
+					</tr>
+				<% end %>
+				<%= "</tbody>" unless inquiry.inquiry_latency_times.blank? %>
+			</table>
+			</td></tr></table>
+			<br/>
+		<% end -%>
+	<% end -%>
+<% end -%>
+				

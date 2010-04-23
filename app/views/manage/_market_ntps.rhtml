@@ -1,0 +1,63 @@
+    	
+
+<div name="editable" style="display: none;">
+	<a href="#" onclick="$('add_market_ntp_div').style.display = 'block'; return false;">
+		<span style="font-size: 10px;">Add Datacenter</span>
+	</a>
+	&nbsp; &nbsp;
+	<a href="#" onclick="document.getElementsByName('remove_market_ntps')[0].onclick(); return false;">
+		<span style="font-size: 10px;">Remove Selected</span>
+	</a>
+</div>
+								
+<p></p>						
+
+<div id="add_market_ntp_div" class="green_div" style="width: 550px; display: none;">
+	<% form_remote_tag :url => {:action => 'add_market_ntp'}, :update => 'market_ntps' do %>
+		<%= hidden_field :market, :id, :value => "#{@market.id}" %>
+		<%= select :selected_datacenter, :id, @other_datacenters %>
+		<br/>
+		<input type="button" onclick="$('add_market_ntp_div').style.display = 'none'; document.getElementsByName('Add_NTP')[0].click(); return false;" value="Add" />
+		or <a onclick="$('add_market_ntp_div').style.display = 'none';  return false;">Cancel</a>
+		<div style="display: none;">
+			<%= submit_to_remote 'Add_NTP', 'Add', :url => { :action => 'add_market_ntp'}, :update => 'market_ntps' %>
+		</div>
+	<% end %>
+</div>
+		
+		
+<p></p>
+<% form_remote_tag :url => {:action => 'add_market_ntp'}, :update => 'market_ntps' do %>
+	<%= hidden_field :market, :id, :value => "#{@market.id}" %>
+	<table class="border_only"><tr><td>
+	<table class="list_columns">
+		<tbody>
+			<% if @market.datacenters != nil then %>
+				<% is_even = true %>
+				<% (@market.datacenters.sort { |x,y| x.networkterminationpoint.name <=> y.networkterminationpoint.name }).each do |datacenter| %>
+					<tr class="<%= if !is_even then 'odd_small' else 'even_small' end %>">
+						<td>
+							<div style="width: 300px;">
+								<div name="editable" style="display: none;">
+									<%= check_box "selectedMarketNtps", "", {}, "#{datacenter.networkterminationpoint_id},","" %>
+								</div>
+								<%= link_to h(datacenter.networkterminationpoint.name), { :controller => 'networkterminationpoints', :action => 'edit', :id => "#{datacenter.networkterminationpoint_id}"}, :onclick => "return confirmed();" %>
+							</div>
+						</td>
+					</tr>
+					<% is_even = !is_even %>
+				<% end %>
+			<% end %>
+		</tbody>
+	</table>	
+	</td></tr></table>
+	<div style="display: none;">
+		<%= submit_to_remote 'remove_market_ntps', 'Remove', :url => { :action => 'remove_market_ntp'}, :update => 'market_ntps' %>
+	</div>
+<% end %>
+
+<% if @change_to_edit then %>
+	<script type="text/javascript">
+		toggle_read_only(false);
+	</script>
+<% end %>

@@ -1,0 +1,32 @@
+<div class="title_div">
+    <h1>Select Datacenter</h1>
+</div>    
+<% @datacenter_objs.each do |datacenter_obj| %>
+	<h2><%= datacenter_obj[:datacenter_owner] %></h2>
+	<table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead >
+			<tr>
+				<th></th>
+				<th><div style="width: 180px;">Abbreviation</div></th>
+				<th><div style="width: 350px;">Address</div></th>
+				<th><div style="width: 200px;">Latitude and Longitude</div></th>
+			</tr>
+		</thead>
+		<tbody>
+			<% datacenter_obj[:datacenter_list].each do |datacenter| %>
+				<tr class="<%= cycle('even', 'odd') %>">
+					<td> <%= button_to "Select", :action => :select_datacenter, :id => datacenter.id %> </td>
+					<td> <%= datacenter.name %> </td>
+					<td> <%= (datacenter.street_address.blank?)?():("#{datacenter.street_address}<br/>") %> 
+					    <% unless datacenter.city.blank? && datacenter.state_or_province.blank? && datacenter.zip_code.blank? %> 
+						    <%= (datacenter.city.blank?)?():("#{datacenter.city},") %> <%= datacenter.state_or_province %> <%= datacenter.zip_code %> <br/>
+						<% end %>
+						<%= datacenter.country.name if datacenter.country %> </td>
+					<td> Latitude: <%= datacenter.lat %> <br/>Longitude: <%= datacenter.lon %> </td></tr>
+			<% end %>
+		</tbody>
+	</table>
+	</td></tr></table>
+<% end %>
+

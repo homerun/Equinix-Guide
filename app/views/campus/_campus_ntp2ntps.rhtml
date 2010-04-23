@@ -1,0 +1,83 @@
+<p>
+	<%= link_to_remote 'View All Connections', :url => {:action => 'view_campus_connections', :id => campus.id}, :update => 'campus_connections' if show_link %>
+</p>
+
+<table class="border_only"><tr><td>
+<table class="list_columns">
+	<thead>
+		<tr>
+			<th colspan="3">
+				<%= networkterminationpoint.name %>
+			</th>
+		</tr>
+		<tr>
+			<th>
+				<div style="width: 250px;">
+					Network Termination Point
+				</div>
+			</th>
+			<th>
+				<div style="width: 180px;">
+					Connection Type
+				</div>
+			</th>
+			<th>
+				<div style="width: 150px;">
+					Latency Time
+				</div>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<%- campus.networkterminationpoints.each do |ntp| -%>
+			<%- unless ntp.id == networkterminationpoint.id -%>
+				<%- min_id = [networkterminationpoint.id,ntp.id].min -%>
+				<%- max_id = [networkterminationpoint.id,ntp.id].max -%>
+				<%- connection = networkterminationpoint.campus_connection_to(ntp) -%>
+				<script type="text/javascript">
+					if(!$('campus_connection_<%= min_id %>_<%= max_id %>'))
+						$('campus_changes').innerHTML += '<input id="campus_connection_<%= min_id %>_<%= max_id %>" name="campus_connection[<%= min_id %>_<%= max_id %>]" value="<%= connection.campus_access_type_id unless connection.nil? %>">';
+					if(!$('campus_latency_<%= min_id %>_<%= max_id %>'))
+						$('campus_changes').innerHTML += '<input id="campus_latency_<%= min_id %>_<%= max_id %>" name="campus_latency[<%= min_id %>_<%= max_id %>]" value="<%= connection.latency_time unless connection.nil? %>">';
+				</script>
+				<tr>
+					<td>
+						<%= ntp.name %>
+					</td>
+					<td>
+						<div name="editable" style="display: none;">
+							<select onchange="$('campus_connection_<%= min_id %>_<%= max_id %>').value = this.value;">
+								<%- if connection.nil? or not connection.campus_access_type_id or connection.campus_access_type_id == 0 then %>
+									<%- current_access = CampusAccessType.find_by_name('Not Specified').id -%>
+								<%- else -%>
+									<%- current_access = connection.campus_access_type_id -%>
+								<%- end %>
+								<%= options_for_select(CampusAccessType.find(:all,:order => 'name').collect{|t| [t.name,t.id]},current_access) %>
+							</select>
+						</div>
+						<div name="read_only">
+							<%= connection.campus_access_type.name unless connection.nil? or connection.campus_access_type.nil? %>
+						</div>
+					</td>
+					<td>
+						<div name="editable" style="display: none;">
+							<input onchange="$('campus_latency_<%= min_id %>_<%= max_id %>').value = this.value;" value="<%= connection.latency_time unless connection.nil? %>" >
+							ms
+						</div>
+						<div name="read_only">
+							<%= "#{connection.latency_time} ms" unless connection.nil? or connection.latency_time.blank? %>
+						</div>
+					</td>
+				</tr>
+			<%- end -%>
+		<%- end -%>
+	</tbody>
+</table>
+</tr></td></table>
+
+
+<%- if @change_to_edit then -%>
+<script type="text/javascript">
+	toggle_read_only(false);
+</script>
+<%- end -%>

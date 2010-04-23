@@ -1,0 +1,89 @@
+<%= GOOGLE_MAPS_KEY %>
+
+
+<!--<div style="opacity: 0.90; filter: alpha(opacity=90); -ms-filter:'progid:DXImageTransform.Microsoft.Alpha(Opacity=90)';">-->
+<div id="the_map" style="opacity: 0.00; filter: alpha(opacity=00); -moz-opacity:0.00;">
+	<div id="preload_map" style="width: <%= @map_size %>px; height: <%= @map_size %>px;"></div>
+	<%- form_tag do %>
+		<input id="lat_lon_name_list" name="lat_lon_name_list" />
+		
+		<input type="hidden" id="number_of_campus_ntps" name="number_of_campus_ntps" value="<%= @campus_ntps.size %>" />
+		<input type="hidden" id="number_of_non_campus_ntps" name="number_of_non_campus_ntps" value="<%= @non_campus_ntps.size %>" />
+		
+		<input type="hidden" id="center_lat" name="center_lat" value = "<%= @center_lat %>" />
+		<input type="hidden" id="center_lon" name="center_lon" value = "<%= @center_lon %>" />
+		
+		<input type="hidden" id="map_size" name="map_size" value="<%= @map_size %>" />
+		
+		<input type="hidden" id="zoom_level" name="zoom_level" value="7" />
+		
+		<input type="hidden" id="market_id" name="market_id" value="<%= @market.id unless @market.nil? %>" />
+		
+		<input type="hidden" id="networkterminationpoint_id" name="networkterminationpoint_id" value="<%= @networkterminationpoint unless @networkterminationpoint.nil? %>" />
+		
+		<%= submit_to_remote 'create_file_and_link', 'Create File and Link', :url => { :controller => 'campus', :action => 'prepare_map' }, :update => update_field %>
+	<%- end %> 
+</div>
+
+<div id="map_cover" style="background-color: #fff; position: absolute; width: <%= @map_size %>px; height: <%= @map_size %>px;">
+&nbsp;
+</div>
+
+<script type="text/javascript">	
+
+$('map_cover').style.top = $('the_map').offsetTop;
+
+function markerPosition(nameParm, latLonParm) {
+	this.name = nameParm;
+	this.latLon = latLonParm;
+}
+
+function subtractOffset(point, offset) {
+	return new GPoint(point.x - offset.x, point.y - offset.y);
+}
+
+  if (GBrowserIsCompatible()) {
+  
+    var map = new GMap2(document.getElementById("preload_map"));
+	var marker;
+	var latLon;
+	var markerPositions = [];
+	var currentZoom = 7;
+	var markerOutputArray = new Array();
+	var myBounds = new GLatLngBounds(new GLatLng(<%= @min_lat %>,<%= @min_lon %>),new GLatLng(<%= @max_lat %>,<%= @max_lon %>))
+	var myPixelOffset;
+    map.setCenter(new GLatLng(<%= @center_lat %>, <%= @center_lon %>), currentZoom);
+	currentZoom = map.getBoundsZoomLevel(myBounds);
+	if(currentZoom>14)
+		currentZoom = 14;
+	map.setZoom(currentZoom);
+    map.setUIToDefault();
+	latLon = new GLatLng(map.getBounds().getNorthEast().lat(), map.getBounds().getSouthWest().lng())
+	myPixelOffset = map.getCurrentMapType().getProjection().fromLatLngToPixel(latLon, currentZoom)
+<%- @campus_ntps.each do |ntp| -%>
+	<%- unless ntp.lat.nil? or ntp.lon.nil? then %>
+		latLon = new GLatLng(<%= ntp.lat %>,<%= ntp.lon %>);
+		markerPositions[markerPositions.length] = new markerPosition("<%= ntp.name %>",latLon);
+	<%- end %>
+<%- end -%>
+<%- @non_campus_ntps.each do |ntp| -%>
+	latLon = new GLatLng(<%= ntp.lat %>,<%= ntp.lon %>);
+	markerPositions[markerPositions.length] = new markerPosition("<%= ntp.name %>",latLon);
+<%- end -%>
+<%- @other_ntps.each do |ntp| -%>
+	latLon = new GLatLng(<%= ntp.lat %>,<%= ntp.lon %>);
+	markerPositions[markerPositions.length] = new markerPosition("<%= ntp.name %>",latLon);
+<%- end -%>
+	for (var i = 0; i < markerPositions.length; i++) {
+		markerPositions[i].pixelCoord = subtractOffset(map.getCurrentMapType().getProjection().fromLatLngToPixel(markerPositions[i].latLon, currentZoom),myPixelOffset);
+		markerOutputArray[markerOutputArray.length] = markerPositions[i].name + 
+		"AAAA" + markerPositions[i].latLon.lat() + 
+		"AAAA" + markerPositions[i].latLon.lng() + 
+		"AAAA" + markerPositions[i].pixelCoord.x + 
+		"AAAA" + markerPositions[i].pixelCoord.y;
+	}
+	document.getElementById("lat_lon_name_list").value = markerOutputArray.join('BBBB');
+	document.getElementById("zoom_level").value = currentZoom;
+	document.getElementsByName('create_file_and_link')[0].click();
+  }
+</script> 

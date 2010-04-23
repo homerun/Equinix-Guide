@@ -1,0 +1,69 @@
+
+<% @selector_size = 5 %>
+
+<div class="title_div">
+	<span class="page_title">Financial Services</span>
+	<%= image_tag("/images/help_icon.jpg",{:width => '30', :onmouseover => "show_info_div(this,'service_help',220,-40)", :onmouseout => "hide_info_div(this,'service_help')"}) %>
+</div>
+
+<div id="service_help" class="info_div" style="display: none; position: absolute; left: 1; top: 1;" onmouseout="javascript:this.style.display='none'">
+1. Select the Equinix Region where the financial point of interest is based.<br/>
+2. Select the Financial Point of Interest that provides the Service.<br/>
+3. To add a new Service, click add. To edit an existing Service,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select the Service and click edit.<br/>
+4. After adding or updating a Service you must click "Save Changes"<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at the bottom of the page.
+</div>
+
+<table class="full">
+<tr><td>
+	<% @partial_type = 'selector' %>
+	<div id="region_selector">
+		<%= render :partial => 'region_selector' %>
+	</div>
+	
+	<div id="poi_selector">
+		<%= render :partial => 'poi_selector' %>
+	</div>
+	
+	<% @partial_type = 'editor' %>
+	<div id="service_selector">
+		<%= render :partial => 'service_selector' %>
+	</div>
+</td></tr>
+<tr><td>
+	<div id="editPane">
+		<% if @service == nil then %>
+			<br/>
+		<% else %>
+			<span class="edit_title"><%= @service.name %></span>
+			<% form_for :service do |form| %>
+				<%= form.hidden_field :id, :value => "#{@service.id}" %>
+				<table>
+					<tr>
+						<td class="edit_field_text">Name: </td>
+						<td><%= form.text_field :name, {:value => "#{@service.name}",
+												   :onchange => remote_function(:update => 'modified', 
+												   						  :url => { :action => 'set_modified'})} %></td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Acronym: </td>
+						<td><%= form.text_field :service_acronym, {:value => "#{@service.service_acronym}", 
+														   :onchange => remote_function(:update => 'modified', 
+														   						  :url => { :action => 'set_modified'})} %></td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Description: </td>
+						<td><%= form.text_area :description, {:value => "#{@service.description}", :rows => "5", 
+													   :onchange => remote_function(:update => 'modified', 
+													   						  :url => { :action => 'set_modified'})} %></td>
+					</tr>
+					<%= form.hidden_field :pointsofinterest_id, :value => "#{@service.pointsofinterest_id}" %>
+				</table>
+				<input type="submit" value="Save Changes" onClick="this.disabled = true; postAction(this.form,'manage','save_service')"/>
+				<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+			<% end %> 
+		<% end %>
+	</div>
+</td></tr>
+</table>

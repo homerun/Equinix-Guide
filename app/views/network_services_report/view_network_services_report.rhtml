@@ -1,0 +1,21 @@
+<% if @owner == nil %>
+	<div style="display: inline; margin-right: 30px;">
+		<%= link_to 'Save this report...', {:controller => 'reports', :action => 'new', :reporttype => 'view_network_services_report'} %>
+	</div>
+<% elsif @owner == 'shared' then %>
+	<div style="display: inline; margin-right: 30px;">
+		<%= link_to 'Save a copy of this shared report...', {:controller => 'reports', :action => 'new', :reporttype => 'view_network_services_report'} %>
+	</div>
+<% end %>
+<div style="display: inline; margin-right: 30px;">
+	<%= link_to 'Export to csv...', {:action => 'view_network_services_report', :id => 'csv', :filename => @filename} %>
+</div>
+<div style="display: inline; margin-right: 30px;">
+	<%= link_to 'Printable version...', :action => 'view_network_services_report', :id => 'print' %>
+</div>
+<div style="display: inline; margin-right: 30px;">
+	<%= link_to 'Export to pdf...', :action => 'view_network_services_report', :id => 'pdf' %>
+</div>
+<div id="view_network_services_pane">
+	<%= render :partial => 'view_network_services_pane', :locals => {:printable => false} %>
+</div>

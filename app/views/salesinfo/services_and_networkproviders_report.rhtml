@@ -1,0 +1,53 @@
+<% if @owner == nil %>
+	<%= link_to 'Save this report...', {:controller => 'reports', :action => 'new', :reporttype => 'services_and_networkproviders_report' } %> <br/>
+	<%#= link_to 'Export...', {:controller => :export, :action => 'services_and_networkproviders_report'} %>
+<% elsif @owner == 'shared' then %>
+	<%= link_to 'Save a copy of this shared report...', {:controller => 'reports', :action => 'new', :reporttype => 'services_and_networkproviders_report'} %> <br/>
+	<%#= link_to 'Export...', {:controller => :export, :action => 'services_and_networkproviders_report', :filename => @filename} %>
+<% else %>
+	<%#= link_to 'Export...', {:controller => :export, :action => 'services_and_networkproviders_report', :filename => @filename} %>
+<% end %>
+<br/>
+
+<% if @providers_poi_list.size > 0 then -%>
+	<div style="display: inline; margin-right: 30px;">
+		<div id="exchanges_cross_table_link" style="display: none;">
+			<a href="#" onclick="$('exchanges_cross_table').style.display = 'block'; $('providers_cross_table').style.display = 'none'; $('exchanges_cross_table_link').style.display = 'none'; $('exchanges_cross_table_text').style.display = 'inline'; $('providers_cross_table_link').style.display = 'inline'; $('providers_cross_table_text').style.display = 'none'; return false;">Network Providers</a>
+		</div>
+		<div id="exchanges_cross_table_text" style="display: inline;">
+			Network Providers
+		</div>
+	</div>
+	
+	<div style="display: inline; margin-right: 30px;">
+		<div id="providers_cross_table_link" style="display: inline;">
+			<a href="#" onclick="$('providers_cross_table').style.display = 'block'; $('exchanges_cross_table').style.display = 'none'; $('providers_cross_table_link').style.display = 'none'; $('providers_cross_table_text').style.display = 'inline'; $('exchanges_cross_table_link').style.display = 'inline'; $('exchanges_cross_table_text').style.display = 'none'; return false;">Providers</a>
+		</div>
+		<div id="providers_cross_table_text" style="display: none;">
+			Providers
+		</div>
+	</div>
+	
+<% end -%>
+	<div id="print_cross_table_link" style="display: inline; margin-right: 30px;">
+		<%= link_to 'Printable Version', {:controller => 'salesinfo', :action => 'services_and_networkproviders_report', :printable => true} %>		
+	</div>
+	
+<div id="exchanges_cross_table">
+	<%= render :partial => 'datacenter_to_pois_cross_table', 
+			   :locals => {:type => 'exchanges',
+						   :poi_list => @exchanges_poi_list, 
+						   :networkproviders => @exchanges_networkproviders, 
+						   :regions_present => @exchanges_regions_present,
+						   :contact_rows => @exchanges_contact_rows,
+						   :has_campus_connection => @exchanges_has_campus_connection,
+						   :printable =>  false} %>
+</div>
+
+<% if @providers_poi_list.size > 0 then -%>
+	<div id="providers_cross_table" style="display: none;">
+		<%= render :partial => 'provider_cross_table', 
+				   :locals => {:poi_list => @providers_poi_list, 
+							   :printable =>  false} %>
+	</div>
+<% end -%>

@@ -1,0 +1,17 @@
+The following email was sent to the user you just added:<br/><br/>
+<i>
+<%= @first_name %> <%= @last_name %>,<br/>
+<br/>
+<%= @first_name %> <%= @last_name %>,<br/>
+<br/>
+You have requested that your password be reset for the Equinix GUIDE appplication at <a href="<%= @domain %>">www.circuitclout.com</a>.<br/>
+<br/>
+Click here to change your password: <a href="#" onclick="alert('This link is not available to you.'); return false;">Reset Password</a>.  This link will allow you generate a new password and you will not be asked to provide any information.<br/>
+<br/>
+You have until <%= @expiration_date %> to use this link. If you do not use this link to change your password, your password will remain unchanged.<br/>
+<br/>
+If you have any concerns or issues, please contact Lance Homer (lhomer@equinix.com / 801-742-5382).<br/>
+<br/>
+</i>
+<%= link_to 'Add another user...', :action => 'add_user' %>
+

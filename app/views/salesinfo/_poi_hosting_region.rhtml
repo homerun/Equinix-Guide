@@ -1,0 +1,69 @@
+<% with_params = "'fixed_income=#{(@fixed_income_class)?('true'):('false')}&foreign_exchange=#{(@foreign_exchange_class)?('true'):('false')}&futures=#{(@futures_class)?('true'):('false')}&equities=#{(@equities_class)?('true'):('false')}&all_classes=#{(@all_classes)?('true'):('false')}&type_1=#{(@type_1)?('true'):('false')}&type_2=#{(@type_2)?('true'):('false')}'" %>
+<center>
+	<table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead>
+			<tr>
+				<th><div style="width: 130px;">Regions:</div></th>
+				<% region_totals = Hash.new %>
+				<% @list_of_regions.each do |region| %>
+					<%- unless region.countries.nil? or region.countries.size < 1 -%>
+					<th style="width: 100px; cursor: pointer;" onmouseover="$('th_<%= region.id %>').style.color = 'red'" onmouseout="$('th_<%= region.id %>').style.color = 'white'" onclick="<%= remote_function :url => {:action => 'poi_hosting_country', :region_id => region.id}, :update => 'country_view', :complete => "region_to_country(#{region.id})", :with => with_params %>">
+					<%- else -%>
+					<th style="width: 100px;">
+					<%- end -%>
+						<% region_totals[region] = 0 %>
+						<span id="th_<%= region.id %>"><%= region.region_name %></span>
+					</th>
+				<% end %>
+				<th>
+					<div style="width: 100px;">
+						Total
+					</div>
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% is_even = true %>
+				<% @list_of_region_datacenter_owners.each do |dc_owner| %>
+					<tr class="<%= if !is_even then 'odd_small' else 'even_small' end %>">
+						<td>
+							<span<%= ' style="font-size: 12px;"' if dc_owner.name == 'Equinix' %>><b>
+								<%= link_to dc_owner.name, {:controller => 'manage', :action => 'edit_ntp_owner', :id => dc_owner.id} %>
+							</b></span>
+						</td>
+						<% dc_owner_total = 0 %>
+						<% @list_of_regions.each do |region| %> 
+							<td style='text-align: right;'>
+								<% region_totals[region] += (@region_numbers[dc_owner][region].nil? ? 0 : @region_numbers[dc_owner][region].size) %>
+								<% dc_owner_total += (@region_numbers[dc_owner][region].nil? ? 0 : @region_numbers[dc_owner][region].size) %>
+								<% if dc_owner.name == 'Equinix' then %>
+									<span style="font-size: 12px;"><b><%= print_poi_hosting_details(@region_numbers[dc_owner][region],'poi_hosting_region_details') %></b></span>
+								<% else %>
+									<%= print_poi_hosting_details(@region_numbers[dc_owner][region],'poi_hosting_region_details') %>
+								<% end %>
+							</td>
+						<% end %>
+						<% if dc_owner.name == 'Equinix' then %>
+							<td style='text-align: right;'><span style="font: 12px 'Verdana', Arial, Helvetica, sans-serif;"><b><%= dc_owner_total %></b></span></td>
+						<% else %>
+							<td style='text-align: right;'><%= dc_owner_total %></td>
+						<% end %>
+					</tr>
+					<% is_even = !is_even %>
+				<% end %>
+				<tr>
+					<td><b>Totals</b></td>
+					<% @list_of_regions.each do |region| %>
+						<td style='text-align: right;'>
+							<%= region_totals[region] %>
+						</td>
+					<% end %>
+					<td>&nbsp;</td>
+				</tr>
+			<div id="poi_hosting_region_details" style="display: none; position: absolute; left: 1; top: 1;" class="connectionTypeDescr" onmouseout="javascript:this.style.display='none';" onmouseover="javascript:this.style.display='block';">
+			</div>
+		</tbody>
+	</table>
+	</td></tr></table>
+</center>		

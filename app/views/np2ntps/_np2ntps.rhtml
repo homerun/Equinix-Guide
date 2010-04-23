@@ -1,0 +1,178 @@
+<%- if not networkprovider or networkprovider.nil? then %>
+	<% connections = networkterminationpoint.np_connections.sort { |x,y| x.networkprovider.name.downcase <=> y.networkprovider.name.downcase } %>
+	<% object = networkterminationpoint %>
+	<% can_edit_object = @current_user.can_edit_networkterminationpoint?(networkterminationpoint.id) %>
+	<% that_object_name = 'networkprovider' %>
+	<% this_object_name = 'networkterminationpoint' %>
+	<% that_object_descr = 'Network Provider' %>
+	<% this_object_descr = 'Network Termination Point' %>
+	<% that_controller = 'networkproviders' %>
+	<% that_action = 'edit' %>
+	<%- if connections.empty? then -%>
+		<% that_object_select_items = Networkprovider.find(:all).collect {|np| [np.name,np.id]} %>
+	<%- else -%>
+		<% that_object_select_items = Networkprovider.find(:all, :conditions => ["id not in (:current_ids)", {:current_ids => connections.collect {|connection| connection.networkprovider_id} }]).collect {|np| [np.name,np.id]} %>
+	<%- end -%>
+<%- else %>
+	<% connections = networkprovider.ntp_connections.sort { |x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase } %>
+	<% object = networkprovider %>
+	<% can_edit_object = @current_user.can_edit_networkprovider?(networkprovider.id) %>
+	<% this_object_name = 'networkprovider' %>
+	<% that_object_name = 'networkterminationpoint' %>
+	<% this_object_descr = 'Network Provider' %>
+	<% that_object_descr = 'Network Termination Point' %>
+	<% that_controller = 'networkterminationpoints' %>
+	<% that_action = 'edit' %>
+	<%- if connections.empty? then -%>
+		<% that_object_select_items = Networkterminationpoint.find(:all).collect {|ntp| [ntp.name,ntp.id]} %>
+	<%- else -%>
+		<% that_object_select_items = Networkterminationpoint.find(:all, :conditions => ["id not in (:current_ids)", {:current_ids => connections.collect {|connection| connection.networkterminationpoint_id} }]).collect {|ntp| [ntp.name,ntp.id]} %>
+	<%- end -%>
+<%- end %>
+
+<% that_object_select_items = (that_object_select_items.sort {|x,y| x[0].downcase <=> y[0].downcase }).insert(0,['','None']) %>
+
+<script type="text/javascript">
+
+	function get_select_option_text(selectObj) {
+		options = selectObj
+		for(var i=0; i<options.length; i++)
+			if(options[i].value+'' == selectObj.value)
+				return options[i].text;
+		return "Unknown";
+	}
+	
+</script>
+
+<% if flash[:notice] and !flash[:notice].blank? %>
+	<div id="np2ntpNotification" class="notification">	
+		<%= image_tag "flash_img.jpg", :width => '50', :class => 'title_img' %>
+		<div style="vertical-align: top; display: inline;">
+ 			<%= flash[:notice] %>
+ 			<% flash[:notice] = '' %>
+    	</div>
+	</div>
+ 	<script type="text/javascript">
+ 		setTimeout("$('np2ntpNotification').style.display = 'none'",10000)
+ 	</script>
+<% end %>
+
+<p>
+	<div id="add_connection_unsubmit">
+		<div name="editable" style="display: none;">
+			<a href="#" onclick="$('add_connection_submit').style.display = 'block'; $('add_connection_unsubmit').style.display = 'none'; return false;">Add Connection</a>
+		</div>
+	</div>
+</p>
+<div id="add_connection_submit" class="connectionTypeDescr" style="z-index: 1; display: none;">
+	<form action="/np2ntps/edit_step_0_submit" method="get" id="step_0_submit">
+		<input type="hidden" id="np2ntp_<%= this_object_name %>_id" name="np2ntp[<%= this_object_name %>_id]" value="<%= object.id %>" />
+		<input type="hidden" id="edit_type" name="edit_type" value="A" />
+		<p><span class="bold_label"><%= that_object_descr %></span></p>
+		<p><%= select :np2ntp, "#{that_object_name}_id", that_object_select_items %></p>
+	</form>
+	<%= observe_form  :step_0_submit,
+					  :update => 'np2ntp_edit_step_1',
+					  :url => {:controller => 'np2ntps', :action => 'edit_step_0_submit'} %> 
+	<br/>
+	<div id="np2ntp_edit_step_1">
+	</div>
+	<br/>
+	<p style="margin-left: 20px;">
+		or <a onclick="$('add_connection_unsubmit').style.display = 'block'; $('add_connection_submit').style.display = 'none'; return false;">Cancel</a>
+	</p>
+	<div style="display: none;">
+		<%= submit_to_remote 'add_np2ntp_submit', 'Add', :url => {:controller => 'np2ntps', :action => 'create'}, :update => 'np2ntps' %>
+	</div>
+</div>
+<p></p>
+<table class="border_only"><tr><td>
+<table class="list_columns">
+	<thead >
+		<tr>
+			<th><div style="width: 200px;"><center><%= that_object_descr %></center></div></th>
+            <th><div style="width: 720px;"><center>Connection Details</center></div></th>
+            <th><div style="width: 150px;"><center>Certified by Network Provider?</center></div></th>
+		</tr>
+	</thead>
+	<tbody >
+		<% if connections %>
+			<% connections.each do |np2ntp_connection| %>
+				<% association_np_id = ((this_object_name == 'networkprovider')?(object.id):(np2ntp_connection.networkprovider.id)) %>
+				<tr class="<%= cycle('odd_small','even_small') %>">
+					<td>
+						<%= link_to eval("np2ntp_connection.#{that_object_name}.name"), { :controller => that_controller, :action => that_action, :id => eval("np2ntp_connection.#{that_object_name}.id") }, :onclick => "return confirmed();" %>
+					</td>
+					<td>
+							<div id="connection_description_<%= np2ntp_connection.id %>">
+								<%= np2ntp_connection.details %>
+							</div>
+							<div id="connection_edit_<%= np2ntp_connection.id %>" class="connectionTypeDescr" style="z-index: 1; display: none;">
+								<center><b>
+									<%= np2ntp_connection.networkprovider.name %>
+									to
+									<%= np2ntp_connection.networkterminationpoint.name %>
+								</b></center>
+								<%= render :partial => 'np2ntps/edit_step_1', :locals => {:networkprovider => np2ntp_connection.networkprovider,
+																				 :networkterminationpoint => np2ntp_connection.networkterminationpoint,
+																				 :edit_type => 'E',
+																				 :np2ntp => np2ntp_connection} %>
+								<p style="margin-left: 20px;">
+									<a onclick="$('connection_description_<%= np2ntp_connection.id %>').style.display = 'block'; $('connection_edit_<%= np2ntp_connection.id %>').style.display = 'none'; $('certified_connection_<%= np2ntp_connection.id %>_a').innerHTML = '<%= ((@current_user.associated_with_networkprovider?(association_np_id)) or np2ntp_connection.user.nil?)?('Edit'):('Contest') %>'; return false;">Cancel</a>
+								</p>
+							</div>
+					</td>
+					<td>
+						<div id="certified_connection_<%= np2ntp_connection.id %>">
+							<% if np2ntp_connection.user.nil? %>
+								No
+								<div name="editable" style="display: none;">
+									<% if @current_user.associated_with_networkprovider?(association_np_id) %>
+									    <%= link_to_remote 'Certify', :url => {:controller => 'np2ntps', :action => 'certify', :id => np2ntp_connection.id}, :confirm => 'Do you certify that the information you are about to submit is accurate? If you click OK, your name will be associated with this data as one certifying its accuracy.', :update => "certified_connection_#{np2ntp_connection.id}" %>								
+									<% else %>
+										&nbsp;<a id="certified_connection_<%= np2ntp_connection.id %>_a" href="#" onclick="$('connection_description_<%= np2ntp_connection.id %>').style.display = 'none'; $('connection_edit_<%= np2ntp_connection.id %>').style.display = 'block'; $('certified_connection_<%= np2ntp_connection.id %>_a').innerHTML = ''; return false;">Edit</a>
+									<% end %>
+								</div>
+							<% else %>
+								<%= print_message_div('Yes',"Certified by #{ np2ntp_connection.user.print_name }#{ if np2ntp_connection.certified_date then ' on '+np2ntp_connection.certified_date.to_s end }") %>
+								<% unless np2ntp_connection.contestlist_np2ntps.blank? %>
+									<%= print_message_div('*',"Contested by #{ np2ntp_connection.contestlist_np2ntps.size } user#{ 's' if np2ntp_connection.contestlist_np2ntps.size != 1 }.") %>
+								<% end %>
+								<% if np2ntp_connection.contestlist_np2ntps.blank? or !(np2ntp_connection.contestlist_np2ntps.collect {|contest| contest.user_id}).include?(@current_user.id) then %>
+									<div name="editable" style="display: none;">
+										<% if @current_user.associated_with_networkprovider?(association_np_id) %>
+											&nbsp;<a id="certified_connection_<%= np2ntp_connection.id %>_a" href="#" onclick="$('connection_description_<%= np2ntp_connection.id %>').style.display = 'none'; $('connection_edit_<%= np2ntp_connection.id %>').style.display = 'block'; $('certified_connection_<%= np2ntp_connection.id %>_a').innerHTML = ''; $('edit_type_<%= np2ntp_connection.id %>').value = 'E'; return false;">Edit</a>
+										<% elsif np2ntp_connection.user_id != @current_user.id and (np2ntp_connection.contestlist_np2ntps.blank? or !(np2ntp_connection.contestlist_np2ntps.collect {|contest| contest.user_id}).include?(@current_user.id)) %>
+											&nbsp;<a id="certified_connection_<%= np2ntp_connection.id %>_a" href="#" onclick="$('connection_description_<%= np2ntp_connection.id %>').style.display = 'none'; $('connection_edit_<%= np2ntp_connection.id %>').style.display = 'block'; $('certified_connection_<%= np2ntp_connection.id %>_a').innerHTML = ''; $('edit_type_<%= np2ntp_connection.id %>').value = 'C'; return false;">Contest</a>
+										<% end %>
+									</div>
+									<div name="read_only">
+									</div>
+								<% end %>
+							<% end %>
+						</div>
+					</td>
+				</tr>
+			<%- end -%>
+			<input type="hidden" id="selected_connection_type_contest" name="selected_connection_type_contest" value="1" />
+			<div id="connectionTypeDescr" style="display: none; position: absolute; left: 1; top: 1;" class="connectionTypeDescr" onmouseout="javascript:this.style.display='none'">
+			</div>
+		<% end %>
+	</tbody>
+</table>
+</td></tr></table>
+
+<% if can_edit_object then %>
+	<div name="make_editable">
+		<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+	</div>
+<% end %>
+<div name="make_read_only" style="display:none;">
+	<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+</div>
+
+<% if @change_to_edit then %>
+	<script type="text/javascript">
+		toggle_read_only(false);
+	</script>
+<% end %>

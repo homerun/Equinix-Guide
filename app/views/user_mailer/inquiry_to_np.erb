@@ -1,0 +1,47 @@
+Dear <%= @name %>,<br/>
+<% unless @list_of_unknown_ntps.blank? %>
+<br/>
+Please inform us of your connectivity to the following network termination points:<br/>
+<% @list_of_unknown_ntps.each do |ntp| %>
+<br/>
+<b><%= ntp.name %></b><br/>
+<%= ntp.print_full_addr %><br/>
+<% end %>
+<% end %>
+
+<% unless @list_of_ntp_connections.blank? %>
+<br/>
+Please verify your connectivity to the following network termination points:<br/>
+<% @list_of_ntp_connections.each do |ntp_connection| %>
+<br/>
+<b><%= ntp_connection.networkterminationpoint.name %></b><br/>
+<%= ntp_connection.networkterminationpoint.print_full_addr %><br/>
+<b><%= ntp_connection.details %></b><br/>
+<% end %>
+<% end %>
+
+<% unless @list_of_inquiries_with_unknown_latency_times.blank? %>
+<br/>
+Please inform us of the latency time between the following network termination points:<br/>
+<% @list_of_inquiries_with_unknown_latency_times.each do |latency_time_inquiry| %>
+<br/>
+<b><%= latency_time_inquiry.a_np2ntp.networkterminationpoint.name %></b> to <b><%= latency_time_inquiry.b_np2ntp.networkterminationpoint.name %></b><br/>
+<% end %>
+<br/>
+<% end %>
+
+<% unless @list_of_latency_times.blank? %>
+<br/>
+Please verify the latency times between the following network termination points:<br/>
+<% @list_of_latency_times.each do |latency_time| %>
+<br/>
+(<b><%= latency_time.latency_time %> ms</b>) - <b><%= latency_time.np2ntpA.networkterminationpoint.name %></b> to <b><%= latency_time.np2ntpB.networkterminationpoint.name %></b><br/>
+<% end %>
+<% end %>
+
+<br/>
+Please respond by clicking on the following link. <a href="<%= BASE_URL %>inquiry/respond_to_inquiries/<%= @send_to_user.hash_id('inquiry') %>?inquiry=<%= @send_to_user.id %>">RESPOND TO INQUIRIES</a>
+<br/>
+<br/>
+Thank you for your cooperation,<br/>
+<%= @user.print_name %><br/>

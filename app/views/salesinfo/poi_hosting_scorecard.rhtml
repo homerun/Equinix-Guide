@@ -1,0 +1,62 @@
+
+<SCRIPT type="text/javascript">  
+function region_to_country(region_id) {
+	up = new Effect.SlideUp("region_view",{delay:0.0, duration:1.0});
+	down = new Effect.SlideDown("country_view",{delay:0.7, duration:1.0});
+$('current_view').value = 'country';
+$('region_id').value = region_id;
+}
+function country_to_region() {
+<%= visual_effect :slide_up, 'country_view', :duration => 1.0, :delay => 0.0 %>
+<%= visual_effect :slide_down, 'region_view', :duration => 1.0, :delay => 0.7 %>
+$('current_view').value = 'region';
+}
+function country_to_market(country_id) {
+<%= visual_effect :slide_up, 'country_view', :duration => 1.0, :delay => 0.0 %>
+<%= visual_effect :slide_down, 'market_view', :duration => 1.0, :delay => 0.7 %>
+$('current_view').value = 'market';
+$('country_id').value = country_id;
+}
+function market_to_country() {
+<%= visual_effect :slide_up, 'market_view', :duration => 1.0, :delay => 0.0 %>
+<%= visual_effect :slide_down, 'country_view', :duration => 1.0, :delay => 0.7 %>
+$('current_view').value = 'country';
+}
+function toggle_all_classes() {
+	
+}
+</SCRIPT>
+
+<div class="title_div">
+    <h1>Financial Points of Interest Hosting Scorecard</h1>
+</div>
+<div id="update_status" style="height: 15px; text-align: center;"></div>
+<div id="all_views" style="min-height: 350px;">
+	<%= render :partial => 'poi_hosting_all_views', :locals => {:current_view => 'region'} %>
+</div>
+<form>
+	<center>
+		<p>
+			<b>Filter By Asset Classes</b><br/>
+			<input type="checkbox" name="all_classes" checked="checked" onchange="document.getElementsByName('do_update')[0].click();" /> All (Include No Class) &nbsp;<br/>
+			<input type="checkbox" id="equities" name="equities" checked="checked" onchange="document.getElementsByName('do_update')[0].click();" /> Equities &nbsp;
+			<input type="checkbox" id="fixed_income" name="fixed_income" checked="checked"  onchange="document.getElementsByName('do_update')[0].click();" /> Fixed Income &nbsp;
+			<input type="checkbox" id="foreign_exchange" name="foreign_exchange" checked="checked"  onchange="document.getElementsByName('do_update')[0].click();" /> Foreign Exchange &nbsp;
+			<input type="checkbox" id="futures" name="futures" checked="checked"  onchange="document.getElementsByName('do_update')[0].click();" /> Derivatives &nbsp;
+		</p>
+		<p>
+			<b>Filter By Type of Presence</b> <br/>
+			<input type="checkbox" name="type_1" checked="checked"  onchange="document.getElementsByName('do_update')[0].click();" /> <%= Poiconnectiontype.find_by_id(1).description %>
+			<br/>
+			<input type="checkbox" name="type_2" checked="checked"  onchange="document.getElementsByName('do_update')[0].click();" /> <%= Poiconnectiontype.find_by_id(2).description %>
+		</p>
+		<input type="hidden" id="region_id" name="region_id" value="" />
+		<input type="hidden" id="country_id" name="country_id" value="" />
+		<input type="hidden" id="current_view" name="current_view" value="region"/>
+		<div style="display: none">
+			<%= submit_to_remote 'do_update', 'Update', :url => {:action => 'update_poi_hosting'}, :update => 'all_views', :before => '$("update_status").innerHTML = "Updating...";', :complete => '$("update_status").innerHTML = "";' %>
+		</div>
+		<div id="type_description" style="display: none; position: absolute; left: 1; top: 1;" class="connectionTypeDescr" onmouseout="javascript:this.style.display='none';" onmouseover="javascript:this.style.display='block';">
+		</div>
+	</center>
+</form>

@@ -1,0 +1,35 @@
+<% unless @list_of_ntps.blank? -%>
+<script type="text/javascript">
+	function showLoading() {
+		if ($('editPane').innerHTML.indexOf('Still Loading') >= 0) {
+			if ($('editPane').innerHTML.length > 90) {
+				$('editPane').innerHTML = $('editPane').innerHTML + '.';
+				setTimeout('showLoading()', 1000);
+			}
+			else {
+				$('editPane').innerHTML = $('editPane').innerHTML + '.';
+				setTimeout('showLoading()', 100);
+			}
+		}
+	}
+</script>
+
+<select id="select_ntp" name="select_ntp" onchange='$("editPane").innerHTML = "<br/><input type=\"hidden\" value=\"Still Loading!\"/><i>Loading</i>"; showLoading();'>
+	<%= options_for_select(@list_of_ntps.insert(0,['All','ALL']), @selected_ntp) %>
+</select>
+<% else -%>
+No Network Termination Points meet your search criteria
+<% end -%>
+
+<%= observe_field "select_ntp", 
+		:url => {:action => 'show'},
+		:update => "editPane",
+		:with => "ntp_id" %>
+
+<table class="full">
+    <tr><td>
+        <div id="editPane">
+            <%= render :partial => "edit" %>
+        </div>
+    </td></tr>
+</table>

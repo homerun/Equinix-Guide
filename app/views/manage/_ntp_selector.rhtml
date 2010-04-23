@@ -1,0 +1,59 @@
+<% if @selector_size == nil then @selector_size = 5 end %>
+
+<div class="ntp_select selectionBlock">
+<% if @partial_type == 'selector' -%>
+		<% form_remote_tag(:url => {:action => 'select_ntp'}, :update => "#{get_element_to_update('ntp')}") do %>
+			<center><span class="selection_box_title">Network Termination Points</span></center>
+			<% unless @selected_ntp.nil? -%>
+				<%= select_tag(:id, 
+							options_for_select(@list_of_ntps,@selected_ntp), 
+							:size => @selector_size,
+						     :class => 'ntp_select',
+							:onchange => remote_function(:update => "#{get_element_to_update('ntp')}", 
+												   :url => { :action => 'select_ntp'},
+												   :with => "'id='+value+'&page=#{@page}'")) %>
+			<% else %>
+				<%= select_tag(:id,
+							options_for_select(@list_of_ntps),
+							:size => @selector_size,
+						     :class => 'ntp_select',
+							:onchange => remote_function(:update => "#{get_element_to_update('ntp')}", 
+												   :url => { :action => 'select_ntp'},
+												   :with => "'id='+value+'&page=#{@page}'")) %>
+			<% end %>
+			<%= link_to 'Edit Network Termination Points', :action => 'edit_ntp' %>
+		<% end %>
+	
+<% else %>
+	<% form_tag do %>
+		<center><span class="selection_box_title">Network Termination Points</span></center>
+			<% if @list_of_ntps.nil? %>
+				<center>You must select a Country and Network Termination Point Type first.</center>
+			<% else %>
+				<% unless @selected_ntp.nil? %>
+					<%= select_tag(:id, 
+								options_for_select(@list_of_ntps,@selected_ntp), 
+								:size => @selector_size,
+						     	:class => 'ntp_select',
+						     	:onclick => "if(confirmed()) $('edit_ntp_button').onclick(); else this.value = '#{@selected_ntp}';") %>
+				<% else %>
+					<%= select_tag(:id, 
+								options_for_select(@list_of_ntps), 
+								:size => @selector_size,
+						     	:class => 'ntp_select',
+						     	:onclick => "if(confirmed()) $('edit_ntp_button').onclick(); else this.value = '-1';") %>
+				<% end %>
+			<% end %>
+			<% unless @list_of_ntps.nil? %>
+				<center>
+				<input type="button" value="Add" onClick="this.disabled = true; postAction(this.form,'manage','add_ntp')"/>
+				<div style="display: none;">
+					<input id="edit_ntp_button" type="button" value="Edit" onClick="this.disabled = true; postAction(this.form,'manage','edit_ntp',true)"/>
+				</div>
+				<input type="button" value="Delete" onClick="this.disabled = true; postAction(this.form,'manage','delete_ntp')"/>
+				</center>
+			<% end %>
+		<br/>
+	<% end %>
+<% end %>
+</div>

@@ -1,0 +1,40 @@
+<div class="title_div">
+	<%= image_tag("poi_title_img.gif",{:width => '40'}) %>
+    <h1>Customer Security Groups</h1>
+</div>
+
+<%= render :partial => "/layouts/yui_crud_includes" %>
+<div id="new_customer_group_button">
+	<input type="button" value="New" onclick="$('new_customer_group_button').style.display = 'none'; $('new_customer_group_div').style.display = 'block';" />
+</div>
+<div id="new_customer_group_div" class="connectionTypeDescr" style="display: none;">
+	<% form_for :customer_group, :url => {:controller => 'customer_groups', :action => 'create'} do |f| %>
+		<p>
+			<span class="bold_label">Name</span>
+		</p>
+		<p>
+			<%= f.text_field :name %>
+		</p>
+		<p>
+			<span class="bold_label">Notes</span>
+		</p>
+		<p>
+			<%= f.text_area :notes, {:rows => "5"} %>
+		</p>
+		<%= submit_tag 'Add' %>
+		<a onclick="$('new_customer_group_button').style.display = 'block'; $('new_customer_group_div').style.display = 'none';" />Cancel</a>
+	<% end %>
+</div>
+	
+
+<div class="yui-skin-sam">
+	<br/>
+	<form action = "<%= url_for( :action => params[:action] ) %>" method="get">
+		<input id="search" name="search" type="text" value="<%= params[:search] if params[:search] %>">&nbsp;&nbsp;<%= submit_tag "Search" %>&nbsp;&nbsp;<%= submit_tag "Reset" %>
+	</form>
+	<br/>
+	<div id="dt"></div>
+	<div id="paging"></div>
+	<br/>
+	<%= render :partial => "layouts/yui_crud_table" %>
+</div>

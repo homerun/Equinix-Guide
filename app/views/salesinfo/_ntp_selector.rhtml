@@ -1,0 +1,56 @@
+<% if @selector_size == nil then @selector_size = 5 end %>
+<script type="text/javascript">
+	function select_by_prox(me) {
+		$("ntp_ids[]").disabled=!me.checked; 
+		$("ntp_ids[]").selectedIndex="-1"; 
+		$("ntp_ids[]").value="[-1]"; 
+		$("ntp_callback_clear").onchange();
+	}
+</script>
+
+	<div class="ntp_select selectionBlock">
+		<% form_remote_tag(:url => {:action => 'select_ntp'}, :update => "#{get_element_to_update('ntp')}") do %>
+				<% if @page == 'view_ntps' then %>
+					<center>
+						<input id='sort_by_prox' type='checkbox' checked='<%= if @selected_ntp == -1 or @selected_ntp == nil then false else true end %>' onclick='javascript:select_by_prox(this)'/>
+						<span class="selection_box_title">Sort by Proximity to ...</span>
+					</center>
+				<% else %>
+					<center><b>Network Termination Points</b></center>
+				<% end %>
+				<select class="ntp_select" id="ntp_ids[]" <%= if @page != 'view_ntps' then "multiple='multiple'" else " " end %> name="ntp_ids[]" onchange="document.getElementsByName('ntp_select_submit')[0].onclick();" size="<%= @selector_size %>">
+					<%= if @selected_ntps != nil then 
+						options_for_select(@list_of_ntps,@selected_ntps)  
+					else
+						options_for_select(@list_of_ntps,'-1')
+					end %>
+				</select>
+			<div style="display: none;">
+				<%= submit_to_remote 'ntp_select_submit', 'Select Network Termination Points', :url => {:action => 'select_ntps'}, :update => "#{get_element_to_update('ntp_selector')}" %>
+			</div>
+			<% if @page == 'view_ntps' and (@selected_ntp == -1 or @selected_ntp == nil) then %>
+				<script type="text/javascript">
+					$("sort_by_prox").checked = false;
+					$("ntp_ids[]").disabled=true; 
+					Element.hide("spinner");
+				</script>
+			<% end %>
+		<% end %>
+	
+		<div id="spinner" style="display: none; position: absolute; left: 700px; top: 60px;">
+			<center><%= image_tag("/images/spinner.gif") %></center>
+		</div>
+	</div>
+	
+	<input id='ntp_callback' type='hidden' onchange="<%= remote_function(:update => "#{get_element_to_update('ntp_selector')}", 
+														 :url => { :action => 'select_ntps'}) %>">
+														 
+	<input id='ntp_callback_clear' type='hidden' onchange="<%= remote_function(:update => "#{get_element_to_update('ntp_selector')}", 
+														 :url => { :action => 'select_ntps', :ntp_ids => '[-1]'}) %>">
+														 
+		
+<% if @update_child then %>
+	<script type="text/javascript">
+		document.getElementsByName('ntp_select_submit')[0].onclick();
+	</script>
+<% end %>

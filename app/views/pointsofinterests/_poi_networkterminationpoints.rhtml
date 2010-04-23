@@ -1,0 +1,192 @@
+
+<script type="text/javascript">
+	function get_select_option_text(selectObj) {
+		options = selectObj
+		for(var i=0; i<options.length; i++)
+			if(options[i].value+'' == selectObj.value)
+				return options[i].text;
+		return "Unknown";
+	}
+</script>
+
+<% unless flash[:notice].blank? %>
+	<div id="poi2ntp_notification" class="notification">
+ 		<%= image_tag "flash_img.jpg", :class => 'title_img' %>
+ 	    <div style="vertical-align: top; display: inline;">
+ 			<%= flash[:notice] %>
+		    <% flash[:notice] = '' %>
+  		</div>
+		</div>
+  	<script type="text/javascript">
+  		setTimeout("$('poi2ntp_notification').style.display = 'none'",10000)
+  	</script>
+  	<br/>
+<% end -%>
+
+<% form_remote_tag :url => {:controller => 'poi2ntps', :action => 'create', :poi => true}, :update => 'poi_networkterminationpoints' do %>
+	<%= hidden_field :poi2ntp_connections, :pointsofinterest_id, :value => "#{@pointsofinterest.id}" %>
+	<p>
+		<div id="add_ntp_connection_unsubmit">
+			<div name="editable" style="display: none;">
+				<a href="#" onclick="$('add_ntp_connection_submit').style.display = 'block'; $('add_ntp_connection_unsubmit').style.display = 'none'; return false;">Add Connection</a>
+			</div>
+		</div>
+	</p>
+	<div id="add_ntp_connection_submit" class="connectionTypeDescr" style="z-index: 1; display: none;">
+		<p>
+			<span class="bold_label">Network Termination Point</span>
+		</p>
+		<p>
+			<%= select :poi2ntp_connections, :networkterminationpoint_id, @other_ntp_connections %>
+		</p>
+		<br/>
+		<p>
+			<span class="bold_label">Connection Type</span>
+		</p>
+		<p>
+			<%= select :poi2ntp_connections, :poiconnectiontype_id, @poi_connection_types %>
+		</p>
+		<%- if @current_user.is_equinix_user? then -%>
+			<br/>
+			<p>
+				<span class="bold_label">Public</span>
+				<br/>
+				<%= check_box :poi2ntp_connections, :public, {:checked => 'checked'} %>
+				Yes (If private, only equinix users can see this connection)
+			</p>
+		<%- end -%>
+		<br/>
+		<input type="button" onclick="$('add_ntp_connection_unsubmit').style.display = 'block'; $('add_ntp_connection_submit').style.display = 'none'; document.getElementsByName('Add_NTP')[0].onclick(); return false;" value="Add" />
+		or <a onclick="$('add_ntp_connection_unsubmit').style.display = 'block'; $('add_ntp_connection_submit').style.display = 'none'; return false;">Cancel</a>
+		<div style="display: none;">
+			<%= submit_to_remote 'Add_NTP', 'Add', :url => {:controller => 'poi2ntps', :action => 'create', :poi => true}, :update => 'poi_networkterminationpoints' %>
+		</div>
+	</div>
+<% end -%>
+<p></p>
+<% if @pointsofinterest.ntp_connections %>
+	<% form_remote_tag :url => {:controller => 'poi2ntps', :action => 'destroy', :poi => true } do %>
+		<table class="border_only"><tr><td>
+		<table class="list_columns">
+			<thead>
+				<tr>
+					<th><div style="width: 200px;"><center>Network Termination Point</center></div></th>
+					<th><div style="width: 720px;"><center>Connection Type</center></div></th>
+					<th>Certified By User?</th>
+					<th>Public</th>
+				</tr>
+			</thead>
+			<tbody>
+				<% (@pointsofinterest.ntp_connections.sort { |x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).each do |ntp_connection| %>
+					<% if ntp_connection.public or (@current_user.is_equinix_user?) %>
+						<tr class="<%= cycle('odd_small','even_small') %>">
+							<td>
+								<%= link_to ntp_connection.networkterminationpoint.name, { :controller => 'networkterminationpoints', :action => 'edit', :id => "#{ntp_connection.networkterminationpoint.id}"}, :onclick => "return confirmed();" %>
+							</td>
+							<td>
+								<div id="contest_ntp_connection_unsubmit_<%= ntp_connection.id %>">
+									<%= ntp_connection.connectiontype.description %>
+								</div>
+								<div id="contest_ntp_connection_submit_<%= ntp_connection.id %>" class="connectionTypeDescr" style="z-index: 1; display: none;">
+									<center><b>
+										<%= ntp_connection.networkterminationpoint.name %>
+										to
+										<%= ntp_connection.poi.name %>
+									</b></center>
+									<center>
+										Please select from the list below the correct connection type.
+									</center>
+									<%= select_tag("selected_connection_type_contest_#{ntp_connection.id}", 
+												options_for_select(@poi_connection_types,ntp_connection.poiconnectiontype_id), 
+												:onclick => '$("contestPoiConnectionId").value = this.value') %>
+									<%- if @current_user.is_equinix_user? then -%>
+										<br/>
+										<center>
+											<span class="bold_label">Public:</span>
+											<%= check_box :public, "#{ntp_connection.id}", {:checked => "#{(ntp_connection.public)?('checked'):('false')}"} %>
+											Yes (If private, only equinix users can see this connection)
+										</center>
+									<%- else -%>
+										<div style="display: none;">
+											<%= check_box :public, "#{ntp_connection.id}", {:checked => "#{(ntp_connection.public)?('checked'):('false')}"} %>
+										</div>
+									<%- end -%>
+									<center>
+										<% if @current_user.can_edit_pointsofinterest?(ntp_connection.pointsofinterest.id) and @current_user.associated_with_pointsofinterest?(ntp_connection.pointsofinterest.id) then %>
+											<input type="button" onclick="if(confirm('Do you certify that the information you are about to submit is accurate? If you click OK, your name will be associated with this data as one certifying its accuracy.')) { $('contestPoiConnectionId').value = $('selected_connection_type_contest_<%= ntp_connection.id %>').value; $('poi2ntp_edit_public').checked = $('public_<%= ntp_connection.id %>').checked; $('contest_ntp_connection_unsubmit_<%= ntp_connection.id %>').style.display = 'block'; $('contest_ntp_connection_submit_<%= ntp_connection.id %>').style.display = 'none'; document.getElementsByName('contest_poi2ntp_connection_<%= ntp_connection.id %>')[0].onclick(); hide_info_div(this,'contest_ntp_connection_submit_<%= ntp_connection.id %>'); } return false;" value="Save" />
+										<% elsif ntp_connection.user == nil then %> 
+											<input type="button" onclick="$('contestPoiConnectionId').value = $('selected_connection_type_contest_<%= ntp_connection.id %>').value; $('poi2ntp_edit_public').checked = $('public_<%= ntp_connection.id %>').checked; $('contest_ntp_connection_unsubmit_<%= ntp_connection.id %>').style.display = 'block'; $('contest_ntp_connection_submit_<%= ntp_connection.id %>').style.display = 'none'; document.getElementsByName('contest_poi2ntp_connection_<%= ntp_connection.id %>')[0].onclick(); hide_info_div(this,'contest_ntp_connection_submit_<%= ntp_connection.id %>'); return false;" value="Save" />
+										<% else %>
+											<input type="button" onclick="if(confirm('Are you sure you want to contest this connection? If so, click OK and your user information will be associated with this case and it will be reviewed shortly.')) { $('contestPoiConnectionId').value = $('selected_connection_type_contest_<%= ntp_connection.id %>').value; $('poi2ntp_edit_public').checked = $('public_<%= ntp_connection.id %>').checked; $('contest_ntp_connection_unsubmit_<%= ntp_connection.id %>').style.display = 'block'; $('contest_ntp_connection_submit_<%= ntp_connection.id %>').style.display = 'none'; document.getElementsByName('contest_poi2ntp_connection_<%= ntp_connection.id %>')[0].onclick(); hide_info_div(this,'contest_ntp_connection_submit_<%= ntp_connection.id %>'); } return false;" value="Contest" />
+										<% end %>
+										or <a onclick="$('contest_ntp_connection_unsubmit_<%= ntp_connection.id %>').style.display = 'block'; $('contest_ntp_connection_submit_<%= ntp_connection.id %>').style.display = 'none'; $('certified_poi_connection_<%= ntp_connection.id %>_a').innerHTML = '<%= if ntp_connection.user == nil then 'Edit' else 'Contest' end %>'; return false;">Cancel</a>
+									</center>
+									<div style="display: none;">
+										<% if ntp_connection.user == nil then %>
+											<%= submit_to_remote "contest_poi2ntp_connection_#{ntp_connection.id}", 'Edit', :url => {:controller => 'poi2ntps', :action => 'contest', :id => ntp_connection.id, :poi => true }, :update => "contest_ntp_connection_unsubmit_#{ ntp_connection.id}", :before => 'this.disabled = true'  %>
+										<% else %>
+											<%= submit_to_remote "contest_poi2ntp_connection_#{ntp_connection.id}", 'Contest', :url => {:controller => 'poi2ntps', :action => 'contest', :id => ntp_connection.id, :poi => true }, :update => "certified_poi_connection_#{ ntp_connection.id}", :before => 'this.disabled = true'  %>
+										<% end %>
+									</div>
+								</div>
+							</td>
+							<td>
+								<div id="certified_poi_connection_<%= ntp_connection.id %>">
+									<% if ntp_connection.user.nil? then %>
+										No
+										<div name="editable" style="display: none;">
+											<% if @current_user.can_edit_pointsofinterest?(ntp_connection.pointsofinterest.id) and @current_user.associated_with_pointsofinterest?(ntp_connection.pointsofinterest.id) %>
+											    <%= link_to_remote 'Certify', :url => {:controller => 'poi2ntps', :action => 'certify', :id => ntp_connection.id}, :confirm => 'Do you certify that the information you are about to submit is accurate? If you click OK, your name will be associated with this data as one certifying its accuracy.', :update => "certified_poi_connection_#{ntp_connection.id}" %>
+												&nbsp;<a id="certified_poi_connection_<%= ntp_connection.id %>_a" href="#" onclick="$('contest_ntp_connection_unsubmit_<%= ntp_connection.id %>').style.display = 'none'; $('contest_ntp_connection_submit_<%= ntp_connection.id %>').style.display = 'block'; $('certified_poi_connection_<%= ntp_connection.id %>_a').innerHTML = ''; return false;">Edit</a>
+											<% else %>
+												&nbsp;<a id="certified_poi_connection_<%= ntp_connection.id %>_a" href="#" onclick="$('contest_ntp_connection_unsubmit_<%= ntp_connection.id %>').style.display = 'none'; $('contest_ntp_connection_submit_<%= ntp_connection.id %>').style.display = 'block'; $('certified_poi_connection_<%= ntp_connection.id %>_a').innerHTML = ''; return false;">Edit</a>
+											<% end %>
+										</div>
+									<% else %>
+										<%= print_message_div('Yes',"Certified by #{ ntp_connection.user.print_name }#{ if ntp_connection.certified_date != nil then ' on '+ntp_connection.certified_date.to_s end }") %>
+										<% unless ntp_connection.contestlist_poi2ntps.blank? %>
+											<%= print_message_div('*',"Contested by #{ ntp_connection.contestlist_poi2ntps.size } user#{ 's' if ntp_connection.contestlist_poi2ntps.size != 1 }.") %>
+										<% end %>
+										<div name="editable" style="display: none;">
+											<% if @current_user.associated_with_pointsofinterest?(ntp_connection.pointsofinterest.id) and ntp_connection.user_id == @current_user.id %>
+												&nbsp;<a id="certified_poi_connection_<%= ntp_connection.id %>_a" href="#" onclick="$('contest_ntp_connection_unsubmit_<%= ntp_connection.id %>').style.display = 'none'; $('contest_ntp_connection_submit_<%= ntp_connection.id %>').style.display = 'block'; $('certified_poi_connection_<%= ntp_connection.id %>_a').innerHTML = ''; return false;">Edit</a>
+											<% elsif ntp_connection.user_id != @current_user.id and (ntp_connection.contestlist_poi2ntps.blank? or !(ntp_connection.contestlist_poi2ntps.collect {|contest| contest.user_id}).include?(@current_user.id)) %>
+												&nbsp;<a id="certified_poi_connection_<%= ntp_connection.id %>_a" href="#" onclick="$('contest_ntp_connection_unsubmit_<%= ntp_connection.id %>').style.display = 'none'; $('contest_ntp_connection_submit_<%= ntp_connection.id %>').style.display = 'block'; $('certified_poi_connection_<%= ntp_connection.id %>_a').innerHTML = ''; return false;">Contest</a>
+											<% end %>
+										</div>
+									<% end %>
+								</div>
+								</div>
+							</td>
+							<td>
+								<div id="connection_public_<%= ntp_connection.id %>"><%= ((ntp_connection.public)?('Yes'):('No')) %></span>
+							</td>
+						</tr>
+					<% end %>
+				<%- end -%>
+				<input type="hidden" id="contestPoiConnectionId" name="contestPoiConnectionId" value="1" />
+				<div style="display: none;"> <%= check_box :poi2ntp_edit, :public, {:checked => "checked"} %></div>
+				<div id="connectionTypeDescr" style="display: none; position: absolute; left: 1; top: 1;" class="connectionTypeDescr" onmouseout="javascript:this.style.display='none'">
+				</div>
+			</tbody>
+		</table>
+		</td></tr></table>	
+	<% end %>
+<% else %>
+	No Network Termination Point Associations.
+<% end %>
+
+<% if @current_user.can_edit_pointsofinterest?(@pointsofinterest.id) then %>
+	<div name="make_editable">
+		<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+	</div>
+<% end %>
+<div name="make_read_only" style="display:none;">
+	<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+</div>
+
+<% if @change_to_edit then %>
+	<script type="text/javascript">
+		toggle_read_only(false);
+	</script>
+<% end %>

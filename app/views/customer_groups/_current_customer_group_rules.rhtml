@@ -1,0 +1,36 @@
+
+<form>
+	<table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead>
+			<tr>
+				<th>
+					Action
+				</th>
+				<th>
+					Group Rule
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% @customer_group.customer_group_rules.each do |customer_group_rule| %>
+				<tr class="<%= cycle('even_small', 'odd_small') %>">
+					<td>
+						<a href="#" onclick="<%= remote_function(  :update => 'current_customer_group_rules', 
+														:url => { :action => 'remove_customer_group_rule', 
+																:deleteId => customer_group_rule.id,
+																:customer_group_id => @customer_group.id}) %>; return false;">
+							Remove
+						</a>
+					</td>
+					<td>
+						<%= customer_group_rule.print %>
+					</td>
+				</tr>
+				<% is_even = !is_even %>
+			<% end %>
+		</tbody>
+	</table>
+	</td></tr></table>
+</form>
+			

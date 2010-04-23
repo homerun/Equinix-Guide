@@ -1,0 +1,76 @@
+<h3>Provides Service To:</h3>
+<div name="editable" style="display: none;">
+	<a href="#" onclick="$('add_pointsofinterest_aggregation_div').style.display = 'block'; return false;">
+		<span style="font-size: 10px;">Add Point of Interest</span>
+	</a>
+	&nbsp;
+	<a href="#" onclick="document.getElementsByName('remove_pointsofinterest_aggregations')[0].onclick(); return false;">
+		<span style="font-size: 10px;">Remove Point of Interest</span>
+	</a>
+</div>
+								
+<p></p>											
+
+<div id="add_pointsofinterest_aggregation_div" class="green_div" style="width: 400px; display: none;">
+	<% form_remote_tag :url => {:action => 'add_pointsofinterest_aggregation'}, :update => 'pointsofinterest_aggregations' do %>
+		<%= hidden_field :pointsofinterest, :id, :value => "#{@pointsofinterest.id}" %>
+		<%= hidden_field :pointsofinterest_aggregation, :aggregator_pointsofinterest_id, :value => "#{@pointsofinterest.id}" %>
+		<%= select :pointsofinterest_aggregation, :aggregated_pointsofinterest_id, @potential_aggregations %>
+		<br/>
+		<input type="button" onclick="$('add_pointsofinterest_aggregation_div').style.display = 'none'; document.getElementsByName('Add_POI_AGGR')[0].click(); return false;" value="Add" />
+		or <a onclick="$('add_pointsofinterest_aggregation_div').style.display = 'none';  return false;">Cancel</a>
+		<div style="display: none;">
+			<%= submit_to_remote 'Add_POI_AGGR', 'Add', :url => {:controller => 'pointsofinterest_aggregations', :action => 'add_pointsofinterest_aggregation'}, :update => 'pointsofinterest_aggregations' %>
+		</div>
+	<% end %>
+</div>
+
+
+<% form_tag do %>
+<%= hidden_field :pointsofinterest, :id, :value => "#{@pointsofinterest.id}" %>
+<div style="display: none;">
+	<%= submit_to_remote 'remove_pointsofinterest_aggregations', 'Remove', :url => { :controller => 'pointsofinterest_aggregations', :action => 'remove_pointsofinterest_aggregations'}, :update => 'pointsofinterest_aggregations' %>
+</div>
+<table class='border_only'><tr><td>
+<table class='list_columns'>
+	<thead >
+		<tr>
+			<th><div style="width: 220px;">Point of Interest Name</div></th>
+			<th><div style="width: 130px;">Abbreviation</div></th>
+			<th><div style="width: 350px;">URL</div></th>
+		</tr>
+	</thead>
+	<tbody>
+		<% (@pointsofinterest.aggregated_pointsofinterests.sort {|x,y| x.aggregated.name.downcase <=> y.aggregated.name.downcase}).each do |aggregation| %>
+			<tr class="<%= cycle('odd_small','even_small') %>">
+				<td>
+					<div name="editable" style="display: none;"><%= check_box "selected_pointsofinterest_aggregations", "", {}, "#{aggregation.id},","" %></div>
+					<%= link_to aggregation.aggregated.name, {:controller => 'pointsofinterests', :action => 'edit', :id => "#{aggregation.aggregated.id}"}, :onclick => "return confirmed();" %><br/>
+				</td>
+				<td>
+					<%= aggregation.aggregated.abbreviation %>
+				</td>
+				<td>
+					<%= aggregation.aggregated.url %>
+				</td>
+			</tr>
+		<% end %>
+	</tbody>
+</table>	
+</td></tr></table>
+<% end %>
+
+<% if @current_user.can_edit_pointsofinterest?(@pointsofinterest.id) then %>
+	<div name="make_editable">
+		<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+	</div>
+<% end %>
+<div name="make_read_only" style="display:none;">
+	<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+</div>
+
+<% if @change_to_edit then %>
+	<script type="text/javascript">
+		toggle_read_only(false);
+	</script>
+<% end %>

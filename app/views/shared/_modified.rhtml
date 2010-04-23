@@ -1,0 +1,3 @@
+<script type="text/javascript">
+	set_all_modified('<%= (@modified) ? "Y" : "N" %>','<%= if @modified then if @error then "#{@error}" else "Modified" end else "or <a onclick=\"toggle_read_only(true); return false;\">Cancel</a>" end %>');
+</script>

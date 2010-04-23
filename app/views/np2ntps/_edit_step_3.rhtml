@@ -1,0 +1,38 @@
+<form action="/np2ntps/edit_step_3_submit" method="get" id="step_3_submit">
+	<input type="hidden" id="np2ntp_networkprovider_id" name="np2ntp[networkprovider_id]" value="<%= networkprovider.id %>" />
+	<input type="hidden" id="np2ntp_networkterminationpoint_id" name="np2ntp[networkterminationpoint_id]" value="<%= networkterminationpoint.id %>" />
+	<input type="hidden" id="edit_type" name="edit_type" value="<%= edit_type %>" />
+	<input type="hidden" id="np2ntp_id" name="np2ntp[id]" value="<%= ((np2ntp.nil?)?(''):(np2ntp.id)) %>" />
+	<input type="hidden" id="np2ntp_available" name="np2ntp[available]" value="<%= available %>" />
+	<input type="hidden" id="np2ntp_connection_type" name="np2ntp[connection_type]" value="<%= connection_type %>" />
+	<input type="hidden" id="np2ntp_multiple_access" name="np2ntp[multiple_access]" value="<%= multiple_access %>" />
+	<input type="hidden" id="np2ntp_owned" name="np2ntp[owned]" value="<%= owned %>" />
+	<%- if owned == 'L' or networkprovider.carrier_type != true then %>
+		<p class="selection_box_title">Step <%= ((networkprovider.carrier_type == true)?('5: Owner'):('4: Underlying Network Provider')) %></p>
+	    <p style="margin-left: 20px;">
+			<%= select :np2ntp, "owner_networkprovider_id", ((Networkprovider.find(:all).collect {|np| [np.name,np.id]}).sort {|x,y| x[0].downcase <=> y[0].downcase}).insert(0,['Unknown','']) %>
+	    </p>
+		<br/>
+	<%- end %>
+	<%- if networkprovider.carrier_type == true and edit_type != 'C' then %>
+		<p class="selection_box_title">Step <%= ((owned == 'L')?('6'):('5')) %>: Services Provided</p>
+	    <p style="margin-left: 20px;">
+			<% ConnectionServiceDescription.find(:all,:order => 'abbreviation, description').each do |service| -%>
+				<%= check_box "connection_services", "", {}, service.id,'' %>
+				<%= "#{service.abbreviation} - " unless service.abbreviation.nil? %><%= service.description %><br/>
+			<% end -%>
+	    </p>
+		<br/>
+	<%- end %>
+	<% submit_text = ((edit_type == 'E')?('Save'):((edit_type == 'A')?('Add'):('Contest'))) %>
+	<% submit_update = ((edit_type == 'E')?("connection_description_#{((np2ntp.nil?)?(''):(np2ntp.id))}"):((edit_type == 'A')?('np2ntps'):("certified_connection_#{np2ntp.id}"))) %>
+	<p class="selection_box_title">Step <%= ((networkprovider.carrier_type == true)?((owned == 'L')?((edit_type == 'C')?('6'):('7')):((edit_type == 'C')?('5'):('6'))):('5')) %>: Finish</p>
+    <p style="margin-left: 20px;">
+			<% unless np2ntp.nil? %>
+				<% javascript = "$('connection_description_#{ np2ntp.id }').style.display = 'block'; $('connection_edit_#{ np2ntp.id }').style.display = 'none'; $('certified_connection_#{ np2ntp.id }_a').innerHTML = '#{ ((@current_user.associated_with_networkprovider?(networkprovider.id)) or np2ntp.user.nil?)?('Edit'):('Contest') }';" %>
+			<% else %>
+				<% javascript = "$('add_connection_submit').style.display = 'none'; $('add_connection_unsubmit').style.display = 'block';" %>
+			<% end %>
+			<%= submit_to_remote 'add_np2ntp_submit', submit_text, :url => {:controller => 'np2ntps', :action => 'edit_submit'}, :update => submit_update, :before => "#{javascript}" %>
+	</p>	
+</form>

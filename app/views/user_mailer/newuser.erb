@@ -1,0 +1,15 @@
+
+<%= @first_name %> <%= @last_name %>,<br/>
+<br/>
+You have been registered for an account on Equinix's FX Network Connectivity tool found at <a href="<%= @domain %>">CircuitClout.com</a>.<br/>
+<br/>
+Your username is your email address (<%= @email_address %>).<br/>
+<br/>
+You will choose your own password when you complete registration of your account.<br/>
+<br/>
+Please click on this link to confirm your email address and set your password. <a href="<%= @domain %>manage_user/confirm_email/<%= @confirmation_id %>">CONFIRM EMAIL</a><br/>
+<br/>
+You have until <%= @expiration_date %> before your registration expires.<br/>
+<br/>
+Sincerely,<br/>
+<%= if @operating_user == nil then 'Equinix Sales Administration' else @operating_user.print_name end %><br/>

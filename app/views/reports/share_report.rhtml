@@ -1,0 +1,72 @@
+<div class="title_div">
+	<%= image_tag "reports.gif", :width => '40' %>
+	<h1>Share Report</h1>
+</div>
+
+<p class="selection_box_title">Step 1: Select the Associations of desired Users</p>
+<form action="/networkterminationpoints" method="get" id="select_users_search">
+	<input type="hidden" id="id" name="id" value="<%= @report.id %>" />
+<div class="yui-gb">
+    <div class="yui-u first">   
+        <p>
+            <span class="selection_box_title">Network Termination Point Owners:</span><br/>
+            <select id="networktermptowner_selector" name="search[networktermptowner_id]">
+                <%= options_for_select(@list_of_ntp_owners) %>
+            </select>
+        </p>
+    </div>
+    <div class="yui-u"> 
+        <p>
+            <span class="selection_box_title">Network Providers:</span><br/>
+            <select id="networkprovider_selector" name="search[networkprovider_id]">
+                <%= options_for_select(@list_of_networkproviders) %>
+            </select>
+        </p>  
+    </div>
+    <div class="yui-u"> 
+        <p>
+            <span class="selection_box_title">Points of Interest:</span><br/>
+            <select id="pointsofinterest_selector" name="search[pointsofinterest_id]">
+                <%= options_for_select(@list_of_pointsofinterests) %>
+            </select>
+        </p>
+    </div>
+</div>
+<div class="yui-gb">
+    <div class="yui-u first">   
+        <p>
+            <span class="selection_box_title">Customer Security Groups:</span><br/>
+            <select id="customer_group_selector" name="search[customer_group_id]">
+                <%= options_for_select(@list_of_customer_groups) %>
+            </select>
+        </p>
+    </div>
+</div>
+</form>
+		
+<%= observe_form  :select_users_search, 
+				  :update => 'add_users_selector_list',
+				  :url => {:action =>'update_add_users_list'} %>
+<br/>
+<div class="yui-gb">
+    <div class="yui-u first">
+		<p class="selection_box_title">Step 2: Add Users to Shared List</p>
+		<div id="add_users_selector_list">
+		    <%= render :partial => 'add_users_selector' %>
+		</div>	
+    </div>
+    <div class="yui-u">
+		<p class="selection_box_title">Step 3: Remove Users from Shared List</p>
+		<div id="remove_users_selector_list">
+			<%= render :partial => 'remove_users_selector' %>
+		</div>
+    </div>
+    <div class="yui-u">
+		<p class="selection_box_title">Step 4: When you're finished</p>
+		<%= link_to 'Go Back to Saved Reports', :action => 'index' %>
+    </div>
+</form>
+</div>
+
+<div id="debug_ajax">
+</div>

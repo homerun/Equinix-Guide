@@ -1,0 +1,70 @@
+<% if @list_of_display_ntps == nil or @network_services == nil then %>
+	Select Network Termination Points
+<% else %>
+	<% if printable then %>
+		<% border_table = 'style="border: 1px solid #000; border-spacing: 0px; border-collapse: collapse;' %>
+		<% list_columns_table = 'style="border: 0px solid #444; border-spacing: 0px; border-collapse: collapse; background: #aaa;"' %>
+		<% even_row = '' %>
+		<% odd_row = '' %>
+		<% header_cell = 'style="text-align: center; background: #000000; color: #FFF; text-transform: uppercase; border: 1pt solid #444; margin: 0px;"' %>
+		<% vertical_header_cell = 'style="text-align: center; background: #000000; color: #FFF; text-transform: uppercase; border: 1px solid #444; margin: 0px; writing-mode: tb-rl; filter: flipV flipH;"' %>
+		<% even_header_cell = 'style="border-bottom: 1pt solid #ccc; border-top: 1pt solid #ccc; border-left: 1pt solid #888; border-right: 1pt solid #888; background: #D7D9DB; height: 20px;  font-size: 16px; font-weight: bold;"' %>
+		<% odd_header_cell = 'style="border-bottom: 1pt solid #ccc; border-top: 1pt solid #ccc; border-left: 1pt solid #888; border-right: 1pt solid #888; background: #FFFFFF; height: 20px; font-size: 16px; font-weight: bold;"' %>
+		<% even_cell = 'style="border-bottom: 1pt solid #ccc; border-top: 1pt solid #ccc; border-left: 1pt solid #888; border-right: 1pt solid #888; background: #D7D9DB; height: 20px;"' %>
+		<% odd_cell = 'style="border-bottom: 1pt solid #ccc; border-top: 1pt solid #ccc; border-left: 1pt solid #888; border-right: 1pt solid #888; background: #FFFFFF; height: 20px;"' %>
+	<% else %>
+		<% border_table = 'class="border_only"' %>
+		<% list_columns_table = 'class="list_columns" style="free"' %>
+		<% even_row = 'class="even_small"' %>
+		<% odd_row = 'class="odd_small"' %>
+		<% header_cell = '' %>
+		<% vertical_header_cell = 'style="writing-mode: tb-rl; filter: flipV flipH;"' %>
+		<% even_header_cell = 'style="text-align: left;"' %>
+		<% odd_header_cell = 'style="text-align: left;"' %>
+		<% even_cell = '' %>
+		<% odd_cell = '' %>
+	<% end %>
+
+	<table <%= border_table %>><tr><td>
+	<table <%= list_columns_table %>>
+		<thead>
+			<tr>
+				<th <%= header_cell %>><div style="width: 250px;">Network Provider</div></th>
+				<th <%= header_cell %>>Website</th>
+				<% @list_of_display_ntps.each do |ntp| %>
+					<th <%= vertical_header_cell %>><%= ntp.name %></th>
+				<% end %>
+			</tr>
+		</thead>
+		<tbody>
+			<% is_even = true %>
+			<% @network_services.each do |network_service| %>
+				<tr <%= if is_even then even_row else odd_row end %>>
+					<th <%= if is_even then even_header_cell else odd_header_cell end %>><%= network_service[0].name %></th>
+					<td <%= if is_even then even_cell else odd_cell end %>><%= network_service[0].url %></td>
+					<% @list_of_display_ntps.each do |ntp| %>
+						<td <%= if is_even then even_cell else odd_cell end %>>
+							<center>
+								<% if print_network_service_connection_to_ntp(network_service[1],ntp) == 'X' then %>
+									<%#= image_tag("/images/x_img.gif",{:class => 'title_img'}) %>
+									<%= image_tag("/images/black_box.jpg") %>
+								<% elsif print_network_service_connection_to_ntp(network_service[1],ntp) == 'O' then %>
+									<%#= image_tag("/images/o_img.gif",{:class => 'title_img'}) %>
+									<%= image_tag("/images/red_box.jpg") %>
+								<% else %>
+									&nbsp;
+								<% end %>
+							</center>
+						</td>
+					<% end %>
+				</tr>
+				<% is_even = !is_even %>
+			<% end %>
+		</tbody>
+	</table>
+	</td></tr></table>
+	<%= image_tag("/images/red_box.jpg") %> - Available in facility
+	<br/>
+	<%= image_tag("/images/black_box.jpg") %> - Available from another IBX
+<% end %>
+		

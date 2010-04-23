@@ -1,0 +1,8 @@
+<div style="display: none;">
+	<%= link_to 'Download', {:controller => 'campus', :action => 'new_equinix_metro_report', :market_id => market_id, :networkterminationpoint_id => networkterminationpoint_id}, {:id => "equinix_metro_report_#{market_id}_#{networkterminationpoint_id}"} %>
+</div>
+
+<script type="text/javascript">
+	if($('equinix_metro_report_<%= market_id %>_<%= networkterminationpoint_id %>'))
+		document.location = $('equinix_metro_report_<%= market_id %>_<%= networkterminationpoint_id %>').getAttribute('href');
+</script>

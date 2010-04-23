@@ -1,0 +1,2 @@
+module PointsofinterestAggregationsHelper
+end

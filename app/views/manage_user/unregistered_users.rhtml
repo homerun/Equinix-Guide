@@ -1,0 +1,38 @@
+
+<div class="title_div"><h1>Unregistered Users</h1></div>
+
+<table class="border_only"><tr><td>
+<table class="list_columns">
+	<thead>
+		<tr>
+			<th><div style="width: 220px;">Email</div></th>
+			<th><div style="width: 180px;">Name</div></th>
+			<th><div style="width: 350px;">Status</div></th>
+		</tr>
+	</thead>
+	<tbody>
+		<% @list_of_user_info.each do |user_info| %>
+			<tr class="<%= cycle('even_small','odd_small') %>">
+				<td>
+					<%= user_info[:user].email %>
+				</td>
+				<td>
+					<%= user_info[:user].print_name %>
+				</td>
+				<td>
+					<div id="sent_<%= user_info[:user].id %>" style="display: inline;">
+						<% if user_info[:emailRegistration] == nil then %>
+							Email Sent. Registration Expired.
+							<a href="#" onclick="$('sent_<%= user_info[:user].id %>').innerHTML = 'Sending...'; <%= remote_function(:update => "sent_#{user_info[:user].id}", :url => {:action => 'send_email_again', :user_id => user_info[:user].id}) %>; return false;">Send Email Again</a>
+						<% else %>
+							Email Sent. Waiting for Registration. 
+							<a href="#" onclick="$('sent_<%= user_info[:user].id %>').innerHTML = 'Sending...'; <%= remote_function(:update => "sent_#{user_info[:user].id}", :url => {:action => 'send_email_again', :emailRegistrationId => user_info[:emailRegistration].id}) %>; return false;">Send Another Email</a>
+						<% end %>
+					</div>
+				</td>
+			</tr>
+		<% end %>
+	</tbody>
+</table>
+</td></tr></table>
+	

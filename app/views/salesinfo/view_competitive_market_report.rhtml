@@ -1,0 +1,960 @@
+<%= GOOGLE_MAPS_KEY %>
+<% max_tabs = 8 %>
+
+<div style="display: none;">
+	<input id="map_button" type="button" onclick="build_map();" />
+</div>
+
+
+<% max_col = 14 %>
+<div class="title_div">
+    <h1>Competitive Market Report for <%= @market.market_name %></h1>
+</div>
+<table border=1>
+  <tr>
+    <td>
+		<div id="market_map" style="width: 800px; height: 450px;"></div>
+    </td>
+    <td min-width="150px" valign="top" rowspan="2">
+       <div id="side_bar" style="overflow: auto; height: 530px;"></div>
+    </td>
+  </tr>
+  <tr>
+  	<td>
+  		<%= image_tag "competitive_market_legend.jpg" %>
+  	</td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+	    //<![CDATA[
+
+	
+	function build_map() {
+	}
+	
+	function update_map_dimensions(map) {
+        /* establish zoom scale, in miles */
+        var bounds = map.getBounds();
+        var southWest = bounds.getSouthWest();
+        var northEast = bounds.getNorthEast();
+
+        var hypotenuse = southWest.distanceFrom(northEast);
+        var theta = Math.atan(map.getSize().height / map.getSize().width);
+
+        screen_width = Math.round(hypotenuse * Math.cos(theta));
+        screen_height = Math.round(hypotenuse * Math.sin(theta));
+		draw_datacenter_circles();
+    }
+	
+	function Datacenter(index) {
+		this.index = index;
+		this.visible = true;
+	}
+	
+	function Datacenter_Owner(index,name) {
+		this.index = index;
+		this.visible = true;
+		this.name = name;
+		this.datacenters = new Array();
+		this.total_floor_space = 0;
+	}
+	
+	function Market(index,market_name) {
+		this.index = index;
+		this.visible = true;
+		this.name = market_name;
+		this.datacenters = new Array();
+		this.datacenter_owners = new Array();
+		this.total_floor_space = 0;
+	}
+	
+    if (GBrowserIsCompatible()) {
+      var side_bar_html = "";
+	  var current_marker;
+	  var screen_height;
+	  var screen_width;
+
+
+function draw_datacenter_circles() {
+
+	for (var i = 0; i < datacenters.length; i++) {
+		if(circles[i])
+			map.removeOverlay(circles[i]);
+		var circle;
+		var circlePoints = Array();
+		
+		with (Math) {
+			var d = (sqrt(datacenters[i].floor_capacity)) * (screen_height * 0.00000000003) + screen_height * 0.000000005; // radians
+			var lat1 = (PI / 180) * datacenters[i].lat; // radians
+			var lng1 = (PI / 180) * datacenters[i].lon; // radians
+			for (var a = 0; a < 101; a++) {
+				var tc = (PI / 180) * (a * 3.6);
+				var y = asin(sin(lat1) * cos(d) + cos(lat1) * sin(d) * cos(tc));
+				var dlng = atan2(sin(tc) * sin(d) * cos(lat1), cos(d) - sin(lat1) * sin(y));
+				var x = ((lng1 - dlng + PI) % (2 * PI)) - PI; // MOD function
+				var point = new GLatLng(parseFloat(y * (180 / PI)), parseFloat(x * (180 / PI)));
+				circlePoints.push(point);
+			}
+			
+			circle = new GPolygon(circlePoints, datacenters[i].color, 2, 1, datacenters[i].color, 0.25);
+			if(datacenters[i].visible)
+				map.addOverlay(circle);
+			circles[i] = circle;
+			datacenters[i].circle = circle;
+		}
+	}
+}
+
+      // A function to create the marker and set up the event window
+      function createMarker(type,i,point,name,building_tab,exchanges_tab,providers_tab) {
+		var letter = String.fromCharCode("A".charCodeAt(0) + (i % 26));
+		var letteredIcon = new GIcon(baseIcon);
+		if(i>=52)
+			letteredIcon.image = "http://www.circuitclout.com/images/markers/yellow_Marker" + letter + ".png";
+		else if(i>=26)
+			letteredIcon.image = "http://www.circuitclout.com/images/markers/blue_Marker" + letter + ".png";
+		else
+			letteredIcon.image = "http://www.circuitclout.com/images/markers/red_Marker" + letter + ".png";
+		
+		// Set up our GMarkerOptions object
+		markerOptions = { icon:letteredIcon };
+        var marker;
+		var tabs = [];
+		if (type == 'datacenter') {
+			marker = new GMarker(datacenters[i].point,markerOptions);
+			tabs.push(new GInfoWindowTab('Building', datacenters[i].building_tab));
+			tabs.push(new GInfoWindowTab('Exchanges', datacenters[i].exchanges_tab));
+			tabs.push(new GInfoWindowTab('Providers', "<div style='width: 450px;'>" + datacenters[i].providers_tab + "</div>"));
+	        marker.tooltip = '<div class="tooltip">'+datacenters[i].name+'<\/div>';
+			datacenters[i].sidebar_html_single_view = '<div id="datacenter_control_'+i+'" style="display: block;">'
+	        datacenters[i].sidebar_html_single_view += '<a href="javascript:datacenter_click(' + i + ');" onmouseover="datacenter_mouseover('+i+')" onmouseout="mymouseout()">' + datacenters[i].name + '<\/a> - ';
+			datacenters[i].sidebar_html_single_view += '<a id="marker_toggle_'+i+'" href="javascript:marker_toggle('+i+');">On<\/a></div>';
+			datacenters[i].marker = marker;
+			datacenters[i].tabs = tabs;
+		}
+		
+        // === store the name so that the tooltip function can use it ===
+        GEvent.addListener(marker, "click", function() {
+          marker.openInfoWindowTabsHtml(tabs);
+        });
+        map.addOverlay(marker);
+
+        //  ======  The new marker "mouseover" and "mouseout" listeners  ======
+        GEvent.addListener(marker,"mouseover", function() {
+          showTooltip(marker);
+        });        
+		
+        GEvent.addListener(marker,"mouseout", function() {
+			tooltip.style.visibility="hidden"
+        });
+      }
+
+      // ====== This function displays the tooltip ======
+      // it can be called from an icon mousover or a side_bar mouseover
+      function showTooltip(marker) {
+      	tooltip.innerHTML = marker.tooltip;
+		var point=map.getCurrentMapType().getProjection().fromLatLngToPixel(map.getBounds().getSouthWest(),map.getZoom());
+		var offset=map.getCurrentMapType().getProjection().fromLatLngToPixel(marker.getPoint(),map.getZoom());
+		var anchor=marker.getIcon().iconAnchor;
+		var width=marker.getIcon().iconSize.width;
+		var pos = new GControlPosition(G_ANCHOR_BOTTOM_LEFT, new GSize(offset.x - point.x - anchor.x + width,- offset.y + point.y +anchor.y)); 
+		pos.apply(tooltip);
+		tooltip.style.visibility="visible";
+      }
+
+      // ===== This function is invoked when the mouse goes over an entry in the side_bar =====
+      // It launches the tooltip on the icon      
+      function datacenter_mouseover(i) {
+        showTooltip(datacenters[i].marker)
+      }
+      // ===== This function is invoked when the mouse leaves an entry in the side_bar =====
+      // It hides the tooltip      
+      function mymouseout() {
+		tooltip.style.visibility="hidden";
+      }
+
+      // This function picks up the side_bar click and opens the corresponding info window
+      function datacenter_click(i) {
+        datacenters[i].marker.openInfoWindowTabsHtml(datacenters[i].tabs);
+      }
+
+      // This function picks up the side_bar click and shows or hides the corresponding marker and circle
+      function marker_toggle(i,on_off) {
+	  	if (on_off=='Off'||($('marker_toggle_' + i).innerHTML == 'On'&&(typeof on_off == "undefined"))) {
+			datacenters[i].visible = false;
+			map.removeOverlay(datacenters[i].marker);
+			map.removeOverlay(datacenters[i].circle);
+			$('marker_toggle_' + i).innerHTML = 'Off';
+		}
+		else {
+			datacenters[i].visible = true;
+			map.addOverlay(datacenters[i].marker);
+			map.addOverlay(datacenters[i].circle);
+			$('marker_toggle_' + i).innerHTML = 'On';
+		}
+      }
+	  
+      // This function picks up the side_bar click and shows or hides all the children markers and circles
+      function toggle_owner(checkbox,market_index,owner_index) {
+	  	if (checkbox.checked) {
+			for(var i=0; i<markets[market_index].datacenter_owners[owner_index].datacenters.length; i++) {
+				$('datacenter_control_'+markets[market_index].datacenter_owners[owner_index].datacenters[i]).style.display = 'block';
+				marker_toggle(markets[market_index].datacenter_owners[owner_index].datacenters[i],'On');
+			}
+		}
+		else {
+			for(var i=0; i<markets[market_index].datacenter_owners[owner_index].datacenters.length; i++) {
+				$('datacenter_control_'+markets[market_index].datacenter_owners[owner_index].datacenters[i]).style.display = 'none';
+				marker_toggle(markets[market_index].datacenter_owners[owner_index].datacenters[i],'Off');
+			}
+		}
+      }
+
+	  function sort_owner(a,b) {
+	  	return a < b;
+	  }
+	  
+	  function only_owner(market_index,datacenter_owner_index) {
+		for (var i = 0; i < markets[market_index].datacenter_owners.length; i++) {
+			if (typeof(markets[market_index].datacenter_owners[i]) == 'undefined') 
+				continue;
+			if (((i != datacenter_owner_index) && ($('owner_checkbox_' + market_index + '_' + i).checked))||((i == datacenter_owner_index) && !($('owner_checkbox_' + market_index + '_' + i).checked)))
+				$('owner_checkbox_' + market_index + '_' + i).click();
+		}
+	  }
+	  
+	  function all_owners(market_index) {
+		for (var i = 0; i < markets[market_index].datacenter_owners.length; i++) {
+			if (typeof(markets[market_index].datacenter_owners[i]) == 'undefined') 
+				break;
+			if (!$('owner_checkbox_' + market_index + '_' + i).checked)
+				$('owner_checkbox_' + market_index + '_' + i).click();
+		}
+	  }
+
+	  function add_to_datacenter_owner(datacenter,market_index) {
+		var found = -1;
+		for(var i=0; i<markets[market_index].datacenter_owners.length; i++)
+		  	if(markets[market_index].datacenter_owners[i].name==datacenter.owner) {
+				found = i;
+				break;
+			}
+		if(found<0) {
+			found = markets[market_index].datacenter_owners.length;
+			markets[market_index].datacenter_owners[found] = new Datacenter_Owner(datacenter.owner);
+			markets[market_index].datacenter_owners[found].name = datacenter.owner;
+			markets[market_index].datacenter_owners[found].datacenters = new Array();
+		}
+		markets[market_index].datacenter_owners[found].datacenters.push(datacenter.index);
+	  }
+
+	  function add_to_market(datacenter,market_name) {
+		var found = -1;
+		for(var i=0; i<markets.length; i++)
+		  	if(markets[i].name==market_name) {
+				found = i;
+				break;
+			}
+		if(found<0) {
+			found = markets.length;
+			market = new Market(market_name);
+			markets[found] = market;
+			markets[found].name = market_name;
+		}
+		markets[found].total_floor_capacity += datacenter.floor_capacity
+		add_to_datacenter_owner(datacenter,found)
+		markets[found].datacenters.push(datacenter);
+	  }
+	  
+	  function create_sidebar_html() {
+	  	var html = '';
+		if (view_mode == 'market') {
+		  for (var i = 0; i < markets.length; i++) {
+			if (typeof(markets[i]) == 'undefined') continue;
+			if (markets.length > 1) {
+				html += "<a href='#' onclick=\"if($('market_sidebar_" + i + "').style.display=='none') $('market_sidebar_" + i + "').style.display = 'block'; else $('market_sidebar_" + i + "').style.display = 'none'; return false\">" + markets[i].name + "</a>\n";
+				html += "<br/><div id='market_sidebar_" + i + "' style='display: none;'>";
+			}
+			html += "<a href='#' onclick='all_owners(" + i + "); return false'>All</a> <b>Datacenter Owners:</b><br/>\n";
+		  	for (var j = 0; j < markets[i].datacenter_owners.length; j++) {
+				if (typeof(markets[i].datacenter_owners[j]) == 'undefined') continue;
+				html += "";
+				html += markets[i].datacenter_owners[j].sidebar_html_single_view;
+			}
+			html += '<hr/>';
+		  	for (var j = 0; j < markets[i].datacenters.length; j++) {
+				if (typeof(markets[i].datacenters[j]) == 'undefined') continue;
+				html += "";
+				html += markets[i].datacenters[j].sidebar_html_single_view;
+			}
+			if(markets.length > 1) {
+				html += '</div>';
+				html += '<br/>';
+				html += '<br/>';
+			}
+		  }
+		  //alert(html);
+		}
+		else /* if (view_mode == 'grouped') */ {
+		}
+	  	$('side_bar').innerHTML = html;
+	  }
+	  
+      // create the map
+      var map = new GMap2($('market_map'));
+      map.addControl(new GLargeMapControl());
+      map.addControl(new GMapTypeControl());
+      map.setCenter(new GLatLng(<%= "#{@center[:lat]},#{@center[:lon]}" %>), 10);
+	  var baseIcon = new GIcon();
+	  baseIcon.shadow = "http://www.google.com/mapfiles/shadow50.png";
+	  baseIcon.iconSize = new GSize(20, 34);
+	  baseIcon.shadowSize = new GSize(37, 34);
+	  baseIcon.iconAnchor = new GPoint(9, 34);
+	  baseIcon.infoWindowAnchor = new GPoint(9, 2);
+	  baseIcon.infoShadowAnchor = new GPoint(18, 25);
+	  var circles = new Array();
+	  var bounds = new GLatLngBounds();
+	  var datacenter_owners = new Array();
+	  var datacenters = new Array();
+	  var markets = new Array();
+	  var view_mode = 'market';
+	  var viewing_market_index = 0;
+
+      // ====== set up marker mouseover tooltip div ======
+      var tooltip = document.createElement("div");
+      $('market_map').appendChild(tooltip);
+      tooltip.style.visibility="hidden";
+	  update_map_dimensions(map);
+	  var index = 0
+<% if @market.datacenters != nil then %><% ((@market.datacenters.sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).each do |datacenter| %><% if !datacenter.networkterminationpoint.lat.blank? and !datacenter.networkterminationpoint.lon.blank? and (datacenter.networkterminationpoint.lat != 0 or datacenter.networkterminationpoint.lon != 0) then %>
+	  datacenters[index] = new Datacenter(index);
+	  datacenters[index].lat = <%= datacenter.networkterminationpoint.lat %>;
+	  datacenters[index].lon = <%= datacenter.networkterminationpoint.lon %>;
+	  datacenters[index].point = new GLatLng(datacenters[index].lat,datacenters[index].lon)
+	  datacenters[index].name = "<%= datacenter.networkterminationpoint.name %>";
+	  datacenters[index].building_tab = "<%= datacenter_building_tab(datacenter).gsub('"','\"') %>";
+	  datacenters[index].exchanges_tab = "<%= datacenter_exchanges_tab(datacenter).gsub('"','\"') %>";
+	  datacenters[index].providers_tab = "<%= datacenter_providers_tab(datacenter).gsub('"','\"') %>";
+	  datacenters[index].floor_capacity = <%= datacenter.floor_capacity %>;
+	  datacenters[index].color = "#<%= datacenter.floor_capacity_color %>";
+	  datacenters[index].owner = "<%= datacenter.networkterminationpoint.owner.name.chomp %>";
+	  datacenters[index].market = "<%= @market.market_name.chomp %>";
+	  createMarker('datacenter',index);
+	  add_to_market(datacenters[index],'<%= @market.market_name.chomp %>');
+	  index++;
+	  <% end %><% end %><% end %>
+	  for (var i = 0; i < markets.length; i++) {
+		if (typeof(markets[i]) == 'undefined') 
+			continue;
+	  	for (var j = 0; j < markets[i].datacenter_owners.length; j++) {
+			if (typeof(markets[i].datacenter_owners[j]) == 'undefined') 
+				continue;
+			markets[i].datacenter_owners[j].sidebar_html_single_view = "<input id='owner_checkbox_" + i + "_" + j + "' type='checkbox' onchange='toggle_owner(this," + i + ","+j+");' checked /> ";
+			markets[i].datacenter_owners[j].sidebar_html_single_view += "<a href='#' onclick='only_owner(" + i + "," + j + "); return false'>Only</a> " + markets[i].datacenter_owners[j].name + "<br/>";
+		}
+	  }
+	  create_sidebar_html();
+	    GEvent.addListener(map, 'zoomend', function() {
+		    update_map_dimensions(map);
+	    });
+	  map.setZoom(map.getZoom()+1);
+	}
+    else {
+      alert("Sorry, the Google Maps API is not compatible with this browser");
+    }
+    //]]>
+</script>
+
+
+
+<br/>
+
+<% if @market.datacenters == nil or (@market.datacenters.sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).size == 0 then %>
+	No Datacenters have been put into this Competitive Market.
+<% else %>
+	<div id="tabs_pane" class="tabs_pane">
+	    <ul class="tab_row">
+	        <li id="tab_1" class="selected">
+				<span><a href="#" onclick="select_tab(1,<%= max_tabs %>); return false;">Site Info</a></span>
+			</li>
+	        <li id="tab_2">
+				<span><a href="#" onclick="select_tab(2,<%= max_tabs %>); return false;">Building</a></span>
+			</li>
+	        <li id="tab_3">
+				<span><a href="#" onclick="select_tab(3,<%= max_tabs %>); return false;">Security</a></span>
+			</li>
+	        <li id="tab_4">
+				<span><a href="#" onclick="select_tab(4,<%= max_tabs %>); return false;">Power</a></span>
+			</li>
+	        <li id="tab_5">
+				<span><a href="#" onclick="select_tab(5,<%= max_tabs %>); return false;">HVAC</a></span>
+			</li>
+	        <li id="tab_6">
+				<span><a href="#" onclick="select_tab(6,<%= max_tabs %>); return false;">Fire</a></span>
+			</li>
+	        <li id="tab_7">
+				<span><a href="#" onclick="select_tab(7,<%= max_tabs %>); return false;">Network Services</a></span>
+			</li>
+	        <li id="tab_8">
+				<span><a href="#" onclick="select_tab(8,<%= max_tabs %>); return false;">Managed Services</a></span>
+			</li>
+		</ul>
+		<div id="tab_1_content" class="tab_content">
+            <div id="tab_padding">
+    <table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead>
+		<tr>
+			<td colspan="<%= max_col + 1 %>">
+				<div style="min-width: 900px;"><span class="edit_title">Site Info</span></div>
+			</td>
+		</tr>
+		<tr style="background: #111;">
+			<th style="color: #fff;"></th>
+			<th style="color: #fff;" colspan="4">Address</th>
+			<th style="color: #fff;">Distance to Bus</th>
+			<th style="color: #fff;">Distance to Train</th>
+			<th style="color: #fff;">Parking Spots</th>
+		</tr>
+		</thead>
+		<tbody>
+		<% ((@market.datacenters.sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).each_with_index do |datacenter,countDatacenter| %>
+			<tr class="<%= cycle('odd_small','even_small') %>">
+				<th>
+					<div style="width: 300px;">
+						<%= datacenter.networkterminationpoint.name %>
+					</div>
+				</th>
+				<td colspan="4">
+					<%= datacenter.networkterminationpoint.one_line_addr %>
+				</td>
+				<td>
+					<center>
+						<%= eval("datacenter.distance_to_bus#{@unit}") %>
+						<%= get_long_unit_name('distance',@unit[1..1]) if !eval("datacenter.distance_to_bus#{@unit}").blank? %>
+					</center>
+				</td>
+				<td>
+					<center>
+						<%= eval("datacenter.distance_to_train#{@unit}") %>
+						<%= get_long_unit_name('distance',@unit[1..1])  if !eval("datacenter.distance_to_train#{@unit}").blank? %>
+					</center>
+				</td>
+				<td>
+					<%= datacenter.parking_spots if !datacenter.parking_spots.blank? %>
+				</td>
+			</tr>
+			<% countDatacenter += 1 %>
+		<% end %>
+		</tbody>
+	</table>
+	</td></tr></table>
+			</div>
+		</div>
+		<div id="tab_2_content" class="tab_content" style="display: none;">
+            <div id="tab_padding">
+    <table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead>
+		<tr>
+			<td colspan="<%= max_col + 1 %>">
+				<div style="min-width: 900px;"><span class="edit_title">Building</span></div>
+			</td>
+		</tr>
+		<tr style="background: #111;">
+			<th style="color: #fff;"></th>
+			<th style="color: #fff;">Gross Floor Capacity</th>
+			<th style="color: #fff;">Net Floor Capacity</th>
+			<th style="color: #fff;">% Occupied</th>
+			<th style="color: #fff;">Quality Type</th>
+			<th style="color: #fff;">Age of Facility</th>
+			<th style="color: #fff;">Customer Work Area</th>
+			<th style="color: #fff;">Conference Rooms</th>
+			<th style="color: #fff;">Site Deliveries</th>
+			<th style="color: #fff;">Staging Rooms</th>
+			<th style="color: #fff;">No Cardboard</th>
+		</tr>
+		</thead>
+		<tbody>
+		<% ((@market.datacenters.sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).each do |datacenter| %>
+			<tr class="<%= cycle('odd_small','even_small') %>">
+				<th>
+					<%= datacenter.networkterminationpoint.name %>
+				</th>
+				<td>
+					<%= eval("datacenter.gross_floor_capacity#{@unit}") %>
+					<%= get_long_unit_name('area',@unit[1..1]) if !eval("datacenter.gross_floor_capacity#{@unit}").blank? %>
+				</td>
+				<td>
+					<%= eval("datacenter.floor_capacity#{@unit}") %>
+					<%= get_long_unit_name('area',@unit[1..1]) if !eval("datacenter.floor_capacity#{@unit}").blank? %>
+				</td>
+				<td>
+					<%= datacenter.occupancy_rate %>
+					<%= '%' if !datacenter.occupancy_rate.blank? %>
+				</td>
+				<td>
+					<%= datacenter.quality_type.quality_type if datacenter.quality_type != nil %>
+				</td>
+				<td>
+					<%= datacenter.age %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.customer_work_area) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.conference_rooms) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.site_deliveries) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.staging_rooms) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.no_cardboard) %>
+				</td>
+			</tr>
+		<% end %>
+		</tbody>
+	</table>
+	</td></tr></table>
+			</div>
+		</div>
+		<div id="tab_3_content" class="tab_content" style="display: none;">
+            <div id="tab_padding">
+    <table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead>
+		<tr>
+			<td colspan="<%= max_col + 1 %>">
+				<div style="min-width: 900px;"><span class="edit_title">Security</span></div>
+			</td>
+		</tr>
+		<tr style="background: #111;">
+			<th style="color: #fff;"></th>
+			<th style="color: #fff;">24x365 Security Personel</th>
+			<th style="color: #fff;">After Hours Access</th>
+			<th style="color: #fff;">CCTV inside</th>
+			<th style="color: #fff;">CCTV Outside</th>
+			<th style="color: #fff;">CCTV Tape Storage</th>
+			<th style="color: #fff;">BioMetrics</th>
+			<th style="color: #fff;">Man Trap</th>
+			<th style="color: #fff;">Cust Sign In</th>
+			<th style="color: #fff;">Cust Proximity Card</th>
+			<th style="color: #fff;">Cust Pin Number</th>
+			<th style="color: #fff;">Rack Key Access</th>
+			<th style="color: #fff;">Cust Access Telco Room</th>
+			<th style="color: #fff;">Integrated BMS</th>
+		</tr>
+		</thead>
+		<tbody>
+		<% ((@market.datacenters.sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).each do |datacenter| %>
+			<tr class="<%= cycle('odd_small','even_small') %>">
+				<th>
+					<%= datacenter.networkterminationpoint.name %>
+				</th>
+				<td>
+					<%= print_yes(datacenter.full_time_security_personnel) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.after_hours_access) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.cctv_inside) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.cctv_outside) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.cctv_tape_storage) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.bio_metrics) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.man_trap) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.cust_sign_in) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.cust_proximity_card) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.cust_pin_num) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.rack_key_access) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.cust_access_telco_rm) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.security_integrated_bms) %>
+				</td>
+			</tr>
+		<% end %>
+		</tbody>
+	</table>
+	</td></tr></table>
+			</div>
+		</div>
+		<div id="tab_4_content" class="tab_content" style="display: none;">
+            <div id="tab_padding">
+    <table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead>
+		<tr>
+			<td colspan="<%= max_col + 1 %>">
+				<div style="min-width: 900px;"><span class="edit_title">Power</span></div>
+			</td>
+		</tr>
+		<tr style="background: #111;">
+			<th style="color: #fff;"></th>
+			<th style="color: #fff;">Power Density</th>
+			<th style="color: #fff;"># Power Grids</th>
+			<th style="color: #fff;">Mains Power Supply</th>
+			<th style="color: #fff;">HV Lines</th>
+			<th style="color: #fff;"># Transformers</th>
+			<th style="color: #fff;">UPS System</th>
+			<th style="color: #fff;">UPS Capacity</th>
+			<th style="color: #fff;">UPS Time (Full Load)</th>
+			<th style="color: #fff;">Generator</th>
+			<th style="color: #fff;">Generator Capacity</th>
+			<th style="color: #fff;">Diesel Storgage</th>
+			<th style="color: #fff;">Diesel Time (Full Load)</th>
+			<th style="color: #fff;">Fuel Supplier Contracts</th>
+			<th style="color: #fff;">Integrated BMS</th>
+		</tr>
+		</thead>
+		<tbody>
+		<% ((@market.datacenters.sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).each do |datacenter| %>
+			<tr class="<%= cycle('odd_small','even_small') %>">
+				<th>
+					<%= datacenter.networkterminationpoint.name %>
+				</th>
+				<td>
+					<%= eval("datacenter.power_density#{@unit}") %>
+					<%= "w/#{get_short_unit_name('area',@unit[1..1])}" if eval("datacenter.power_density#{@unit}") != nil %>
+				</td>
+				<td>
+					<%= datacenter.power_grids %>
+				</td>
+				<td>
+					<%= datacenter.mains_power_supply %>
+					<%= 'Mw' if !datacenter.mains_power_supply.blank? %>
+				</td>
+				<td>
+					<%= datacenter.hv_lines %>
+					<%= '%' if !datacenter.hv_lines.blank? %>
+				</td>
+				<td>
+					<%= datacenter.transformers %>
+					<%= "(N+#{datacenter.transformers_plus})" if !datacenter.transformers_plus.blank? %>
+				</td>
+				<td>
+					<%= datacenter.ups_system_type.ups_system_type if datacenter.ups_system_type != nil %>
+				</td>
+				<td>
+					<%= "#{datacenter.ups_capacity_multiplier}x" if !datacenter.ups_capacity_multiplier.blank? %>
+					<%= datacenter.ups_capacity %>
+					<%= "(N+#{datacenter.ups_capacity_plus})" if !datacenter.ups_capacity_plus.blank? %>
+				</td>
+				<td>
+					<%= datacenter.ups_time_full_load %>
+					<%= 'Minutes' if !datacenter.ups_time_full_load.blank? %>
+				</td>
+				<td>
+					<%= datacenter.generator_brand %>
+				</td>
+				<td>
+					<%= "#{datacenter.generator_capacity_multiplier}x" if !datacenter.generator_capacity_multiplier.blank? %>
+					<%= datacenter.generator_capacity %>
+					<%= 'Mw' if !datacenter.generator_capacity.blank? %>
+					<% if !datacenter.backup_generators.blank? or !datacenter.primary_generators.blank? then %>
+						<%= "(#{if datacenter.primary_generators.blank? then ' ' else datacenter.primary_generators end}+#{if datacenter.backup_generators.blank? then ' ' else datacenter.backup_generators end})" %>
+					<% end %>
+				</td>
+				<td>
+					<%= eval("datacenter.diesel_storage#{@unit}") %>
+					<%= "w/#{get_short_unit_name('volume',@unit[1..1])}" if eval("datacenter.diesel_storage#{@unit}") != nil %>
+				</td>
+				<td>
+					<%= datacenter.diesel_fuel_time %>
+					<%= 'Hours' if !datacenter.diesel_fuel_time.blank? %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.fuel_supplier_contracts) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.power_integrated_bms) %>
+				</td>
+			</tr>
+		<% end %>
+		</tbody>
+	</table>
+	</td></tr></table>
+			</div>
+		</div>
+		<div id="tab_5_content" class="tab_content" style="display: none;">
+            <div id="tab_padding">
+    <table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead>
+		<tr>
+			<td colspan="<%= max_col + 1 %>">
+				<div style="min-width: 900px;"><span class="edit_title">HVAC</span></div>
+			</td>
+		</tr>
+		<tr style="background: #111;">
+			<th style="color: #fff;"></th>
+			<th style="color: #fff;">Temperature Control</th>
+			<th style="color: #fff;">Humidity Control</th>
+			<th style="color: #fff;">Raised Floor</th>
+			<th style="color: #fff;">CRAC Units</th>
+			<th style="color: #fff;">CRAC Type</th>
+			<th style="color: #fff;">Integrated BMS</th>
+			<th style="color: #fff;">Water Chillers</th>
+			<th style="color: #fff;">Water Storage Tank</th>
+			<th style="color: #fff;">Water Storage Capacity</th>
+			<th style="color: #fff;">Cooling Towers</th>
+			<th style="color: #fff;">Hot/Cold Aisle</th>
+		</tr>
+		</thead>
+		<tbody>
+		<% ((@market.datacenters.sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).each do |datacenter| %>
+			<tr class="<%= cycle('odd_small','even_small') %>">
+				<th>
+					<%= datacenter.networkterminationpoint.name %>
+				</th>
+				<td>
+					<%= "#{eval('datacenter.temp_control'+@unit)} #{get_short_unit_name('temperature',@unit[1..1])}" if eval('datacenter.temp_control'+@unit) != nil %>
+					<%= "(&plusmn;#{eval('datacenter.temp_control_plus_minus'+@unit)} #{get_short_unit_name('temperature',@unit[1..1])})" if eval('datacenter.temp_control_plus_minus'+@unit) != nil %>
+				</td>
+				<td>
+					<%= "#{datacenter.humidity_control}%" if !datacenter.humidity_control.blank? %>
+					<%= "(&plusmn;#{datacenter.humidity_control_plus_minus}%)" if !datacenter.humidity_control_plus_minus.blank? %>
+				</td>
+				<td>
+					<%= "#{datacenter.raised_floor} mm #{datacenter.anti_static_tiles}" if !datacenter.raised_floor.blank? %>
+				</td>
+				<td>
+					<%= datacenter.crac_units %>
+				</td>
+				<td>
+					<%= datacenter.crac_type %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.hvac_integrated_bms) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.water_chillers) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.water_storage_tank) %>
+				</td>
+				<td>
+					<%= "#{eval('datacenter.water_capacity'+@unit)} #{get_short_unit_name('volume',@unit[1..1])}" if eval('datacenter.water_capacity'+@unit) != nil %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.cooling_towers) %>
+					<%= "(N+#{datacenter.cooling_towers_plus})" if !datacenter.cooling_towers_plus.blank? %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.hot_cold_aisle) %>
+				</td>
+			</tr>
+		<% end %>
+		</tbody>
+	</table>
+	</td></tr></table>
+			</div>
+		</div>
+		<div id="tab_6_content" class="tab_content" style="display: none;">
+            <div id="tab_padding">
+    <table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead>
+		<tr>
+			<td colspan="<%= max_col + 1 %>">
+				<div style="min-width: 900px;"><span class="edit_title">Fire</span></div>
+			</td>
+		</tr>
+		<tr style="background: #111;">
+			<th style="color: #fff;"></th>
+			<th style="color: #fff;">Fire Suppression</th>
+			<th style="color: #fff;">Detection</th>
+			<th style="color: #fff;">Sprinkler Type</th>
+			<th style="color: #fff;">Fire Extinguishers</th>
+			<th style="color: #fff;">Integrated BMS</th>
+			<th style="color: #fff;">Fire Rating</th>
+		</tr>
+		</thead>
+		<tbody>
+		<% ((@market.datacenters.sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).each do |datacenter| %>
+			<tr class="<%= cycle('odd_small','even_small') %>">
+				<th>
+					<%= datacenter.networkterminationpoint.name %>
+				</th>
+				<td>
+					<%= datacenter.fire_suppression %>
+				</td>
+				<td>
+					<%= datacenter.fire_detection %>
+				</td>
+				<td>
+					<%= datacenter.sprinkler_type.sprinkler_type if datacenter.sprinkler_type != nil %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.fire_extinguishers) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.fire_integrated_bms) %>
+				</td>
+				<td>
+					<%= datacenter.fire_rating %>
+				</td>
+			</tr>
+		<% end %>
+		</tbody>
+	</table>
+	</td></tr></table>
+			</div>
+		</div>
+		<div id="tab_7_content" class="tab_content" style="display: none;">
+            <div id="tab_padding">
+    <table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead>
+		<tr>
+			<td colspan="<%= max_col + 1 %>">
+				<div style="min-width: 900px;"><span class="edit_title">Network Services</span></div>
+			</td>
+		</tr>
+		<tr style="background: #111;">
+			<th style="color: #fff;"></th>
+			<th style="color: #fff;">Carrier Neutral</th>
+			<th style="color: #fff;">Diverse Fibre entry</th>
+			<th style="color: #fff;">Secure Telco Room</th>
+			<th style="color: #fff;">MLPA Platform</th>
+			<th style="color: #fff;">Coax X-Connect</th>
+			<th style="color: #fff;">UTP X-Connect</th>
+			<th style="color: #fff;">Fibre X-Connect</th>
+			<th style="color: #fff;">Data/Power Segmentation</th>
+			<th style="color: #fff;">24/365 NOC</th>
+			<th style="color: #fff;">24/365 locally staffed</th>
+			<th style="color: #fff;">Roof space available</th>
+		</tr>
+		</thead>
+		<tbody>
+		<% ((@market.datacenters.sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).each do |datacenter| %>
+			<tr class="<%= cycle('odd_small','even_small') %>">
+				<th>
+					<%= datacenter.networkterminationpoint.name %>
+				</th>
+				<td>
+					<%= print_yes(datacenter.carrier_neutral) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.diverse_fibre_entry) %>
+					<%= "x #{datacenter.diverse_fibre_entry_multiplier}" if !datacenter.diverse_fibre_entry_multiplier.blank? %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.secure_telco_room) %>
+					<%= "x #{datacenter.secure_telco_room_multiplier}" if !datacenter.secure_telco_room_multiplier.blank? %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.mlpa_platform) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.coax_x_connect) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.utp_x_connect) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.fibre_x_connect) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.data_power_segmentation) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.full_time_noc) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.full_time_locally_staffed) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.roof_space_available) %>
+				</td>
+			</tr>
+		<% end %>
+		</tbody>
+	</table>
+	</td></tr></table>
+			</div>
+		</div>
+		<div id="tab_8_content" class="tab_content" style="display: none;">
+            <div id="tab_padding">
+    <table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead>
+		<tr>
+			<td colspan="<%= max_col + 1 %>">
+				<div style="min-width: 900px;"><span class="edit_title">Managed Services</span></div>
+			</td>
+		</tr>
+		<tr style="background: #111;">
+			<th style="color: #fff;"></th>
+			<th style="color: #fff;">Smart Hands</th>
+			<th style="color: #fff;">Tape Backup</th>
+		</tr>
+		</thead>
+		<tbody>
+		<% ((@market.datacenters.sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).each do |datacenter| %>
+			<tr class="<%= cycle('odd_small','even_small') %>">
+				<th>
+					<%= datacenter.networkterminationpoint.name %>
+				</th>
+				<td>
+					<%= print_yes(datacenter.smart_hands) %>
+				</td>
+				<td>
+					<%= print_yes(datacenter.tape_backup) %>
+				</td>
+			</tr>
+		<% end %>
+		</tbody>
+	</table>
+	</td></tr></table>
+			</div>
+		</div>
+	</div>	
+<% end %>
+
+
+<script type="text/javascript">
+
+function select_tab(tabNumber,maxTab) {
+	current_tab_objs = document.getElementsByName('current_tab');
+	for(var i=0; i<current_tab_objs.length; i++)
+		current_tab_objs[i].value = tabNumber;
+	for(var i=1; i<=maxTab; i++) {
+		if(i==tabNumber) {
+			if($('tab_'+i))
+				$('tab_'+i).addClassName('selected');
+			if($('tab_'+i+'_content'))
+				$('tab_'+i+'_content').style.display = 'block';
+		}
+		else {
+			if($('tab_'+i))
+				$('tab_'+i).removeClassName('selected');
+			if($('tab_'+i+'_content'))
+				$('tab_'+i+'_content').style.display = 'none';
+		}
+	}
+};
+
+</script>	

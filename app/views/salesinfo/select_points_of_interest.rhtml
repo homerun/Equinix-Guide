@@ -1,0 +1,34 @@
+<div class="title_div">
+    <h1>Select Points of Interest</h1>
+</div>
+    
+<% form_tag do %>
+	<%= submit_tag "Save and Continue" %> 
+	<input type='button' value='Select All' onclick='javascript:checkAll(this)'> 
+	<% @regional_poiss.each do |regional_pois| %>
+	    <% unless regional_pois.nil? or get_all_pois(regional_pois).empty? -%>
+		<br/>
+		<h2>Region: <%= regional_pois.region_name %> 
+			(<%= (regional_pois.subregions.collect { |subreg| subreg.name }).join(', ') %>)</h2>
+		<table class="border_only"><tr><td>
+		<table class="list_columns">
+			<thead>
+				<tr><th></th><th>Point of Interest</th><th>Abbreviation</th><th>Parent</th><th>Notes</th></tr>
+			</thead>
+			<tbody>
+				<% get_all_pois(regional_pois).each do |poi| %>
+					<tr class="<%= cycle('odd','even') %>">
+						<td class="checkbox"> <%= check_box "selected_pois", "", {}, "#{poi.id},","" %> </td>
+						<td style="min-width: 150px;"> <b> <%= poi.name %> </b> </td>
+						<td style="min-width: 80px;"> <%= poi.abbreviation %> </td>
+						<td style="min-width: 150px;"> <%= poi.parent_poi.name if poi.parent_poi != nil %> </td>
+						<td style="min-width: 340px;"> <%= poi.notes %> </td>
+					</tr>
+				<% end %>
+			</tbody>
+		</table>
+		</td></tr></table>
+		<% end -%>
+	<% end %>
+	<p><%= submit_tag "Save and Continue" %></p>
+<% end %>

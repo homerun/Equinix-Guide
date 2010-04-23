@@ -1,0 +1,23 @@
+xml.instruct!
+
+xml.rss "version" => "2.0", "xmlns:content" => "http://purl.org/rss/1.0/modules/content/", "xmlns:wfw" => "http://wellformedweb.org/CommentAPI/", "xmlns:dc" => "http://purl.org/dc/elements/1.1/" do
+ xml.channel do
+
+   xml.title       "CircuitClout Updates"
+   xml.link        "http://www.circuitclout.com/"
+   xml.description "Updates provided by Equinix Intelligence."
+   xml.pubDate     @feed_items[0][:date].to_s(:rfc822) if @feed_item != nil and @feed_items.size != 0
+   xml.lastBuildDate     @feed_items[0][:date].to_s(:rfc822) if @feed_item != nil and @feed_items.size != 0
+
+   @feed_items.each do |feed_item|
+     xml.item do
+       xml.title feed_item[:title]
+       xml.description feed_item[:descr]
+       xml.pubDate feed_item[:date].to_s(:rfc822) if feed_item[:date] != nil
+       xml.guid "http://www.circuitclout.com/#{feed_item[:guid]}", 'isPermaLink' => 'false'
+       xml.link "http://www.circuitclout.com/#{feed_item[:guid]}"
+     end
+   end
+
+ end
+end

@@ -1,0 +1,12 @@
+<% if @selector_size == nil then @selector_size = 5 end %>
+
+<% form_tag do %>
+	
+	<center><span class="selection_box_title">Subregions</span></center>
+	<% if @selected_subregion != nil then %>
+		<%= select_tag(:id, options_for_select(@list_of_subregions.insert(0,['All','-1']),@selected_subregion), :size => @selector_size, :onchange => "postAction(this.form,'select_subregion')") %>
+	<% else %>
+		<%= select_tag(:id, options_for_select(@list_of_subregions.insert(0,['All','-1']),'-1'), :size => @selector_size, :onchange => "postAction(this.form,'select_subregion')") %>
+	<% end %>
+	
+<% end %>

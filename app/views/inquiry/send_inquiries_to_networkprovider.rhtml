@@ -1,0 +1,92 @@
+
+<% unless flash[:notice].blank? %>
+	<div id="notification" class="notification">	
+		<%= image_tag("/images/flash_img.jpg",{:width => '50', :class => 'title_img'}) %>
+		<div style="vertical-align: top; display: inline;">
+			<%= flash[:notice] %>
+ 			<% flash[:notice] = '' %>
+		</div>
+	</div>
+ 	<script type="text/javascript">
+ 		setTimeout("$('notification').style.display = 'none'",3000)
+ 	</script>
+<%end%>
+<p>
+	<span class="page_title">Request Network Information for <%= @selected_ntp.name %></span>
+</p>
+<table class="border_only"><tr><td>
+<table class="list_columns" style="width: 900px;">
+	<thead>
+	<tr>
+		<th>
+			<div style="width: 230px;">Network Provider</div>
+		</th>
+		<th>
+			Email options
+		</th>
+	</tr>
+	</thead>
+	<tbody>
+	<% even = false %>
+	<% @list_of_np_objs.each do |np_obj| %>
+		<tr class="<%= if even then 'even' else 'odd' end %>_small">
+			<th>
+				<%= np_obj[:np].name %> 
+			</th>
+			<td>
+				<div id="np_table_<%= np_obj[:np].id %>" style="padding: 5px;">
+					<% form_tag do %>
+					
+						<input type="hidden" id="networkprovider_id" name="networkprovider_id" value="<%= np_obj[:np].id %>" />
+						
+						<% if np_obj[:user_list] == nil or np_obj[:user_list].size == 0 then %>
+							Name: <input name="name" id="name" />
+							Email Address: <input name="email_address" id="email_address" size="35" />
+							<br/>
+						<% else %>
+							<span style="margin: 4px 2px 0px 0px;">
+								<%= radio_button :inquiry, :send_to, "user_edit", {:checked => 'checked'} %>
+							</span>
+							Name: <input name="name" id="name" />
+							Email Address: <input name="email_address" id="email_address" size="35"/>
+							<br/>
+						<% end %>
+						<% if np_obj[:user_list] != nil and np_obj[:user_list].size != 0 then %>
+							<span style="margin: 4px 2px 0px 0px;">
+								<%= radio_button :inquiry, :send_to, "user_select" %>
+							</span>
+							<select id="user_list" name="user_list">
+								<%= options_for_select(np_obj[:user_list]) %>
+							</select>
+							<br/>
+						<% end %>
+						
+						<%= submit_to_remote 'send_to_np_submit', 'Send to Network Provider', :url => {:action => 'send_email_to_np'}, :update => "np_table_#{ np_obj[:np].id}", :before => 'this.disabled = true'  %>
+						<%= submit_to_remote 'discard_inquiry_submit', 'Discard Inquiry', :url => {:action => 'discard_np_inquiry'}, :update => "np_table_#{ np_obj[:np].id}", :before => 'this.disabled = true'  %>
+						<br/>
+						<% if np_obj[:np2ntp_inquiries].size > 0 or np_obj[:latency_time_inquiries].size > 0 then -%>
+							<p>
+								<b>Inquire about the following:</b>
+							</p>
+							<% np_obj[:np2ntp_inquiries].each do |np2ntp_inquiry| -%>
+								<%= check_box "np2ntp_inquiries", "", {:checked => 'checked'}, np2ntp_inquiry.id,'' %>
+								<span style="vertical-align: top;"><%= np2ntp_inquiry.to_str %></span>
+								<br/>
+							<% end -%>
+							<% np_obj[:latency_time_inquiries].each do |latency_time_inquiry| -%>
+								<%= check_box "latency_time_inquiries", "", {:checked => 'checked'}, latency_time_inquiry.id,'' %>
+								<span style="vertical-align: top;"><%= latency_time_inquiry.to_str %></span>
+								<br/>
+							<% end -%>
+						<% end %>
+					<% end %>
+				</div>
+			</td>
+		</tr>
+		<% even = !even %>
+	<% end %>
+	</tbody>
+</table>
+</td></tr></table>
+
+<%= link_to "Return to edit #{@selected_ntp.name}", {:controller => 'networkterminationpoints', :action => 'edit', :id => @selected_ntp.id} %>

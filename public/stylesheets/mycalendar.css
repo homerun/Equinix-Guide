@@ -1,0 +1,55 @@
+table.calendar {
+	border-width: 2px;
+	border-spacing: 2px;
+	border-style: outset;
+	border-color: rgb(170, 170, 190);
+	border-collapse: separate;
+	background-color: rgb(200, 200, 220);
+	width: 210px;
+}
+td.over {
+	margin: 0px;
+	width: 30px;
+	border-width: 1px;
+	padding: 2px 3px;
+	border-style: outset;
+	border-color: rgb(170, 170, 190);
+	background-color: rgb(200, 200, 220);
+	-moz-border-radius: 5px;
+}
+td.over_and_sel {
+	margin: 0px;
+	width: 30px;
+	border-width: 1px;
+	padding: 2px 3px;
+	border-style: outset;
+	border-color: rgb(170, 170, 190);
+	background-color: rgb(180, 180, 200);
+	-moz-border-radius: 5px;
+}
+td.sel {
+	margin: 0px;
+	width: 30px;
+	border-width: 1px;
+	padding: 2px 3px;
+	border-style: inset;
+	border-color: rgb(170, 170, 190);
+	background-color: rgb(180, 180, 200);
+	-moz-border-radius: 5px;
+}
+td.niether {
+	width: 30px;
+	padding: 2px 3px;
+	border-width: 1px;
+	border-style: solid;
+	border-color: rgb(200, 200, 220);
+	background-color: rgb(200, 200, 220);
+}
+
+table.calendar th {
+	width: 30px;
+	background-color: rgb(200, 200, 220);
+	padding: 0px;
+	margin: 0px;
+}
+

@@ -1,0 +1,51 @@
+<div class="title_div">
+	<%= image_tag("poi_title_img.gif",{:width => '40'}) %>
+    <h1>Manage Financial Points of Interest</h1>
+	<%= image_tag("help_icon.jpg", {:onmouseover => "show_info_div(this,'poi_help',500,-40)", :onmouseout => "hide_info_div(this,'poi_help')", :class => "help_icon"}) %><br/>
+</div>
+
+<div id="poi_help" class="info_div" style="display: none; position: absolute; left: 1; top: 1;" onmouseout="javascript:this.style.display='none'">
+1. Select the Equinix Region where the financial point of interest is based.<br/>
+2. To add a new Point of Interest, click add. To edit an existing Point of <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Interest select the Point of Interest and click edit.<br/>
+3. After adding or updating the Point of Interest you must click "Save Changes"<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at the bottom of the page.
+</div>
+
+<%= @message %>
+<%= error_messages_for :pointsofinterest %>
+
+<% unless @limited_access %>
+
+<span class="selection_box_title">Step 1: Choose Region:</span><br/>
+<select id="region_selector" name="region_selector">
+    <%= options_for_select(@list_of_regions.insert(0,['',0])) %>
+</select>
+
+<br/><br/>
+<% end %>
+
+<span class="selection_box_title">Step 2: Choose Point of Interest or <%= link_to "Add New", {:action => "new_poi"} %></span><br/>
+<div id="poi_selector">
+    <%= render :partial => "select_poi" %>
+</div>
+
+<%= observe_field "region_selector", 
+		:url => {:action => 'select_poi_region'},
+		:update => "poi_selector",
+		:with => "region_id" %>
+		
+<% if !@selected_region.nil? then %>
+	<script type='text/javascript'>
+		var region_index = 0;
+		for (var i = 0; i < $('region_selector').options.length; i++)
+			if ($('region_selector').options[i].value == '<%= @selected_region %>')
+				region_index = i;
+		if(region_index != 0) {
+			$('region_selector').options.selectedIndex = region_index;
+			<%= remote_function(:url => {:action => 'select_poi_region'},
+								:update => "poi_selector",
+								:with => "'region_id=#{@selected_region}&poi_id=#{@selected_poi}&selected_tab=#{@selected_tab}'") %>
+		}
+	</script>
+<% end %>

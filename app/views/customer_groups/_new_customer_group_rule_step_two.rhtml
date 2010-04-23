@@ -1,0 +1,41 @@
+
+<% table_width = 780 %>
+<hr/>
+<% form_tag :action => 'create_new_customer_group_rule' do %>
+	<input type="hidden" id="customer_group_rule_page_name" name="customer_group_rule[page_name]" value="<%= @page_name %>" />
+	<input type="hidden" id="customer_group_rule_all_pages" name="customer_group_rule[all_pages]" value="<%= @all_pages %>" />
+	<input type="hidden" id="customer_group_rule_customer_group_id" name="customer_group_rule[customer_group_id]" value="<%= @customer_group_id %>" />
+	<% if @list_of_ids != nil then %>
+		<% increment = (@list_of_ids.size / 3.0).ceil -%>
+			<div style="width: <%= table_width / 3 %>px; float: left;">
+				<% (0..(increment-1)).each do |i| %>
+					<%= check_box "customer_group_rule[id_list]", "", {}, "#{@list_of_ids[i][1]},","" %><a href="#" onclick="toggle_checkbox_with_value('customer_group_rule[id_list][]','<%= @list_of_ids[i][1] %>,'); return false;"><%= @list_of_ids[i][0] %></a><br/>
+				<% end %>
+			</div> 
+			<div style="width: <%= table_width / 3 %>px; float: left;">
+				<% ((increment)..(increment*2-1)).each do |i| %>
+					<% if i < @list_of_ids.size then %>
+						<%= check_box "customer_group_rule[id_list]", "", {}, "#{@list_of_ids[i][1]},","" %><a href="#" onclick="toggle_checkbox_with_value('customer_group_rule[id_list][]','<%= @list_of_ids[i][1] %>,'); return false;"><%= @list_of_ids[i][0] %></a><br/>
+					<% end %>
+				<% end %>
+			</div> 
+			<div style="width: <%= table_width / 3 %>px; float: left;">
+				<% ((increment*2)..(@list_of_ids.size - 1)).each do |i| %>
+					<% if i < @list_of_ids.size then %>
+						<%= check_box "customer_group_rule[id_list]", "", {}, "#{@list_of_ids[i][1]},","" %><a href="#" onclick="toggle_checkbox_with_value('customer_group_rule[id_list][]','<%= @list_of_ids[i][1] %>,'); return false;"><%= @list_of_ids[i][0] %></a><br/>
+					<% end %>
+				<% end %>
+			</div>
+		<div style="clear: both;">
+			&nbsp;
+		</div>
+		<hr/>
+	<% else %>
+		<input type="hidden" id="customer_group_rule_id_list" name="customer_group_rule[id_list]" value="<%= @id_list %>" />
+	<% end %>
+	<br/>
+	<center>
+		<%= submit_tag 'Finish' %>
+		or <a onclick="$('add_customer_group_rule_div').style.display = 'block'; $('new_customer_group_rule_step_one').style.display = 'none'; $('new_customer_group_rule_step_one').innerHTML = '';" >Cancel</a>
+	</center>
+<% end %>

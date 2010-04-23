@@ -1,0 +1,78 @@
+<span class="section_header">Notes</span>
+<br/>
+<div id="add_account_note_div_<%= poi.id %>" style="display: none">
+	<% form_remote_tag :url => {:action => 'add_poi2ntp_account_note'}, :update => "poi2ntp_account_notes_#{poi.id}" do %>
+		<%= hidden_field :poi, :id, :value => "#{poi.id}" %>
+		<%= hidden_field :new, :id, :value => "YES" %>
+		<textarea rows="2" cols="60" id="note_text" name="note_text"></textarea>
+		<br/>
+		<%= submit_to_remote "add_account_note", 'Add', :url => { :action => 'add_poi2ntp_account_note'}, :update => "poi2ntp_account_notes_#{poi.id}" %>
+		or <a onclick="$('add_account_note_div_<%= poi.id %>').style.display = 'none'; $('add_account_note_link_<%= poi.id %>').style.display = 'block';" >Cancel</a>
+	<% end %> 
+</div>
+<div name="editable" style="display: none;">
+	<div id="add_account_note_link_<%= poi.id %>">
+		<span style="font-size: 10px">
+			<a href="#" onclick="$('add_account_note_div_<%= poi.id %>').style.display = 'block'; $('add_account_note_link_<%= poi.id %>').style.display = 'none'; return false;">Add Note</a>
+		</span>
+	</div>
+	<%= '<hr/>' if poi.account_notes != nil and poi.account_notes.size != 0 %>
+</div>
+<p></p>
+<table>
+	<tr>
+		<td>
+			<div style="max-height: <%= if current_page == 'edit_poi' then "200px" else '100px' end %>; overflow: auto;">
+				<% first_time = true %>
+				<% poi.account_notes.each do |note| %>
+					<% if first_time then %>
+						<% first_time = false %>
+					<% else %>
+						<hr/>
+					<% end %>
+					<% if note.user_id == current_user_id then %>
+						<div id="view_account_note_<%= note.id %>_div" style="display: inline;">
+							 <%= print_date(note.date_time) %> <i>by You</i>
+							 &nbsp;
+							<div name="editable" style="display: none;">
+								<a href="#" onclick="$('edit_account_note_<%= note.id %>').style.display = 'block'; return false;">Edit</a>
+							</div>
+							<div style="margin: 0px 0px 0px 40px; display: block;">
+								<%= note.note %>
+							</div>
+						</div>
+						<div name="editable" style="display: none;">
+							<div id="edit_account_note_<%= note.id %>" style="display: none;">
+								<% form_remote_tag :url => {:action => 'add_poi2ntp_account_note'}, :update => "view_account_note_#{ note.id }_div" do %>
+									<%= hidden_field :poi, :id, :value => "#{poi.id}" %>
+									<%= hidden_field :note, :id, :value => note.id %>
+									<%= hidden_field :new, :id, :value => "NO" %>
+									<textarea rows="2" cols="60" id="note_text" name="note_text"><%= note.note %></textarea>
+									<br/>
+									<input type="button" value="Save" onclick="$('edit_account_note_<%= note.id %>').style.display = 'none'; document.getElementsByName('add_account_note_<%= note.id %>')[0].onclick();" />
+									or <a onclick="$('edit_account_note_<%= note.id %>').style.display = 'none';" >Cancel</a>
+									<div style="display: none;">
+										<%= submit_to_remote "add_account_note_#{note.id}", 'Add', :url => { :action => 'add_poi2ntp_account_note'}, :update => "view_account_note_#{ note.id }_div" %>
+									</div>
+								<% end %> 
+							</div>
+						</div>
+					<% else %>
+						<div id="view_account_note_<%= note.id %>">
+							 <%= print_date(note.date_time) %> <i>by <%= note.user.print_name %></i>
+							<div style="margin: 0px 0px 0px 40px; display: block;">
+								<%= note.note %>
+							</div>
+						</div>
+					<% end %>
+				<% end %>
+			</div>
+		</td>
+	</tr>
+</table>
+
+<% if @change_to_edit then %>
+	<script type="text/javascript">
+		toggle_read_only(false);
+	</script>
+<% end %>

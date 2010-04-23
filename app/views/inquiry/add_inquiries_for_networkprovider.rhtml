@@ -1,0 +1,72 @@
+<script lang="text/javascript">
+  function check_all(me) {
+    checkboxes = document.getElementsByName('selected_inquiries[]')
+    if(!checkboxes)
+      return;
+    for(var i = 0; i < countCheckBoxes; i++)
+      checkboxes[i].checked = me.checked;
+  }
+</script>
+
+<p>
+  <span class="page_title">Request <%= @inquiry_type_name %> for <%= @selected_ntp.name %> <%= "through #{@networkprovider.name}" unless @networkprovider.blank? %><%= "to #{@b_ntp.name}" unless @b_ntp.blank? %></span>
+</p>
+<% form_tag do %>
+  <input type="hidden" id="networkterminationpoint_id" name="networkterminationpoint_id" value="<%= @selected_ntp.id %>" />
+  <input type="hidden" id="b_ntp_id" name="b_ntp_id" value="<%= @b_ntp.id unless @b_ntp.nil? %>" />
+  <input type="hidden" id="networkprovider_id" name="networkprovider_id" value="<%= @networkprovider.id unless @networkprovider.nil? %>" />
+  <input type="hidden" id="edit_page" name="edit_page" value="<%= @edit_page %>" />
+  <% if @list_of_inquiry_objs != nil and @list_of_inquiry_objs.size > 0 then %>
+    <%= submit_tag 'Submit' %>
+    <table class="border_only"><tr><td>
+    <table class="list_columns" style="width: 900px;">
+      <thead>
+      <tr>
+        <th colspan="5"><span class="edit_title" style="color: #fff;">Inquire About <%= @inquiry_type_name %></span></th>
+      </tr>
+      <tr>
+        <th>Add Inquiry</th>
+        <th><%= @inquiry_type_identifier %></th>
+        <th><%= @inquiry_type_name %></th>
+        <th>Last Inquiry</th>
+        <th>Last Update</th>
+      </tr>
+      </thead>
+      </tbody>
+      <% @list_of_inquiry_objs.each do |inquiry_obj| %>
+        <tr class="<%= cycle('even_small','odd_small') %>">
+          <td>
+            <% unless inquiry_obj[:latest_inquiry] != nil and inquiry_obj[:latest_inquiry].inquiry.nil? %>
+              <center><%= check_box "selected_inquiries", "", {}, inquiry_obj[:id], "" %></center>
+            <% end %>
+          </td>
+          <th style="font: 13px 'Verdana', Arial, Helvetica, sans-serif; font-weight: bold; padding: 3px 10px">
+            <%= inquiry_obj[:to_str] %>
+          </th>
+          <td>
+            <%= inquiry_obj[:current_state] %>
+          </td>
+          <td>
+            <% if inquiry_obj[:latest_inquiry] != nil then %>
+              <% if inquiry_obj[:latest_inquiry].inquiry.nil? then %>
+                This inquiry already exists and is waiting to be sent.
+              <% else %>
+                This was last iniquired about on <%= print_date(inquiry_obj[:latest_inquiry].inquiry.sent_at) %>
+              <% end %>
+            <% end %>
+          </td>
+          <td>
+            <%= inquiry_obj[:last_update] %>
+          </td>
+        </tr>
+        <% even = !even %>
+      <% end %>
+      </tbody>
+    </table>
+    </td></tr></table>
+  <% end %>
+  <br/>
+  <%= submit_tag 'Submit' %>
+<% end %>
+
+<%= @return_edit_page_link %>

@@ -1,0 +1,29 @@
+
+<div class="title_div">
+	<%= image_tag "reports.gif", :width => '40' %>
+	<h1>Saved Reports</h1>
+</div>
+<!--
+<br/>
+<div id="my_reports_pane">
+	<%#= render :partial => 'my_reports_pane' %>
+</div>
+<br/>
+<div id="other_shared_reports_pane">
+	<%#= render :partial => 'other_shared_reports_pane' %>
+</div>
+-->
+
+<%= render :partial => "/layouts/yui_crud_includes" %>
+
+<div class="yui-skin-sam">
+<br/>
+<form action = "<%= url_for( :action => params[:action] ) %>" method="get">
+	<input id="search" name="search" type="text" value="<%= params[:search] if params[:search] %>">&nbsp;&nbsp;<%= submit_tag "Search" %>&nbsp;&nbsp;<%= submit_tag "Reset" %>
+</form>
+<br/>
+<div id="dt"></div>
+<div id="paging"></div>
+<br/>
+<%= render :partial => "layouts/yui_crud_table" %>
+</div>

@@ -1,0 +1,37 @@
+<%- list_of_markets = Market.find(:all,:order => 'market_name') -%>
+
+<table>
+	<thead>
+		<tr>
+			<th>
+			</th>
+			<%- list_of_markets.each do |market| -%>
+				<th>
+					<%= market.market_name %>
+				</th>
+			<%- end -%>
+		</tr>
+	</thead>
+	<tbody>
+		<%- list_of_markets.each do |market_r| -%>
+		<%- hit_the_end = false -%>
+		<tr>
+			<th>
+				<%= market_r.market_name %>
+			</th>
+			<%- list_of_markets.each do |market_c| -%>
+			<%- hit_the_end = true if market_c == market_r %>
+				<td>
+					<%- latencytimes = EquinixInterMarketLatencyTime.find(:all, :conditions => ["a_market_id = :a_market and b_market_id = :b_market", {:a_market => market_r.id, :b_market => market_c}) %>
+					<%- if latencytimes.size > 0 then -%>
+						<%= (latencytimes.collect {|l| l.latencytime.latencytime }).min %> ms
+					<%- else -%>
+						None
+					<%- end -%>
+				</td>
+			<%- end -%>
+		</tr>
+		<%- end -%>
+	</tbody>
+</table>
+			

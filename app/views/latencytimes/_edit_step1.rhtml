@@ -1,0 +1,27 @@
+
+<% if edit_page == 'Networkterminationpoint' then -%>
+	<p class="selection_box_title">Step 1: Select whether you would like to view connections by Network Providers or Network Termination Points</p>
+	<form action="/latency_times/edit_step1_submit" method="get" id="step1_submit">
+		<input type="hidden" id="edit_page" name="edit_page" value="<%= edit_page %>" />
+		<input type="hidden" id="editable" name="editable" value="<%= ((editable)?('Y'):('N')) %>" />
+		<input type="hidden" id="networkterminationpoint_id" name="networkterminationpoint_id" value="<%= @networkterminationpoint.id %>" />
+        <p style="margin-left: 20px;">
+			<%= radio_button :option, :view_by, "networkproviders" %> Network Providers &nbsp; &nbsp;
+			<%= radio_button :option, :view_by, "networkterminationpoints" %> Network Termination Points &nbsp; &nbsp;
+        </p>
+	</form>
+	
+	<%= observe_form  :step1_submit,
+					  :update => 'edit_step2',
+					  :url => {:controller => 'latencytimes', :action =>'edit_step1_submit'} %> 
+	<br>
+<% else -%>
+	<% @edit_page = edit_page %>
+	<% @step2_list = @networkprovider.networkterminationpoints.collect {|ntp| [ntp.name,ntp.id]} %>
+	<% @step2_list.sort! {|x,y| x[0].downcase <=> y[0].downcase} %>
+	<% @list_type = 'networkterminationpoints' %>
+	<% @editable = ((editable)?('Y'):('N')) %>
+<% end -%>
+<div id="edit_step2">
+	<%= render :partial => 'latencytimes/edit_step2' %>
+</div>

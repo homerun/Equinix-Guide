@@ -1,0 +1,38 @@
+<% unless @list_of_networkproviders.blank? || @limited_access -%>
+
+<script type="text/javascript">
+	function showLoading() {
+		if ($('editPane').innerHTML.indexOf('Still Loading') >= 0) {
+			if ($('editPane').innerHTML.length > 90) {
+				$('editPane').innerHTML = $('editPane').innerHTML + '.';
+				setTimeout('showLoading()', 1000);
+			}
+			else {
+				$('editPane').innerHTML = $('editPane').innerHTML + '.';
+				setTimeout('showLoading()', 100);
+			}
+		}
+	}
+</script>
+
+<form action="/networkproviders/select_np" method="get">
+	<select id="select_np" name="select_np" onchange=' $("editPane").innerHTML = "<br/><input type=\"hidden\" value=\"Still Loading!\"/><i>Loading</i>"; showLoading(); $("submit_select_np").click();'>
+		<%= options_for_select(@list_of_networkproviders.insert(0,['',0]), @selected_np) %>
+	</select>
+	<div style="display: none;">
+		<%= submit_tag 'Edit', :id => 'submit_select_np' %>
+	</div>
+</form>
+<% else -%>
+    No Network Providers meet your search criteria
+<% end -%>
+
+
+
+<table class="full">
+    <tr><td>
+        <div id="editPane">
+            <%= render :partial => "edit"%>
+        </div>
+    </td></tr>
+</table>

@@ -1,0 +1,78 @@
+
+<div name="editable" style="display: none;">
+	<a href="#" onclick="$('add_preferred_np_div').style.display = 'block'; return false;">
+		<span style="font-size: 10px;">Add Preferred Provider</span>
+	</a>
+	&nbsp;
+	<a href="#" onclick="document.getElementsByName('remove_preferred_nps')[0].onclick(); return false;">
+		<span style="font-size: 10px;">Remove Selected Providers</span>
+	</a>
+</div>
+								
+<p></p>											
+
+<div id="add_preferred_np_div" class="green_div" style="width: 400px; display: none;">
+	<% form_remote_tag :url => {:action => 'add_preferred_np'}, :update => 'poi_preferred_nps' do %>
+		<%= hidden_field :poi, :id, :value => "#{@pointsofinterest.id}" %>
+		<%= select :selected_np, :id, @other_preferred_nps %>
+		<br/>
+		<input type="button" onclick="$('add_preferred_np_div').style.display = 'none'; document.getElementsByName('Add_POI')[0].click(); return false;" value="Add" />
+		or <a onclick="$('add_preferred_np_div').style.display = 'none';  return false;">Cancel</a>
+		<div style="display: none;">
+			<%= submit_to_remote 'Add_POI', 'Add', :url => { :action => 'add_preferred_np'}, :update => 'poi_preferred_nps' %>
+		</div>
+	<% end %>
+</div>
+
+<p></p>
+	
+<% form_remote_tag :url => {:action => 'remove_preferred_np'}, :update => 'poi_preferred_nps' do %>
+	<%= hidden_field :poi, :id, :value => "#{@pointsofinterest.id}" %>
+	<table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead>
+			<tr>
+				<th>
+					<div style="width: 550px;">
+						<center>Network Provider</center>
+					</div>
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% if @pointsofinterest.preferred_nps != nil then %>
+				<% is_even = true %>
+				<% (@pointsofinterest.preferred_nps.sort { |x,y| x.networkprovider.name.downcase <=> y.networkprovider.name.downcase }).each do |preferred_np| %>
+					<tr class="<%= if !is_even then 'odd_small' else 'even_small' end %>">
+						<td>
+							<div name="editable" style="display: none;">
+								<%= check_box "selectedPreferredNps", "", {}, "#{preferred_np.id},","" %>
+							</div>
+							<%= link_to preferred_np.networkprovider.name, { :controller => 'networkproviders', :action => 'edit', :id => "#{preferred_np.networkprovider.id}"}, :onclick => "return confirmed();" %>
+						</td>
+					</tr>
+					<% is_even = !is_even %>
+				<% end %>
+			<% end %>
+		</tbody>
+	</table>
+	</td></tr></table>
+	<div style="display: none;">
+		<%= submit_to_remote 'remove_preferred_nps', 'Remove', :url => { :action => 'remove_preferred_np'}, :update => 'poi_preferred_nps' %>
+	</div>
+<% end %>
+
+<% if @current_user.can_edit_pointsofinterest?(@pointsofinterest.id) then %>
+	<div name="make_editable">
+		<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+	</div>
+<% end %>
+<div name="make_read_only" style="display:none;">
+	<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+</div>
+
+<% if @change_to_edit then %>
+	<script type="text/javascript">
+		toggle_read_only(false);
+	</script>
+<% end %>

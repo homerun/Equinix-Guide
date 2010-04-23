@@ -1,0 +1,60 @@
+
+<div name="editable" style="display: none;">
+	<a href="#" onclick="$('add_campus_ntp_div').style.display = 'block'; return false;">
+		<span style="font-size: 10px;">Add Network Termination Point</span>
+	</a>
+	&nbsp;
+	<a href="#" onclick="document.getElementsByName('remove_campus_ntps')[0].onclick(); return false;">
+		<span style="font-size: 10px;">Remove Selected</span>
+	</a>
+</div>
+								
+<p></p>						
+
+<div id="add_campus_ntp_div" class="green_div" style="width: 400px; display: none;">
+	<% form_remote_tag :url => {:action => 'add_campus_ntp'}, :update => 'campus_ntps' do %>
+		<%= hidden_field :campus, :id, :value => "#{@campus.id}" %>
+		<%= select :selected_ntp, :id, @other_ntps %>
+		<br/>
+		<input type="button" onclick="$('add_campus_ntp_div').style.display = 'none'; document.getElementsByName('Add_NTP')[0].click(); return false;" value="Add" />
+		or <a onclick="$('add_campus_ntp_div').style.display = 'none';  return false;">Cancel</a>
+		<div style="display: none;">
+			<%= submit_to_remote 'Add_NTP', 'Add', :url => { :action => 'add_campus_ntp'}, :update => 'campus_ntps' %>
+		</div>
+	<% end %>
+</div>
+
+<p></p>
+<% form_remote_tag :url => {:action => 'add_campus_ntp'}, :update => 'campus_ntps' do %>
+	<%= hidden_field :campus, :id, :value => "#{@campus.id}" %>
+	
+	<% unless @campus.ntps.nil? -%>
+	<table class="border_only"><tr><td>
+	<table class="list_columns">
+		<tbody>
+			<% @campus.ntps.find(:all, :order => "name").each do |ntp| -%>
+				<tr class="<%= cycle('even_small','odd_small') %>">
+					<td>
+						<div style="width: 300px;">
+							<div name="editable" style="display: none;">
+								<%= check_box "selectedCampusNtps", "", {}, "#{ntp.id},","" %>
+							</div>
+							<%= link_to ntp.name, { :controller => 'networkterminationpoints', :action => 'edit', :id => "#{ntp.id}"}, :onclick => "return confirmed();" %>
+						</div>
+					</td>
+				</tr>
+			<% end -%>
+		</tbody>
+	</table>	
+	</td></tr></table>
+	<% end %>
+	<div style="display: none;">
+		<%= submit_to_remote 'remove_campus_ntps', 'Remove', :url => { :action => 'remove_campus_ntp'}, :update => 'campus_ntps' %>
+	</div>
+<% end %>
+
+<% if @change_to_edit then %>
+	<script type="text/javascript">
+		toggle_read_only(false);
+	</script>
+<% end %>

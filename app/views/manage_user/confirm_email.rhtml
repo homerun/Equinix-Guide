@@ -1,0 +1,58 @@
+<% if @message != nil then %>
+	<%= @message %>
+<% else %>
+
+	<% if @emailRegistration.reset == true then %>
+		<p>
+			<span class="page_title">Password Recovery</span>
+		</p>
+		Hello <%= @user.first_name %> <%= @user.last_name %>,<br/>
+		Enter your new password:<br/>
+	<% else %>
+		<p>
+			<span class="page_title">User Registration</span>
+		</p>
+		Hello <%= @user.first_name %> <%= @user.last_name %>,<br/>
+		Please check the following fields for accuracy and enter your desired password:<br/>
+	<% end %>
+
+	<% form_for :user do |form| %>
+		<%= form.hidden_field :emailRegistrationId, {:value => @emailRegistration.id} %>
+		<%= form.hidden_field :id, {:value => @user.id} %>
+		<table>
+			<% if @emailRegistration.reset != true then %>
+				<tr>
+					<td class="edit_field_text">Equinix Association:</td>
+					<td><%= @user.print_association  %></td>
+				</tr>
+				<tr>
+					<td class="edit_field_text">First Name: </td>
+					<td><%= form.text_field :first_name, {:value => @user.first_name} %></td>
+				</tr>
+				<tr>
+					<td class="edit_field_text">Last Name: </td>
+					<td><%= form.text_field :last_name, {:value => @user.last_name} %></td>
+				</tr>
+				<tr>
+					<td class="edit_field_text">Preferred Unit: </td>
+					<td>
+						<%= select_tag(:user_unit_preference, 
+									options_for_select([['Metric','M'],['Imperial','B']]),
+									:name => 'user[unit_preference]') %>
+					</td>
+				</tr>
+			<% end %>
+			<tr>
+				<td class="edit_field_text">Password: </td>
+				<td><%= form.password_field :password %></td>
+			</tr>
+			<tr>
+				<td class="edit_field_text">Confirm Password: </td>
+				<td><%= form.password_field :password_confirmation %></td>
+			</tr>
+		</table>
+		<%= submit_tag 'Save Changes and Login' %>
+	  
+	<% end %>
+
+<% end %>

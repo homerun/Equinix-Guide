@@ -1,0 +1,43 @@
+<%= @message %>
+	<% form_tag do %>
+		<input type="submit" value="View in Google Earth" onClick="postAction(this.form,'salesinfo','view_pois_in_google_earth')"/>
+		<input type='button' value='Select All' onclick='javascript:checkAll(this)'> 
+		<br/>
+		<p></p>
+		<% is_even = true %>
+		<table class="border_only"><tr><td>
+		<table class="list_columns">
+			<thead>
+				<tr>
+					<th><div style="width: 150px;">Name</div></th>
+					<th><div style="width: 275px;">Address</div></th>
+					<th><div style="width: 200px;">Latitude and Longitude</div></th>
+					<%= "<th><div style='width: 240px;'>Distance from #{@base_ntp.name}</div></th>" if @base_ntp != nil %>
+				</tr>
+			</thead>
+			<tbody>
+				<% @networkterminationpoints.each do |ntp| %>
+					<tr class="<%= if !is_even then 'odd' else 'even' end %>">
+						<td>  
+							<div style="height: 100%; display: inline;">
+							<% if ntp.lon != nil and !ntp.lon.blank? and ntp.lat != nil and !ntp.lat.blank? then %>
+								<%= check_box 'selected_ntps', '', {}, "#{ntp.id},",'' %>
+							<% else %>
+								<%= check_box 'selected_ntps', '', {:disabled => 'true'}, "#{ntp.id},",'' %>
+							<% end %>
+							</div>
+							<div style="display: inline;">
+								<b> <%= link_to ntp.name, {:controller => 'networkterminationpoints', :action => 'edit', :id => ntp.id} %> </b> 
+							</div>
+						</td>
+						<td> <%= print_full_addr(ntp) %></td>
+						<td> Latitude: <%= ntp.lat %> <br/>Longitude: <%= ntp.lon %> </td>
+						<%= "<td><center>#{get_miles_distance(ntp,@base_ntp)}</center></td>" if @base_ntp != nil %>
+					</tr>
+					<% is_even = !is_even %>
+				<% end %>
+			</tbody>
+		</table>
+		</td></tr></table>
+	<% end %>
+	

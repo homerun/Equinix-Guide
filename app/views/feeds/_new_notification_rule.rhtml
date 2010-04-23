@@ -1,0 +1,55 @@
+
+
+<% form_tag do %>
+	<div id="object_nameDisplay" style="display: none;">
+		<p>
+			<center>
+				You have selected the option to receive notifications on <span id="object_nameDescr"></span>
+			</center>
+		</p>
+	</div>
+	<div id="object_nameEdit">
+		<p>
+			<center>
+				Select the object you would like to receive notifications about... 
+				<%= select_tag(:notificationrule_object_name,
+							options_for_select(@object_name_options),
+							:name => 'notificationrule[object_name]') %> &nbsp;
+				<br/>
+				<input type="button" value="Next" onclick="object_name_selected()" />
+				or <a onclick="$('add_notification_rule_div').style.display = 'block'; $('new_notification_rule').style.display = 'none'; $('new_notification_rule').innerHTML = '';" >Cancel</a>
+			</center>
+		</p>
+	</div>
+	
+	<div id="scopeDisplay" style="display: none;">
+		<hr/>
+		<p>
+			<center>
+				You will receive the following types of notifications: <span id="scopeDescr"></span>
+			</center>
+		</p> 
+	</div>
+	<div id="scopeEdit" style="display: none;">
+		<hr/>
+		<center>Select the types of notifications that you would like to receive...</center>
+		<center>
+			<input type="checkbox" id="news_notifications" name="news_notifications" />News &nbsp;&nbsp; 
+			<input type="checkbox" id="additions_notifications" name="additions_notifications" />Additions &nbsp;&nbsp; 
+			<input type="checkbox" id="updates_notifications" name="updates_notifications" />Updates &nbsp;&nbsp;
+			<br/> 
+			<input type="button" value="Next" onclick="scope_selected()" />
+			or <a onclick="$('add_notification_rule_div').style.display = 'block'; $('new_notification_rule').style.display = 'none'; $('new_notification_rule').innerHTML = '';" >Cancel</a>
+		</center>	
+		<div style="display: none;">	
+			<%= submit_to_remote 'new_notification_rule_step_one_submit', 'Next', :url => { :action => 'new_notification_rule_step_one'}, :update => 'new_notification_rule_step_two' %>
+		</div>
+	</div>
+<% end %>
+
+<div id="new_notification_rule_step_two">
+	
+</div>
+
+<div id="temporaryDate" style="display: none;">
+</div>

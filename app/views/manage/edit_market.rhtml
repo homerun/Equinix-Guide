@@ -1,0 +1,188 @@
+
+<% @selector_size = 5 %>
+
+<div class="title_div">
+	<h1>Competitive Markets</h1>
+</div>
+
+
+<table class="full">
+<tr><td>
+	<div style="min-width: 1100px;">
+		<% @partial_type = 'selector' %>
+		<div id="region_selector">
+			<%= render :partial => 'region_selector' %>
+		</div>
+		
+		<div id="country_selector">
+			<%= render :partial => 'country_selector' %>
+		</div>
+		<% @partial_type = 'editor' %>
+		<div id="market_selector">
+			<%= render :partial => 'market_selector' %>
+		</div>
+	</div>
+</td></tr>
+<tr><td>
+	<div id="editPane">
+		<% if @market == nil then %>
+			<br/>
+		<% else %>
+			<span class="edit_title"><%= @market.market_name %></span>
+			<div id="tabs_pane" class="tabs_pane">
+				<div id="tab_row_1" class="tab_row">
+					<div id="tab_1" class="tab_selected_other">&nbsp;</div><div class="selected_inner_tab_other" id="inner_tab_1">
+						<a href="#" onclick="select_tab_old(1,3); return false;">
+							Market Info
+						</a>
+					</div>
+					<div id="tab_2" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_2">
+						<a href="#" onclick="select_tab_old(2,3); return false;">
+							History
+						</a>
+					</div>
+					<div id="tab_3" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_3">
+						<a href="#" onclick="select_tab_old(3,3); return false;">
+							News
+						</a>
+					</div>
+				</div>
+				<div id="tab_1_content" class="tab_content">
+					<% form_for :market do |form| %>
+						<%= form.hidden_field :id, :value => "#{@market.id}" %>
+						<input type="hidden" name="current_tab_row" value="1" />
+						<input type="hidden" name="current_tab" value="1" />
+						<table>
+							<tr>
+								<% if @market.id != nil and @market != '' then %>
+									<td class="edit_field_text">Country: </td>
+									<% @list_of_countries.delete_if {|x| x[0] == 'All'} %>
+									<td>
+										<div name="editable" style="display: none;">
+											<%= select_tag(:market_country_id, 
+														options_for_select(@list_of_countries,"#{@market.country_id}"),
+														:name => 'market[country_id]',
+														:onchange => remote_function(:update => 'modified', 
+												   							    :url => { :action => 'set_modified'})) %>
+										</div>
+										<div name="read_only">
+											<%= @market.country.name if @market.country != nil %>
+										</div>
+									</td>
+								<% else %>
+									<td class="edit_field_text">Country: </td>
+									<td>
+										<div name="editable" style="display: none;">
+											<input readOnly="true" value="<%= @market.country.name if @market.country != nil %>" />
+										</div>
+										<div name="read_only">
+											<%= @market.country.name if @market.country != nil %>
+										</div>
+									</td>
+									<%= hidden_field :market, :country_id, :value => "#{@market.country_id}" %>
+								<% end %>
+							</tr>
+							<tr>
+								<td class="edit_field_text">Name: </td>
+								<td>
+									<div name="editable" style="display: none;">
+										<%= form.text_field :market_name, {:value => "#{@market.market_name}",
+															  :onchange => remote_function(:update => 'modified', 
+															   						 :url => { :action => 'set_modified'})} %>
+									</div>
+									<div name="read_only">
+										<%= @market.market_name %>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="edit_field_text">Description: </td>
+								<td>
+									<div name="editable" style="display: none;">
+										<%= form.text_area :market_description, {:value => "#{@market.market_description}", :rows => "5",
+																	   :onchange => remote_function(:update => 'modified', 
+																	   						  :url => { :action => 'set_modified'})} %>
+									</div>
+									<div name="read_only">
+										<%= @market.market_description %>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="edit_field_text">Datacenters: </td>
+								<td>
+									<% if @market.id == nil then %>
+										You must save before you can add datacenters.
+									<% else %>
+										<div id="market_ntps">
+											<%= render :partial => 'market_ntps' %>
+										</div>
+									<% end %>
+								</td>
+							</tr>
+							<tr>
+								<td class="edit_field_text">Report: </td>
+								<td>
+									<script type="text/javascript">
+										function update_links_with_unit() {
+											links = document.getElementsByName('market_link')
+											if(!links)
+												return;
+											unit = $('unit').value
+											for(var i=0; i<links.length; i++)
+												links[i].href = links[i].href.substr(0,links[i].href.length-1)+unit; 
+										}
+									</script>
+									<%= select_tag(:unit, 
+												options_for_select([['Metric','M'],['Imperial','B']]),
+												:onchange => 'update_links_with_unit();') %>
+									<a href="/salesinfo/view_competitive_market_report/<%= @market.id %>?unit=M" name="market_link">View report for <%= @market.market_name %></a>
+								</td>
+							</tr>
+							<tr>
+							    <td></td>
+							    <td>
+							        <% if has_editor_role then %>
+            							<div name="make_editable">
+            								<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+            							</div>
+            						<% end %>
+            						<div name="make_read_only" style="display:none;">
+            							<input type="submit" value="Save Changes" onClick="postAction(this.form,'manage','save_market'); this.disabled = true;"/>
+            							<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+            						</div>
+							    </td>
+							</tr>        
+						</table>
+						
+					<% end %> 
+				</div> 
+				<div id="tab_2_content" class="tab_content" style="display: none; min-width: 800px;">
+					<% if "#{@market.id}" == '' then %>
+						You must save before you can view history items.
+					<% else %>
+						<%= render :partial => '/shared/history_pane', :locals => {:table_name => 'Market', :table_id => @market.id, :tab_number => 2} %>
+					<% end %>
+				</div> 
+				<div id="tab_3_content" class="tab_content" style="display: none; min-width: 800px;">
+					<% if "#{@market.id}" == '' then %>
+						You must save before you can view news items.
+					<% else %>
+						<%= render :partial => '/shared/news_pane' %>
+					<% end %>
+				</div>
+			</div> 
+		<% end %>
+	</div>
+</td></tr>
+</table>
+
+<% if @selected_tab != nil and @selected_tab_row != nil then %>
+	<input type="hidden" value="<%= "select_tab_old(#{@selected_tab.to_i},3,'#{@selected_tab_row}',1)" %>" id="do_select_tab" />
+<% end %>
+
+<% if @change_to_edit then %>
+	<script type="text/javascript">
+		toggle_read_only(false);
+	</script>
+<% end %>

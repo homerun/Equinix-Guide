@@ -1,0 +1,25 @@
+<% if @selector_size == nil then @selector_size = 5 end %>
+
+	<div class="selectionBlock" id="country_select">
+		<% form_remote_tag(:url => {:action => 'select_country'}, :update => "#{get_element_to_update('country')}") do %>
+			
+			<center><span class="selection_box_title">Countries</span></center>
+			<% if @selected_country != nil then %>
+				<%= select_tag(:id, options_for_select(@list_of_countries.insert(0,['All','-1']),@selected_country), 
+							:size => @selector_size, 
+						     :class => 'country_select',
+							:onchange => remote_function(:update => "#{get_element_to_update('country')}", 
+												   :url => { :action => 'select_country'},
+												   :with => "'id='+value+'&page=#{@page}'")) %>
+			<% else %>
+				<%= select_tag(:id, options_for_select(@list_of_countries.insert(0,['All','-1']),'-1'), 
+							:size => @selector_size, 
+						     :class => 'country_select',
+							:onchange => remote_function(:update => "#{get_element_to_update('country')}", 
+												   :url => { :action => 'select_country'},
+												   :with => "'id='+value+'&page=#{@page}'")) %>
+			<% end %>
+			
+		<% end %>
+	</div>
+	

@@ -1,0 +1,79 @@
+<% if !@scope[:news] and !@scope[:additions] and !@scope[:updates] then %>
+	<div id="notification" class="notification">
+		<%= image_tag("/images/flash_img.jpg",{:class => 'title_img'}) %>
+		<div style="vertical-align: top; display: inline;">
+ 			You must select one of the three types of notifications!
+ 		</div>
+	</div>
+	
+	<script type="text/javascript">
+		setTimeout("$('notification').style.display = 'none'",10000);
+		$('scopeDisplay').style.display = 'none';
+		$('scopeEdit').style.display = 'block';
+	</script>
+<% elsif !@scope[:news] and !@scope[:updates] then %>
+	<hr/>
+	<p>
+		<center>
+			You will be notified of all <%= (@object_name_label == nil ? '' : @object_name_label.label) %> additions.
+		</center>
+	</p>
+	<% form_tag do %>
+		<input type="hidden" id="notificationrule_object_name" name="notificationrule[object_name]" value="<%= (@object_name_label == nil ? "ALL" : @object_name_label.table_name) %>" />
+		<input type="hidden" id="notificationrule_get_news" name="notificationrule[get_news]" value="<%= (@scope[:news] ? true : false) %>" />
+		<input type="hidden" id="notificationrule_get_additions" name="notificationrule[get_additions]" value="<%= (@scope[:additions] ? true : false) %>" />
+		<input type="hidden" id="notificationrule_get_updates" name="notificationrule[get_updates]" value="<%= (@scope[:updates] ? true : false) %>" />
+		<input type="hidden" id="notificationrule_user_id" name="notificationrule[user_id]" value="<%= current_user_id %>" />
+		<input type="hidden" id="notificationrule_seq_num" name="notificationrule[seq_num]" value="<%= @seq_num %>" />
+		<input type="hidden" id="notificationrule_l_paren" name="notificationrule[l_paren]" value="0" />
+		<input type="hidden" id="notificationrule_r_paren" name="notificationrule[r_paren]" value="0" />
+		<input type="hidden" id="notificationrule_and_or" name="notificationrule[and_or]" value="O" />
+		<input type="hidden" id="notificationrule_field_name" name="notificationrule[field_name]" value="ALL" />
+		<hr/>
+		<center>
+			This rule will be applied for all items as far back as:
+		</center> 
+		<br/>
+		<input id="notificationrule_start_date" type="hidden" name="notificationrule[start_date]" />
+		<center>
+			<a id="notificationrule_start_date_a"></a>
+			<script type="text/javascript"> createCalendar("notificationrule_start_date",new Date("<%= print_date(2.weeks.ago) %>")) </script>
+		</center>
+		<br/>
+		<center>
+			<input type="submit" value="Finish" onClick="postAction(this.form,'feeds','add_new_notification_rule')"/>
+			<a onclick="$('add_notification_rule_div').style.display = 'block'; $('new_notification_rule').style.display = 'none'; $('new_notification_rule').innerHTML = '';" >Cancel</a>
+		</center>
+	<% end %>
+<% else %>
+	<hr/>
+	<div id="field_nameDisplay" style="display: none;">
+	</div>
+	<div id="field_nameEdit">
+		<% form_tag do %>
+			<input type="hidden" id="notificationrule_object_name" name="notificationrule[object_name]" value="<%= (@object_name_label == nil ? "ALL" : @object_name_label.table_name) %>" />
+			<input type="hidden" id="notificationrule_get_news" name="notificationrule[get_news]" value="<%= (@scope[:news] ? true : false) %>" />
+			<input type="hidden" id="notificationrule_get_additions" name="notificationrule[get_additions]" value="<%= (@scope[:additions] ? true : false) %>" />
+			<input type="hidden" id="notificationrule_get_updates" name="notificationrule[get_updates]" value="<%= (@scope[:updates] ? true : false) %>" />
+			<center>
+				<%= radio_button :notificationrule, :allObjects, 'yes', {:checked => 'checked', :onchange => '$("notificationrule_field_name").disabled = $("notificationrule_allObjects_yes").checked'} %>Track All <%= (@object_name_label == nil ? 'Objects' : @object_name_label.plural) %>
+				<br/>or<br/>
+				<%= radio_button :notificationrule, :allObjects, 'no', {:onchange => '$("notificationrule_field_name").disabled = $("notificationrule_allObjects_yes").checked'} %>Track <%= (@object_name_label == nil ? 'Objects' : @object_name_label.plural) %> based on
+				<%= "#{@field_name_options[0][0]} <div style='display: none;'>" if @field_name_options.size == 1 %>
+				&nbsp;<%= select_tag(:notificationrule_field_name,
+								options_for_select(@field_name_options),
+								:name => 'notificationrule[field_name]',
+								:disabled => true) %> 
+				<%= "</div>" if @field_name_options.size == 1 %>&nbsp;&nbsp;<br/>
+				<input type="button" value="Next" onclick="field_name_selected('<%= (@object_name_label == nil ? 'Objects' : @object_name_label.plural) %>')" />
+				or <a onclick="$('add_notification_rule_div').style.display = 'block'; $('new_notification_rule').style.display = 'none'; $('new_notification_rule').innerHTML = '';" >Cancel</a>
+			</center>
+			<div style="display: none;">	
+				<%= submit_to_remote 'new_notification_rule_step_two_submit', 'Next', :url => { :action => 'new_notification_rule_step_two'}, :update => 'new_notification_rule_step_three' %>
+			</div>
+		<% end %>
+	</div>
+<% end %>
+
+<div id="new_notification_rule_step_three">
+</div>

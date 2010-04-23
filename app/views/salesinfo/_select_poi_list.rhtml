@@ -1,0 +1,17 @@
+<% unless @list_of_pois.blank? -%>
+	<form action="/salesinfo/add_selected_ntps" method="get" id="add_selected_pois">
+		<%= submit_to_remote 'add_pois_submit', 'Add Points of Interest', :url => {:action => 'add_selected_pois'}, :update => 'view_poi_list', :html => {:id => 'add_pois_submit', :disabled => true}, :before => 'this.selectedIndex = -1;' %>
+		<br/>
+		<select id="add_pois" name="add_pois[]" multiple="multiple" size="<%= @add_to_poi_list_size %>" style="*width: 340px; min-width: 300px;" onchange="if(this.selectedIndex>=0) $('add_pois_submit').disabled=false; else $('add_pois_submit').disabled=true;">
+			<%= options_for_select(@list_of_pois) %>
+		</select>
+	</form>
+<% else -%>
+No Points of Interest meet your search criteria
+<% end -%>
+
+<% if @first_load then %>
+<script type="text/javascript">
+	setTimeout("document.getElementsByName('add_pois_submit')[0].click()",1000);
+</script>
+<% end %>

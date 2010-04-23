@@ -1,0 +1,56 @@
+
+<% if @history_items == nil or @history_items[1].size == 0 then %>
+	No History Recorded.
+<% else %>
+	<table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead >
+			<tr>
+				<th><div style="width:150px;">Date</div></th>
+				<th><div style="width: 150px;">Field</div></th>
+				<th><div style="width: 230px">Old Value</div></th>
+				<th><div style="width: 230px">New Value</div></th>
+			</tr>
+		</thead>
+		<tbody>
+		<% @history_items[1].each do |time_audit_group| %>
+	<% if time_audit_group[:changed_fields] != nil and time_audit_group[:changed_fields].size != 0 then %>
+			<tr>
+				<td rowspan="<%= (time_audit_group[:changed_fields].size==0 ? 1 : time_audit_group[:changed_fields].size) %>">
+					<%= time_audit_group[:date_time].strftime('%m/%d/%Y %H:%M') %> <br/>
+					<%= time_audit_group[:responsible_user].print_name_with_association if time_audit_group[:responsible_user] != nil %>
+				</td>
+	<% first_item = true %>
+	<% time_audit_group[:changed_fields].each do |field_change| %>
+		<% if first_item then %>
+			<% first_item = false %>
+				<td>
+					<%= field_change[:field_name] %>
+				</td>
+				<td>
+					<%= field_change[:old_value] %>
+				</td>
+				<td>
+					<%= field_change[:new_value] %>
+				</td>
+		<% else %>
+			</tr>
+			<tr>
+				<td>
+					<%= field_change[:field_name] %>
+				</td>
+				<td>
+					<%= field_change[:old_value] %>
+				</td>
+				<td>
+					<%= field_change[:new_value] %>
+				</td>
+		<% end %>
+	<% end %>
+			</tr>
+		<% end %>
+	<% end %>
+		</tbody>
+	</table>
+	</td></tr></table>
+<% end %>

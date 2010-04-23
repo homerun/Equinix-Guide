@@ -1,0 +1,17 @@
+<% unless @list_of_ntps.blank? -%>
+	<form action="/networkterminationpoints/add_selected_ntps" method="get" id="add_selected_ntps">
+		<%= submit_to_remote 'add_ntps_submit', 'Add Network Termination Points', :url => {:action => 'add_selected_ntps'}, :update => 'view_list', :html => {:id => 'add_ntps_submit', :disabled => true}, :before => 'this.selectedIndex = -1' %>
+		<br/>
+		<select id="add_ntps" name="add_ntps[]" multiple="multiple" size="<%= @add_to_ntp_list_size %>" style="*width: 340px; min-width: 300px;" onchange="if(this.selectedIndex>=0) $('add_ntps_submit').disabled=false; else $('add_ntps_submit').disabled=true;">
+			<%= options_for_select(@list_of_ntps) %>
+		</select>
+	</form>
+<% else -%>
+No Network Termination Points meet your search criteria
+<% end -%>
+
+<% if @first_load then %>
+<script type="text/javascript">
+	setTimeout("document.getElementsByName('add_ntps_submit')[0].click()",1000);
+</script>
+<% end %>

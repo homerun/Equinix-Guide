@@ -1,0 +1,35 @@
+<% if @selector_size == nil then @selector_size = 5 end %>
+
+<% form_tag do %>
+	<div class="selectionBlock" id="market_select">
+		
+		<center><span class="selection_box_title">Competitive Markets</span></center>
+		<% if @list_of_markets == nil then %>
+			You must select a Country first.
+		<% else %>
+			<% if @selected_market != nil then %>
+				<%= select_tag(:id, 
+							options_for_select(@list_of_markets,@selected_market), 
+							:class => 'market_select', 
+							:size => @selector_size,
+						     :onclick => "if(confirmed()) $('edit_market_button').onclick(); else this.value = '#{@selected_market}';") %>
+			<% else %>
+				<%= select_tag(:id, 
+							options_for_select(@list_of_markets), 
+							:class => 'market_select', 
+							:size => @selector_size,
+						     :onclick => "if(confirmed()) $('edit_market_button').onclick(); else this.value = '-1';") %>
+			<% end %>
+			<center>
+				<input type="button" value="Add" onClick="this.disabled = true; postAction(this.form,'manage','add_market')"/>
+				<div style="display: none;">
+					<input id="edit_market_button" type="button" value="Edit" onClick="this.disabled = true; postAction(this.form,'manage','edit_market')"/>
+				</div>
+				<input type="button" value="Delete" onClick="this.disabled = true; postAction(this.form,'manage','delete_market')"/>
+			</center>
+		<% end %>
+		
+	</div>
+		<br/>
+<% end %>
+	

@@ -1,0 +1,172 @@
+<% if @owner == nil %>
+	<div style="display: inline; margin-right: 30px;">
+		<%= link_to 'Save this report...', {:controller => 'reports', :action => 'new', :reporttype => 'view_prospects_report'} %>
+	</div>
+<% elsif @owner == 'shared' then %>
+	<div style="display: inline; margin-right: 30px;">
+		<%= link_to 'Save a copy of this shared report...', {:controller => 'reports', :action => 'new', :reporttype => 'view_prospects_report'} %>
+	</div>
+<% end %>
+
+<div style="display: inline; margin-right: 30px;">
+	<%= link_to 'Export to pdf...', {:controller => 'salesinfo', :action => 'pdf_prospects_report'} %>
+</div>
+
+<script type="text/javascript">
+	function toggle_prospects(box,status) {
+		var prospect_objs;
+		if(navigator.appName.indexOf('Microsoft')<0) {
+			prospect_objs = document.getElementsByName('prospect_'+status)
+		} else {
+			prospect_objs = getElementsByName_iefix('div','prospect_'+status)
+		}
+		for(var i=0; i<prospect_objs.length; i++)
+			if(box.checked)
+				prospect_objs[i].style.display = 'block';
+			else
+				prospect_objs[i].style.display = 'none';
+	}
+</script>
+
+<div class="title_div">
+    <h1>Prospects Report</h1>
+</div>
+<table class="border_only"><tr><td>
+<table class="list_columns">
+	<thead>
+		<tr>
+			<th rowspan="2" style="border-right: 1px solid #000;">
+				<div style="width: 15em; font-size: 1.5em;">
+					Equinix Financial EFx Base EXECUTION VENUES
+				</div>
+			</th>
+			<% region_cell_created = [false,false,false,false] %>
+			<% count = 0 %>
+			<% @regions_markets_array.each do |region_market| %>
+				<% if !region_cell_created[region_market[:region].id] then %>
+					<% count += 1 %>
+					<th colspan="<%= @region_child_count[region_market[:region].id] %>" <%= 'style="border-right: 1px solid #000;"' if count < @region_count %>>
+						<%= region_market[:region].region_name %>
+					</th>
+					<% region_cell_created[region_market[:region].id] = true %>
+				<% end %>
+			<% end %>
+		</tr>
+		<tr>
+			<% region_cell_created = [false,false,false,false] %>
+			<% region_cell_created[@regions_markets_array[0][:region].id] = true %>
+			<% (0..(@regions_markets_array.size-1)).each do |i| %>
+				<% if i+1 < @regions_markets_array.size and !region_cell_created[@regions_markets_array[i+1][:region].id] then border = ' style="border-right: 1px solid #000;"' else border = '' end %>
+				<th <%= border %>>
+					<%= if @regions_markets_array[i][:market] != nil then @regions_markets_array[i][:market].market_name else @regions_markets_array[i][:country].name end %>	
+				</th>
+				<% if i+1 < @regions_markets_array.size then region_cell_created[@regions_markets_array[i+1][:region].id] = true end %>
+			<% end %>
+		</tr>
+	</thead>
+	<tbody>
+		<% is_even = true %>
+		<% @poi_prospects_list.each do |poi_prospects| %>	
+			<tr class="<%= if !is_even then 'odd_small' else 'even_small' end %>">
+				<th style="border-right: 1px solid #000;">
+					<%= link_to poi_prospects[:poi].name, {:controller => 'pointsofinterests', :action => 'edit', :id => poi_prospects[:poi].id}, :onclick => "return confirmed();" %>
+				</th>
+				<% region_cell_created = [false,false,false,false] %>
+				<% region_cell_created[@regions_markets_array[0][:region].id] = true %>
+				<% (0..(@regions_markets_array.size-1)).each do |i| %>
+					<% if i+1 < @regions_markets_array.size and !region_cell_created[@regions_markets_array[i+1][:region].id] then border = ' style="border-right: 1px solid #000;"' else border = '' end %>
+					<td <%= border %>>
+						<% (get_prospects_in_region_market(poi_prospects[:prospects],@regions_markets_array[i]).sort {|x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase}).each do |prospect| %>
+							<div style="display: block; padding: 1px 0px 3px 0px; width: 100%; margin: 0px; background-color: <%= if prospect.status.id == 1 then '#afa' elsif prospect.status.id == 2 then '#ffa' elsif prospect.status.id == 3 then '#fca' else '#faa'  end %>" name="prospect_<%= prospect.status.id %>">
+								<%= link_to "#{prospect.connectiontype.name} - #{prospect.networkterminationpoint.name}", {:controller => 'pointsofinterests', :action => 'edit', :id => poi_prospects[:poi].id, :selected_tab_row => '2', :selected_tab => '8'}, :onclick => "return confirmed();" %>
+								<% @regions_markets_total_array[i]["#{prospect.prospectstatustype_id}"] += 1 %>
+							</div>
+						<% end %>
+					</td>
+					<% if i+1 < @regions_markets_array.size then region_cell_created[@regions_markets_array[i+1][:region].id] = true end %>
+				<% end %>
+			</tr>
+			<% is_even = !is_even %>
+		<% end %>
+		<%- if @prospect_status_types == 'All' then -%>
+			<tr>
+				<td style="padding: 2px; background-color: #afa; border-right: 1px solid #000;">
+					<input type="checkbox" onclick="toggle_prospects(this,'1');" checked="checked" />
+					<b>Total Live</b>
+				</td>
+				<% region_cell_created = [false,false,false,false] %>
+				<% region_cell_created[@regions_markets_array[0][:region].id] = true %>
+				<% (0..(@regions_markets_array.size-1)).each do |i| %>
+					<% if i+1 < @regions_markets_array.size and !region_cell_created[@regions_markets_array[i+1][:region].id] then border = ' border-right: 1px solid #000;' else border = ' border-right: 1px solid #ccc;' end %>
+					<td style="background-color: #afa; border-left: 1px solid #ccc; <%= border %>">
+						<center>
+							<%= @regions_markets_total_array[i]["#{1}"] %>
+						</center>
+					</td>
+					<% if i+1 < @regions_markets_array.size then region_cell_created[@regions_markets_array[i+1][:region].id] = true end %>
+				<% end %>
+			</tr>
+		<%- end -%>
+		<%- if @prospect_status_types == 'All_Non_Live' or @prospect_status_types == 'All' then -%>
+			<tr>
+				<td style="padding: 2px; background-color: #ffa; border-right: 1px solid #000;">
+					<input type="checkbox" onclick="toggle_prospects(this,'2');" checked="checked" />
+					<b>Total Signed but not yet live</b>
+				</td>
+				<% region_cell_created = [false,false,false,false] %>
+				<% region_cell_created[@regions_markets_array[0][:region].id] = true %>
+				<% (0..(@regions_markets_array.size-1)).each do |i| %>
+					<% if i+1 < @regions_markets_array.size and !region_cell_created[@regions_markets_array[i+1][:region].id] then border = ' border-right: 1px solid #000;' else border = ' border-right: 1px solid #ccc;' end %>
+					<td style="background-color: #ffa; border-left: 1px solid #ccc; <%= border %>">
+						<center>
+							<%= @regions_markets_total_array[i]["#{2}"] %>
+						</center>
+					</td>
+					<% if i+1 < @regions_markets_array.size then region_cell_created[@regions_markets_array[i+1][:region].id] = true end %>
+				<% end %>
+			</tr>
+		<%- end -%>
+		<%- if @prospect_status_types == 'All_Non_Live' or @prospect_status_types == 'All' then -%>
+			<tr>
+				<td style="padding: 2px; background-color: #eca; border-right: 1px solid #000;">
+					<input type="checkbox" onclick="toggle_prospects(this,'3');" checked="checked" />
+					<b>Total Pipeline</b>
+				</td>
+				<% region_cell_created = [false,false,false,false] %>
+				<% region_cell_created[@regions_markets_array[0][:region].id] = true %>
+				<% (0..(@regions_markets_array.size-1)).each do |i| %>
+					<% if i+1 < @regions_markets_array.size and !region_cell_created[@regions_markets_array[i+1][:region].id] then border = ' border-right: 1px solid #000;' else border = ' border-right: 1px solid #ccc;' end %>
+					<td style="background-color: #eca; border-left: 1px solid #ccc; <%= border %>">
+						<center>
+							<%= @regions_markets_total_array[i]["#{3}"] %>
+						</center>
+					</td>
+					<% if i+1 < @regions_markets_array.size then region_cell_created[@regions_markets_array[i+1][:region].id] = true end %>
+				<% end %>
+			</tr>
+		<%- end -%>
+		<tr>
+			<td style="padding: 2px; background-color: #faa; border-right: 1px solid #000;">
+				<input type="checkbox" onclick="toggle_prospects(this,'4');" checked="checked" />
+				<b>Total Targeted</b>
+			</td>
+			<% region_cell_created = [false,false,false,false] %>
+			<% region_cell_created[@regions_markets_array[0][:region].id] = true %>
+			<% (0..(@regions_markets_array.size-1)).each do |i| %>
+				<% if i+1 < @regions_markets_array.size and !region_cell_created[@regions_markets_array[i+1][:region].id] then border = ' border-right: 1px solid #000;' else border = ' border-right: 1px solid #ccc;' end %>
+				<td style="background-color: #faa; border-left: 1px solid #ccc; <%= border %>">
+					<center>
+						<%= @regions_markets_total_array[i]["#{4}"] %>
+					</center>
+				</td>
+				<% if i+1 < @regions_markets_array.size then region_cell_created[@regions_markets_array[i+1][:region].id] = true end %>
+			<% end %>
+		</tr>
+	</tbody>
+</table>
+</td></tr></table>
+<b><i>*Connection Type Explanation</i></b>
+<br/>
+<i>A - <%= @a_connection_explanation %></i>
+<br/>
+<i>B - <%= @b_connection_explanation %></i>

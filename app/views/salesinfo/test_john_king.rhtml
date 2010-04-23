@@ -1,0 +1,73 @@
+<%= GOOGLE_MAPS_KEY %>
+<div id="floor_space_map" style="width: 768px; height: 512px"></div>
+<form action="#">
+<input type="button" value="hide" onclick="map.removeOverlay(kml)" />
+<input type="button" value="show" onclick="map.addOverlay(kml)" />
+</form>
+    <script type="text/javascript">
+    //<![CDATA[
+    
+    if (GBrowserIsCompatible()) { 
+
+function drawCircle(lat,lon,radius,color){
+
+	var circle;
+	var circlePoints = Array();
+
+	with (Math) {
+		var d = radius/6378.8;	// radians
+
+		var lat1 = (PI/180)* lat; // radians
+		var lng1 = (PI/180)* lon; // radians
+
+		for (var a = 0 ; a < 361 ; a++ ) {
+			var tc = (PI/180)*a;
+			var y = asin(sin(lat1)*cos(d)+cos(lat1)*sin(d)*cos(tc));
+			var dlng = atan2(sin(tc)*sin(d)*cos(lat1),cos(d)-sin(lat1)*sin(y));
+			var x = ((lng1-dlng+PI) % (2*PI)) - PI ; // MOD function
+			var point = new GLatLng(parseFloat(y*(180/PI)),parseFloat(x*(180/PI)));
+			circlePoints.push(point);
+			bounds.extend(point);
+		}
+
+		circle = new GPolygon(circlePoints, color, 2, 1, color, 0.25);
+		map.addOverlay(circle);
+		circles[i] = circle;
+		i++
+	}
+}
+
+      var map = new GMap2($('floor_space_map'));
+	  map.addControl(new GScaleControl());
+      map.addControl(new GLargeMapControl());
+      map.addControl(new GMapTypeControl());
+      map.setCenter(new GLatLng(<%= "#{@center[:lat]},#{@center[:lon]}" %>), 10);
+
+      // ==== Create a KML Overlay ====
+
+	var circles = new Array();
+	var bounds = new GLatLngBounds();
+	var i = 0;
+<% @market.datacenters.each do |datacenter| %>
+	drawCircle(<%= datacenter.networkterminationpoint.lat %>,<%= datacenter.networkterminationpoint.lon %>,<%= datacenter.floor_capacity_radius %>,'#<%= datacenter.floor_capacity_color %>');
+<% end %>
+	map.setZoom(map.getBoundsZoomLevel(bounds));
+
+    
+//      var kml = new GGeoXml("http://www.qa.circuitclout.com/salesinfo/get_kml_overlay_for_competitive_markets/<%= @market.id %>");
+//      map.addOverlay(kml);
+
+    }
+    
+    // display a warning if the browser was not compatible
+    else {
+      alert("Sorry, the Google Maps API is not compatible with this browser");
+    }
+
+    // This Javascript is based on code provided by the
+    // Blackpool Community Church Javascript Team
+    // http://www.commchurch.freeserve.co.uk/   
+    // http://econym.googlepages.com/index.htm
+
+    //]]>
+    </script>

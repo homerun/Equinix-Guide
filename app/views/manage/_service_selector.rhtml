@@ -1,0 +1,25 @@
+<% if @selector_size == nil then @selector_size = 5 end %>
+
+	<% form_tag do %>
+		<div class="service_select selectionBlock">
+			
+			<center><span class="selection_box_title">Services</span></center>
+			<% if @list_of_services == nil then %>
+				You must select a Point of Interest first.
+			<% else %>
+				<% if @selected_service != nil then %>
+					<%= select_tag(:id, options_for_select(@list_of_services,@selected_service), :class => 'service_select', :size => @selector_size) %>
+				<% else %>
+					<%= select_tag(:id, options_for_select(@list_of_services), :class => 'service_select', :size => @selector_size) %>
+				<% end %>
+				<center>
+					<input type="button" value="Add" onClick="this.disabled = true; postAction(this.form,'manage','add_service')"/>
+					<input type="button" value="Edit" onClick="this.disabled = true; postAction(this.form,'manage','edit_service')"/>
+					<input type="button" value="Delete" onClick="this.disabled = true; postAction(this.form,'manage','delete_service')"/>
+				</center>
+			<% end %>
+			
+		</div>
+			<br/>
+	<% end %>
+	

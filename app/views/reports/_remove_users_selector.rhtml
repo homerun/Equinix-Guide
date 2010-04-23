@@ -1,0 +1,7 @@
+<form action="/networkterminationpoints/remove_selected_users" method="get" id="remove_selected_users">
+	<%= submit_to_remote 'remove_users_submit', 'Un-Share With Users', :url => {:action => 'remove_selected_users', :id => @report.id}, :update => 'remove_users_selector_list', :html => {:id => 'remove_users_submit', :disabled => true}, :before => 'this.selectedIndex = -1' %>
+	<br/>
+	<select id="remove_users_list" name="remove_users_list[]" multiple="multiple" size="<%= @remove_users_list_size %>" style="*width: 340px; min-width: 300px; max-width: 400px;" onchange="if(this.selectedIndex>=0) $('remove_users_submit').disabled=false; else $('remove_users_submit').disabled=true;">
+		<%= options_for_select(@list_of_remove_users) %>
+	</select>
+</form>

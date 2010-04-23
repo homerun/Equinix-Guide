@@ -1,0 +1,9 @@
+<%- if @networkprovider_list then -%>
+	<%= options_for_select(@networkprovider_list,@selected_networkprovider) %>
+<%- elsif @networkterminationpoint then -%>
+	<%= options_for_select(((@networkterminationpoint.networkproviders_connecting_to(nil).collect {|np| [np.name,np.id]}).sort! {|x,y| x[0].downcase <=> y[0].downcase}).insert(0,[' ',''])) %>
+<%- elsif @networkprovider then -%>
+	<%= options_for_select([@networkprovider.name,@networkprovider.id]) %>
+<%- else -%>
+	<%= options_for_select([' ','']) %>
+<%- end -%>

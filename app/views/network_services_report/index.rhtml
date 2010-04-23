@@ -1,0 +1,71 @@
+<div class="title_div">
+    <%= image_tag "network_services_title_img.jpg", :class => 'title_img' %>
+	<h1>Network Services Report Options</h1>
+</div>
+
+<p class="selection_box_title">Step 1: Select search parameters</p>
+<form action="/networkterminationpoints" method="get" id="select_ntp_list">
+<div class="yui-gb">
+    <div class="yui-u first">   
+        <p>
+            <span class="selection_box_title">Region:</span><br/>
+            <select id="region_selector" name="search[region_id]">
+                <%= options_for_select(@list_of_regions.insert(0,'All')) %>
+            </select>
+        </p>
+        <p>
+            <span class="selection_box_title">Country:</span><br/>
+            <select id="country_selector" name="search[country_id]">
+            	<%= render :partial => 'select_country' %>
+            </select>
+        </p>  
+    </div>
+    <div class="yui-u"> 
+        <p>
+            <span class="selection_box_title">Network Termination Point Type:</span><br/>
+            <select id="ntp_type_selector" name="search[networktermpttype_id]">
+                <%= options_for_select(@list_of_networktermpttype_ids.insert(0,'All')) %>
+            </select>
+        </p>
+    </div>
+    <div class="yui-u">    
+        <p>
+            <span class="selection_box_title">Network Termination Point Owner:</span><br/>
+            <select id="ntp_owner_selector" name="search[networktermptowner_id]">
+                <%= options_for_select(Networktermptowner.find(:all, :order => 'name').collect { |o| [o.name, o.id]}.insert(0,'All')) %>
+            </select>
+        </p> 
+    </div>
+</div>
+</form>
+
+<%= observe_field "region_selector", 
+		:url => {:action => 'select_region'},
+		:update => "country_selector",
+		:with => "region_id" %>
+		
+<%= observe_form  :select_ntp_list, 
+				  :update => 'ntp_selector_list',
+				  :url => {:action =>'get_ntps'} %>
+<br/>
+<div class="yui-gb">
+    <div class="yui-u first">   
+		<p class="selection_box_title">Step 2.1: Add Network Termination Points to View List</p>
+		<div id="ntp_selector_list">
+		    <%= render :partial => 'ntp_selector' %>
+		</div>	
+    </div>
+    <div class="yui-u">
+		<p class="selection_box_title">Step 2.2: Remove Network Termination Points from View List</p>
+		<div id="view_list">
+			<%= render :partial => 'view_list' %>
+		</div>
+    </div>
+    <div class="yui-u">
+		<p class="selection_box_title">Step 3: Finalize Report</p>
+		<p><%= button_to 'View Report', {:controller => 'network_services_report', :action => 'view_network_services_report', :id => 'view'}, :disabled => true, :id => 'view_report' %></p>
+		<p><%= button_to 'Printable Report', {:controller => 'network_services_report', :action => 'view_network_services_report', :id => 'print'}, :disabled => true, :id => 'print_report' %></p>
+		<p><%= button_to 'Export to CSV', {:controller => 'network_services_report', :action => 'view_network_services_report', :id => 'csv'}, :disabled => true, :id => 'csv_report' %></p>
+		<p><%= button_to 'Export to PDF', {:controller => 'network_services_report', :action => 'view_network_services_report', :id => 'pdf'}, :disabled => true, :id => 'pdf_report' %></p>
+    </div>
+</div>

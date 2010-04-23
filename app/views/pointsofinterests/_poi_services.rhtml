@@ -1,0 +1,150 @@
+
+<% unless flash[:notice].blank? %>
+	<div id="service_notification" class="notification">
+		<%= image_tag("/images/flash_img.jpg",{:class => 'title_img'}) %>
+		<div style="vertical-align: top; display: inline;">
+ 			<%= flash[:notice] %>
+ 			<% flash[:notice] = '' %>
+ 		</div>
+	</div>
+ 	<script type="text/javascript">
+ 		setTimeout("$('service_notification').style.display = 'none'",10000)
+ 	</script>
+<%end%>
+
+<p>
+<div id="edit_poi_service_unsubmit">
+	<div name="editable" style="display: none;">
+		<a href="#" onclick="$('edit_poi_service_submit').style.display = 'block'; $('edit_poi_service_unsubmit').style.display = 'none'; return false;">Add Service</a>
+	</div>
+	<div name="read_only">
+	</div>
+</div>
+<table class="border_only"><tr><td>
+<table class="list_columns">
+	<thead >
+		<tr>
+			<th>
+				<div style="width: 100px;"><center>Acronym</center></div>
+			</th>
+			<th>
+				<div style="width: 350px;"><center>Name / Description</center></div>
+			</th>
+			<th>
+				<div style="width: 400px;"><center>Bandwidth Guidelines</center></div>
+			</th>
+			<td></td>
+		</tr>
+	</thead>
+	</tbody >
+		<tr>
+			<td  colspan="3">
+				<div  id="edit_poi_service_submit" class="connectionTypeDescr" style="z-index: 1; display: none;">
+					<% form_remote_tag :url => {:action => 'edit_poi_service'}, :update => 'poi_services' do %>
+						<%= hidden_field :service_NEW, :pointsofinterest_id, :value => "#{@pointsofinterest.id}" %>
+						<table class="list" style="border: 0px;">
+							<tr class="odd_small" style="border: 0px;">
+								<td class="edit_field_text" style="border: 0px; width: 65;" rowspan="2">
+									Acronym
+								</td>
+								<td style="border: 0px; width: 40;" rowspan="2">
+									<%= text_field :service_NEW, :service_acronym, {:value => "NEW", :size => "4"} %>
+								</td>
+								<td class="edit_field_text" style="border: 0px; width: 75;">
+									Name
+								</td>
+								<td style="border: 0px; width: 280;">
+									<%= text_field :service_NEW, :name, {:value => "New Service"} %>
+								</td>
+							</tr>
+							<tr class="odd_small" style="border: 0px;">
+								<td class="edit_field_text" style="border: 0px; width: 75;">
+									Description
+								</td>
+								<td style="border: 0px; width: 280;">
+									<%= text_area :service_NEW, :description, {:value => "Enter Description Here.", :rows => "2", :cols => "40"} %>
+								</td>
+							</tr>
+						</table>
+						<center>
+							<input type="button" onclick="$('edit_poi_service_unsubmit').style.display = 'block'; $('edit_poi_service_submit').style.display = 'none'; document.getElementsByName('Add_SERVICE')[0].onclick(); return false;" value="Add" />
+							or <a onclick="$('edit_poi_service_unsubmit').style.display = 'block'; $('edit_poi_service_submit').style.display = 'none'; return false;">Cancel</a>
+						</center>
+						<div style="display: none;">
+							<%= submit_to_remote 'Add_SERVICE', 'Add', :url => { :action => 'edit_poi_service', :service_id => 'NEW'}, :update => 'poi_services' %>
+						</div>
+					<% end %>
+				</div>
+			</td>
+		</tr>
+		<% if @pointsofinterest.services %>
+			<% (@pointsofinterest.services.sort { |x,y| "#{x.name}".downcase <=> "#{y.name}".downcase }).each do |service| %>
+				<tr class="<%= cycle('odd_small','even_small') %>">
+					<td>
+						<center><b><%= service.service_acronym %></b></center>
+					</td>
+					<td>
+						<% form_remote_tag :url => { :action => 'edit_poi_service', :pointsofinterest_id => @pointsofinterest.id } do %>
+							<%= hidden_field "service_#{service.id}", :pointsofinterest_id, :value => "#{@pointsofinterest.id}" %>
+							<%= hidden_field "service_#{service.id}", :id, :value => "#{service.id}" %>
+							<%= hidden_field "service_#{service.id}", :service_acronym, :value => "#{service.service_acronym}" %>
+							<div id="edit_service_fields_read_only_<%= service.id %>">
+								<center><b><%= service.name %></b></center>
+								<hr />
+								<%= service.description %>
+							</div>
+							<div id="edit_service_fields_editable_<%= service.id %>" class="connectionTypeDescr" style="z-index: 1; display: none;">
+								<%= text_field "service_#{service.id}", :name, {:value => service.name} %>
+								<hr />
+								<%= text_area "service_#{service.id}", :description, {:value => service.description, :rows => "2", :cols => "40"} %>
+								<br/>
+							<input type="button" onclick="toggle_edit_poi_service('read_only','editable','<%= service.id %>'); document.getElementsByName('edit_service_save_<%= service.id %>')[0].onclick(); return false;" value="Save" />
+							or <a onclick="toggle_edit_poi_service('read_only','editable','<%= service.id %>'); return false;" >Cancel</a>
+							</div>
+							<div style="display: none;">
+								<%= submit_to_remote "edit_service_save_#{service.id}", 'Edit', :url => { :action => 'edit_poi_service', :service_id => service.id}, :update => 'poi_services' %>
+							</div>
+						<% end %>
+					</td>
+					<td>
+						<div id="poi_service_<%= service.id %>_guidelines">
+							<%= render :partial => 'poi_service_guidelines', :locals => {:service => service} %>
+						</div> 
+					</td>
+					<td>
+						<div name="editable" style="display: none;">
+							<div id="edit_service_action_read_only_<%= service.id %>">
+								<a href="#" onclick="toggle_edit_poi_service('editable','read_only','<%= service.id %>'); return false;">Edit</a>
+								<br/>
+								<a href="#" onclick="<%= remote_function(  :update => 'poi_services', 
+																			:url => { :action => 'remove_poi_service', 
+																					:id => @pointsofinterest.id, 
+																					:deleteId => service.id}) %>; return false;">Delete</a> 
+							</div>
+							<div id="edit_service_action_editable_<%= service.id %>" style="display: none;">
+								<a href="#" onclick="toggle_edit_poi_service('read_only','editable','<%= service.id %>'); return false;">Cancel</a>
+							</div>
+						</div>
+						<div name="read_only">
+						</div>
+					</td>
+				</tr>
+			<% end %>
+		<% end %>
+	</tbody>
+</table>	
+</td></tr></table>
+<% if @current_user.can_edit_pointsofinterest?(@pointsofinterest.id) then %>
+	<div name="make_editable">
+		<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+	</div>
+<% end %>
+<div name="make_read_only" style="display:none;">
+	<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+</div>
+
+<% if @change_to_edit then %>
+	<script type="text/javascript">
+		toggle_read_only(false);
+	</script>
+<% end %>

@@ -1,0 +1,9 @@
+<%= @user.print_name %>,<br/>
+<br/>
+A <%= @report.reporttype.type_title %> report, titled <%= @report.report_title %>, was shared with you by <%= @owner.print_name %>.
+<br/>
+Click <a href="<%= @domain %>reports/open_report/<%= (@report.id*9999-321) %>?sharable=yes">here</a> to open the report.
+<br/>
+<br/>
+Sincerely,<br/>
+Equinix Sales Administration

@@ -1,0 +1,45 @@
+
+<div class="new_form">  
+<div class="yui-g">
+    <div class="yui-u first">   
+		<form action="/networkterminationpoint" method="get" id="select_latency_time">
+			<input type="hidden" id="networkterminationpoint" name="networkterminationpoint" value="<%= @networkterminationpoint.id if @networkterminationpoint %>" />
+			<input type="hidden" id="networkprovider" name="networkprovider" value="<%= @networkprovider.id if @networkprovider %>" />
+		    <p>
+		    	<span class="selection_box_title">Network Termination Point A:</span>
+		        <select id="latencytime_a_np2ntp_id" name="latencytime[a_np2ntp_id]" onchange="if($('networkprovider').value != '') $('update_b_np2ntp_id_selector_submit').onclick();">
+		            <%= render :partial => 'latencytimes/a_np2ntp_id_list' %>
+		        </select>
+		    </p>
+		    <p>
+		        <span class="selection_box_title">Network Provider:</span>
+		        <select id="latencytime_networkprovider_id" name="latencytime[networkprovider_id]" onchange="$('update_a_np2ntp_id_selector_submit').onclick(); $('update_b_np2ntp_id_selector_submit').onclick();">
+		            <%= render :partial => 'latencytimes/networkprovider_list' %>
+		        </select>
+		    </p>
+		    <p>
+		        <span class="selection_box_title">Network Termination Point B:</span>
+		        <select id="latencytime_b_np2ntp_id" name="latencytime[b_np2ntp_id]" onchange="if($('latencytime_networkprover_id').value == '') $('update_networkprovider_selector_submit').onclick();">
+		            <%= render :partial => 'latencytimes/b_np2ntp_id_list' %>
+		        </select>
+		    </p>
+			
+			<div style="display: none;">
+				<%= submit_to_remote 'update_a_np2ntp_id_selector', 'update_a_np2ntp_id_selector', :url => {:controller => 'latencytimes', :action => 'update_a_np2ntp_id_selector'}, :update => 'latencytime_a_np2ntp_id', :html => {:id => 'update_a_np2ntp_id_selector_submit'} %>
+				<%= submit_to_remote 'update_b_np2ntp_id_selector', 'update_b_np2ntp_id_selector', :url => {:controller => 'latencytimes', :action => 'update_b_np2ntp_id_selector'}, :update => 'latencytime_b_np2ntp_id', :html => {:id => 'update_b_np2ntp_id_selector_submit'} %>
+				<%= submit_to_remote 'update_networkprovider_selector', 'update_networkprovider_selector', :url => {:controller => 'latencytimes', :action => 'update_a_np2ntp_id_selector'}, :update => 'latencytime_networkprovider_id', :html => {:id => 'update_networkprovider_selector_submit'} %>
+				<%= submit_to_remote 'update_edit', 'update_edit', :url => {:controller => 'latencytimes', :action => 'update_edit'}, :update => 'latencytime_edit', :html => {:id => 'update_edit_submit'} %>
+			</div>
+		</form>
+    </div>
+    <div class="yui-u">
+		<div id='latencytime_edit'>
+			<%= render :partial => 'latencytimes/edit' %>
+		</div>
+    </div>  
+</div>
+</div>
+
+<%= observe_form  :select_latency_time, 
+				  :update => 'latencytime_edit',
+				  :url => {:controller => 'latencytimes', :action => 'update_edit'} %>

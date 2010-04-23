@@ -1,0 +1,234 @@
+<div class="title_div">
+	<h1>Login History</h1>
+</div>
+
+
+
+
+<p>
+<% if @view_by == 'current_users' then -%>
+Current Users
+<% else -%>
+<%= link_to 'Current Users', {:controller => 'login', :action => 'login_history', :view_by => 'current_users'} %>
+<% end -%>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<% if @view_by == 'all_logins' then -%>
+All Logins
+<% else -%>
+<%= link_to 'All Logins', {:controller => 'login', :action => 'login_history', :view_by => 'all_logins'} %>
+<% end -%>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<% if @view_by == 'all_users' then -%>
+All Users
+<% else -%>
+<%= link_to 'All Users', {:controller => 'login', :action => 'login_history', :view_by => 'all_users'} %>
+<% end -%>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<% if @view_by == 'specific_user' then -%>
+Specific User
+<% else -%>
+<a href="#" onclick="alert('Click on any user to see all logins for that user.'); return false;">Specific User</a>
+<% end -%>
+</p>
+
+	
+<% if @view_by == 'current_users' then -%>
+<table class="border_only"><tr><td>
+<table class="list_columns">
+	<thead>
+			<tr>
+				<th>
+					<div style="min-width: 300px;">User</div>
+				</th>
+				<th>
+					Action
+				</th>
+				<th>
+					<div style="min-width: 200px;">Start</div>
+				</th>
+				<th>
+					<div style="min-width: 200px;">Duration</div>
+				</th>
+				<th>
+					<div style="min-width: 80px;">IP Address</div>
+				</th>
+			</tr>
+	</thead>
+	<tbody>
+	<% lastest_activity = UserActivitySession.find(:all,:conditions => 'DATE_ADD(last_activity, INTERVAL 15 MINUTE) >= NOW()', :order => 'first_activity DESC') -%>
+	<% users = (lastest_activity.collect {|activity| activity.user }).uniq -%>
+	<% (users.sort {|x,y| x.print_name <=> y.print_name} ).each do |user| -%>
+		<tr class="<%= cycle('even_small','odd_small') %>">
+			<td>
+				<%= link_to user.print_name_with_association, {:controller => 'login', :action => 'login_history', :id => user.id} %>
+			</td>
+			<% if user.user_activity_sessions.nil? or user.user_activity_sessions[0].nil? then -%>
+			<td colspan="4">
+				No Login History Recorded
+			</td>
+			<% else -%>
+			<td>
+				<%= ((user.user_activity_sessions[0].activity_type=='L')?('Login'):('Activity')) %>
+			</td>
+			<td>
+				<%= user.user_activity_sessions[0].first_activity.strftime("%m/%d/%Y at %I:%M%p") %>
+			</td>
+			<td>
+				<%= duration_in_words(user.user_activity_sessions[0].last_activity,user.user_activity_sessions[0].first_activity) %>
+			</td>
+			<td>
+				<%= user.user_activity_sessions[0].ip_address %>
+			</td>
+			<% end %>
+		</tr>
+	<% end -%>
+	</tbody>
+</table>
+</tr></td></table>
+	
+<% elsif @view_by == 'all_logins' then -%>
+<table class="border_only"><tr><td>
+<table class="list_columns">
+	<thead>
+			<tr>
+				<th>
+					<div style="min-width: 300px;">User</div>
+				</th>
+				<th>
+					Action
+				</th>
+				<th>
+					<div style="min-width: 200px;">Start</div>
+				</th>
+				<th>
+					<div style="min-width: 200px;">Duration</div>
+				</th>
+				<th>
+					<div style="min-width: 80px;">IP Address</div>
+				</th>
+			</tr>
+	</thead>
+	<tbody>
+	<% UserActivitySession.find(:all,:order => 'first_activity DESC').each do |activity| -%>
+		<tr class="<%= cycle('even_small','odd_small') %>">
+			<td>
+				<%= link_to activity.user.print_name_with_association, {:controller => 'login', :action => 'login_history', :id => activity.user.id} %>
+			</td>
+			<td>
+				<%= ((activity.activity_type=='L')?('Login'):('Activity')) %>
+			</td>
+			<td>
+				<%= activity.first_activity.strftime("%m/%d/%Y at %I:%M%p") %>
+			</td>
+			<td>
+				<%= duration_in_words(activity.last_activity,activity.first_activity) %>
+			</td>
+			<td>
+				<%= activity.ip_address %>
+			</td>
+		</tr>
+	<% end -%>
+	</tbody>
+</table>
+</tr></td></table>
+
+<% elsif @view_by == 'all_users' then -%>
+<table class="border_only"><tr><td>
+<table class="list_columns">
+	<thead>
+			<tr>
+				<th>
+					<div style="min-width: 300px;">User</div>
+				</th>
+				<th>
+					Action
+				</th>
+				<th>
+					<div style="min-width: 200px;">Start</div>
+				</th>
+				<th>
+					<div style="min-width: 200px;">Duration</div>
+				</th>
+				<th>
+					<div style="min-width: 80px;">IP Address</div>
+				</th>
+			</tr>
+	</thead>
+	<tbody>
+	<% User.find(:all,:conditions => "active = 'Y'",:order => 'first_name').each do |user| -%>
+		<tr class="<%= cycle('even_small','odd_small') %>">
+			<td>
+				<%= link_to user.print_name_with_association, {:controller => 'login', :action => 'login_history', :id => user.id} %>
+			</td>
+			<% if user.user_activity_sessions.nil? or user.user_activity_sessions[0].nil? then -%>
+			<td colspan="4">
+			</td>
+			<% else -%>
+			<td>
+				<%= ((user.user_activity_sessions[0].activity_type=='L')?('Login'):('Activity')) %>
+			</td>
+			<td>
+				<%= user.user_activity_sessions[0].first_activity.strftime("%m/%d/%Y at %I:%M%p") %>
+			</td>
+			<td>
+				<%= duration_in_words(user.user_activity_sessions[0].last_activity,user.user_activity_sessions[0].first_activity) %>
+			</td>
+			<td>
+				<%= user.user_activity_sessions[0].ip_address %>
+			</td>
+			<% end %>
+		</tr>
+	<% end -%>
+	</tbody>
+</table>
+</tr></td></table>
+
+<% elsif @view_by == 'specific_user' then -%>
+<table class="border_only"><tr><td>
+<table class="list_columns">
+	<thead>
+			<tr>
+				<th>
+					<div style="min-width: 300px;">User</div>
+				</th>
+				<th>
+					Action
+				</th>
+				<th>
+					<div style="min-width: 200px;">Start</div>
+				</th>
+				<th>
+					<div style="min-width: 200px;">Duration</div>
+				</th>
+				<th>
+					<div style="min-width: 80px;">IP Address</div>
+				</th>
+			</tr>
+	</thead>
+	<tbody>
+	<%= "<tr><td colspan='5'>No Login History for #{@user.print_name_with_association}</td></tr>" if @user.user_activity_sessions.nil? or @user.user_activity_sessions.size == 0 %>
+	<% @user.user_activity_sessions.each do |activity| -%>
+		<tr class="<%= cycle('even_small','odd_small') %>">
+			<td>
+				<%= activity.user.print_name_with_association %>
+			</td>
+			<td>
+				<%= ((activity.activity_type=='L')?('Login'):('Activity')) %>
+			</td>
+			<td>
+				<%= activity.first_activity.strftime("%m/%d/%Y at %I:%M%p") %>
+			</td>
+			<td>
+				<%= duration_in_words(activity.last_activity,activity.first_activity) %>
+			</td>
+			<td>
+				<%= activity.ip_address %>
+			</td>
+		</tr>
+	<% end -%>
+	</tbody>
+</table>
+</tr></td></table>
+
+
+<% end -%>

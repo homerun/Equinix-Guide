@@ -1,0 +1,60 @@
+<form action="/np2ntps/edit_step_2_submit" method="get" id="step_2_submit_<%= ((np2ntp.nil?)?(''):(np2ntp.id)) %>">
+	<input type="hidden" id="np2ntp_networkprovider_id" name="np2ntp[networkprovider_id]" value="<%= networkprovider.id %>" />
+	<input type="hidden" id="np2ntp_networkterminationpoint_id" name="np2ntp[networkterminationpoint_id]" value="<%= networkterminationpoint.id %>" />
+	<input type="hidden" id="edit_type" name="edit_type" value="<%= edit_type %>" />
+	<input type="hidden" id="np2ntp_id" name="np2ntp[id]" value="<%= ((np2ntp.nil?)?(''):(np2ntp.id)) %>" />
+	<input type="hidden" id="np2ntp_available" name="np2ntp[available]" value="<%= available %>" />
+	<%- if available == 'Y' then %>
+		<p class="selection_box_title">Step 2: Physcial Connection</p>
+	    <p style="margin-left: 20px;">
+			<%= radio_button :np2ntp, :connection_type, "F" %> Fiber &nbsp; &nbsp;
+			<%= radio_button :np2ntp, :connection_type, "C" %> Copper &nbsp; &nbsp;
+			<%= radio_button :np2ntp, :connection_type, "U" %> Unknown &nbsp; &nbsp;
+	    </p>
+		<br/>
+		<%- if networkprovider.carrier_type == true then %>
+			<p class="selection_box_title">Step 3: Multiple Entries Into Building?</p>
+		    <p style="margin-left: 20px;">
+				<%= radio_button :np2ntp, :multiple_access, "Y" %> Yes &nbsp; &nbsp;
+				<%= radio_button :np2ntp, :multiple_access, "N" %> No &nbsp; &nbsp;
+				<%= radio_button :np2ntp, :multiple_access, "U" %> Unknown &nbsp; &nbsp;
+		    </p>
+			<br/>
+			<p class="selection_box_title">Step 4: Own?</p>
+		    <p style="margin-left: 20px;">
+				<%= radio_button :np2ntp, :owned, "O" %> Yes &nbsp; &nbsp;
+				<%= radio_button :np2ntp, :owned, "L" %> No - Leased &nbsp; &nbsp;
+				<%= radio_button :np2ntp, :owned, "U" %> Unknown &nbsp; &nbsp;
+		    </p>
+			<br/>
+		<%- else %>
+			<p class="selection_box_title">Step 3: Access</p>
+		    <p style="margin-left: 20px;">
+				<%= radio_button :np2ntp, :multiple_access, "Y" %> Multiple Customer Access Node &nbsp; &nbsp;
+				<%= radio_button :np2ntp, :multiple_access, "N" %> Single Connection &nbsp; &nbsp;
+				<%= radio_button :np2ntp, :multiple_access, "U" %> Unknown &nbsp; &nbsp;
+		    </p>
+			<br/>
+		<%- end %>
+	<%- else %>
+		<% submit_text = ((edit_type == 'E')?('Save'):((edit_type == 'A')?('Add'):('Contest'))) %>
+		<% submit_update = ((edit_type == 'E')?("connection_description_#{((np2ntp.nil?)?(''):(np2ntp.id))}"):((edit_type == 'A')?('np2ntps'):("certified_connection_#{np2ntp.id}"))) %>
+		<p class="selection_box_title">Step 2: Finish</p>
+		<p style="margin-left: 20px;">
+			<% unless np2ntp.nil? %>
+				<% javascript = "$('connection_description_#{ np2ntp.id }').style.display = 'block'; $('connection_edit_#{ np2ntp.id }').style.display = 'none'; $('certified_connection_#{ np2ntp.id }_a').innerHTML = '#{ ((@current_user.associated_with_networkprovider?(networkprovider.id)) or np2ntp.user.nil?)?('Edit'):('Contest') }';" %>
+			<% else %>
+				<% javascript = "$('add_connection_submit').style.display = 'none'; $('add_connection_unsubmit').style.display = 'block';" %>
+			<% end %>
+			<%= submit_to_remote 'add_np2ntp_submit', submit_text, :url => {:controller => 'np2ntps', :action => 'edit_submit'}, :update => submit_update, :before => "#{javascript}" %>
+		</p>
+	<%- end %>
+</form>
+<%- if available == 'Y' then %>
+	<%= observe_form  "step_2_submit_#{((np2ntp.nil?)?(''):(np2ntp.id))}",
+					  :update => "edit_step_3_#{((np2ntp.nil?)?(''):(np2ntp.id))}",
+					  :url => {:controller => 'np2ntps', :action => 'edit_step_2_submit'} %> 
+<%- end %>
+<div id="edit_step_3_<%= ((np2ntp.nil?)?(''):(np2ntp.id)) %>">
+
+</div>

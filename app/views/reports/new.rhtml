@@ -1,0 +1,25 @@
+<div class="title_div">
+    <h1>Save Report</h1>
+</div>    
+
+<%= error_messages_for :report %>
+
+<% form_for @report do |form| %>
+	<%= form.hidden_field :user_id, {:value => @current_user.id} %>
+	<%= form.hidden_field :reporttype_id, {:value => @reporttype.id} %>
+	<table>
+		<tr>
+			<td class="edit_field_text">Type of Report:</td>
+			<td><%= @reporttype.type_title %></td>
+		</tr>
+		<tr>
+			<td class="edit_field_text">Report Title:</td>
+			<td><%= form.text_field :report_title %></td>
+		</tr>
+		<tr>
+			<td class="edit_field_text">Notes:</td>
+			<td><%= form.text_area :notes, {:rows => "5"} %></td>
+		</tr>
+	</table>
+	<%= submit_tag 'Save' %>
+<% end %>

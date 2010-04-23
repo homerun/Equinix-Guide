@@ -1,0 +1,9 @@
+<%- if @a_np2ntp_id_list then -%>
+	<%= options_for_select(@a_np2ntp_id_list,@selected_a_np2ntp_id) %>
+<%- elsif @networkprovider then -%>
+	<%= options_for_select(@networkprovider.ntp_connections.collect {|ntp_connection| ["#{ntp_connection.networkterminationpoint.name} - #{ntp_conneciton.details}",ntp_connection.id]}) %>
+<%- elsif @networkterminationpoint then -%>
+	<%= options_for_select([['Please Select a Network Provider or Network Termination Point (B) First','']]) %>
+<%- else -%>
+	<%= options_for_select([[' ','']]) %>
+<%- end -%>

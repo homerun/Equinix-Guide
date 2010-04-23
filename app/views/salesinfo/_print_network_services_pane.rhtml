@@ -1,0 +1,14 @@
+<html>
+	<head>
+		<%= stylesheet_link_tag 'printable' %>
+		<title>
+			Print Network Services Report
+		</title>
+	</head>
+	<body>
+		<div id="view_network_services_pane">
+			<%= render :partial => 'view_network_services_pane', :locals => {:printable => true} %>
+		</div>
+	</body>
+</html>
+		

@@ -1,0 +1,105 @@
+<div class="title_div">
+    <h1>Competitive Markets</h1>
+</div>
+<table>
+	<tr>
+		<th colspan="2">
+			Report Parameters
+		</th>
+	</tr>
+	<tr>
+		<td class="edit_field_text">Display Unit: </td>
+		<td>
+			<script type="text/javascript">
+				function update_links_with_unit() {
+					links = document.getElementsByName('market_link')
+					if(!links)
+						return;
+					unit = $('unit').value
+					for(var i=0; i<links.length; i++)
+						links[i].href = links[i].href.substr(0,links[i].href.length-1)+unit; 
+				}
+			</script>
+			<%= select_tag(:unit, 
+						options_for_select([['Metric','M'],['Imperial','B']],@current_user.unit_preference),
+						:onchange => 'update_links_with_unit();') %>
+		</td>
+	</tr>
+	<tr>
+		<td class="edit_field_text"><div style="width: 170px;">Select the market (click on the market name):</div></td>
+		<td>
+			<div id="sorted_by_country">
+				<table class="border_only"><tr><td>
+				<table class="list_columns">
+					<thead>
+						<tr>
+							<th>
+								<div style="width: 250px;">
+									Country
+								</div>
+							</th>
+							<th>
+								<div style="width: 250px;">
+									<a href="#" onclick="$('sorted_by_country').style.display = 'none'; $('sorted_by_market').style.display = 'block'; return false;">
+										Market
+									</a>
+								</div>
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						<% even = true %>
+						<% (@markets.sort {|x,y| "#{x.country.name} #{x.market_name}" <=> "#{y.country.name} #{y.market_name}"}).each do |market| %>
+							<tr class="<%= if !even then 'odd_small' else 'even_small' end %>">
+								<td>
+									<%= market.country.name %>
+								</td>
+								<td>
+									<a href="/salesinfo/view_competitive_market_report/<%= market.id %>?unit=M" name="market_link"><%= market.market_name %></a>
+								</td>
+							</tr>
+							<% even = !even %>
+						<% end %>
+					</tbody>
+				</table>
+				</td></tr></table>
+			</div>
+			<div id="sorted_by_market" style="display: none;">
+				<table class="border_only"><tr><td>
+				<table class="list_columns">
+					<thead>
+						<tr>
+							<th>
+								<div style="width: 250px;">
+									<a href="#" onclick="$('sorted_by_market').style.display = 'none'; $('sorted_by_country').style.display = 'block'; return false;">
+										Country
+									</a>
+								</div>
+							</th>
+							<th>
+								<div style="width: 250px;">
+									Market
+								</div>
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						<% even = true %>
+						<% (@markets.sort {|x,y| x.market_name <=> y.market_name}).each do |market| %>
+							<tr class="<%= if !even then 'odd_small' else 'even_small' end %>">
+								<td>
+									<%= market.country.name %>
+								</td>
+								<td>
+									<a href="/salesinfo/view_competitive_market_report/<%= market.id %>?unit=M" name="market_link"><%= market.market_name %></a>
+								</td>
+							</tr>
+							<% even = !even %>
+						<% end %>
+					</tbody>
+				</table>
+				</td></tr></table>
+			</div>
+		</td>
+	</tr>
+</table>

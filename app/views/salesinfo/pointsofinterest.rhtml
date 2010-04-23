@@ -1,0 +1,9 @@
+<% @regional_poiss.each_pair do |region_name, regional_pois| %>
+	<div>Region: <%= region_name %>
+	<% regional_pois.unsubregions.each do |unsubregion| %>
+		<div>Sub Region: <%= unsubregion.name %>
+		<% unsubregion.pointsofinterests.each do |poi| %>
+			<div> <% poi.name %> </div>
+		<% end %>
+	<% end %>
+<% end %>

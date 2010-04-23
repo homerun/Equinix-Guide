@@ -1,0 +1,38 @@
+<% unless @list_of_pois.blank? || @limited_access -%>
+
+<script type="text/javascript">
+	function showLoading() {
+		if ($('editPane').innerHTML.indexOf('Still Loading') >= 0) {
+			if ($('editPane').innerHTML.length > 90) {
+				$('editPane').innerHTML = $('editPane').innerHTML + '.';
+				setTimeout('showLoading()', 1000);
+			}
+			else {
+				$('editPane').innerHTML = $('editPane').innerHTML + '.';
+				setTimeout('showLoading()', 100);
+			}
+		}
+	}
+</script>
+
+<form action="/pointsofinterests/select_poi" method="get">
+	<select id="select_poi" name="select_poi" onchange=' $("editPane").innerHTML = "<br/><input type=\"hidden\" value=\"Still Loading!\"/><i>Loading</i>"; showLoading(); $("submit_select_poi").click();'>
+		<%= options_for_select(@list_of_pois.insert(0,['',0]), @selected_poi) %>
+	</select>
+	<div style="display: none;">
+		<%= submit_tag 'Edit', :id => 'submit_select_poi' %>
+	</div>
+</form>
+<% else -%>
+    No Points of Interest meet your search criteria
+<% end -%>
+
+
+
+<table class="full">
+    <tr><td>
+        <div id="editPane">
+            <%= render :partial => "edit_poi"%>
+        </div>
+    </td></tr>
+</table>

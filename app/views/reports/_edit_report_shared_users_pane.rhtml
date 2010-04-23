@@ -1,0 +1,121 @@
+<% @selector_size =  5 if @selector_size.blank? %>
+
+<script type="text/javascript">
+	function association_select_mouseover(ntp_owner,poi,np) {
+		$('ntp_owner_select').style.background = (ntp_owner)?'#9cc':'#fff';
+		$('poi_select').style.background = (poi)?'#9cc':'#fff';
+		$('np_select').style.background = (np)?'#9cc':'#fff';
+		$('list_of_users_with_ntp_owners').style.display = (ntp_owner)?'block':'none';
+		$('list_of_users_with_pois').style.display = (poi)?'block':'none';
+		$('list_of_users_with_nps').style.display = (np)?'block':'none';
+	}
+</script>
+
+<% form_tag do %>
+	<table class="list_columns">
+		<tbody >
+			<tr>
+				<th colspan="2">
+					<div style="width: 350px;">You are sharing this report with:</div>
+				</th>
+			</tr>
+			<% if @report.shared_users == nil or @report.shared_users.size == 0 then %>
+				<tr>
+					<td>No one.</td>
+				</tr>
+			<% end %>
+			<% even = true %>
+			<% (@report.sharedreports.sort {|x,y| "#{(x.shared_user == nil ? '' : x.shared_user.print_name_with_association)}" <=> "#{(y.shared_user == nil ? '' : y.shared_user.print_name_with_association)}"}).each do |shared_report| %>
+				<tr class="<%= if even then 'even_small' else 'odd_small' end %>">
+					<td width='30px'>
+						<%= link_to_remote( 'Remove', 
+										:url => { :action => 'unshare_report', 
+												:unshareId => shared_report.id,
+												:id => @report.id }, 
+										:update => 'edit_report_shared_users_pane' ) %>
+					</td>
+					<td>
+						<%= if shared_report.shared_user == nil then 'Deleted User' else shared_report.shared_user.print_name_with_association end %>
+					</td>
+				</tr>
+				<% even = !even %>
+			<% end %>
+		</tbody>
+	</table>
+<% end %>
+<br/>
+
+<% form_tag do %>
+	<table class="list_columns">
+		<tbody >
+			<tr>
+				<th colspan="3">
+					Share With User (Find by Association)
+				</th>
+			</tr>
+			<tr>
+				<td>
+					<div id="ntp_owner_select" onmouseover="association_select_mouseover(true,false,false);" style="background: #9cc; padding: 3px 4px 0px 4px;">
+						<center><b>Network Termination Point Owners</b></center>
+						<select class="ntp_owner_select" id="ntp_owner_ids[]" multiple="multiple" name="ntp_owner_ids[]" onchange="document.getElementsByName('ntp_owner_select_submit')[0].onclick();" size="<%= @selector_size %>">
+							<%= if @selected_ntp_owners != nil then 
+								options_for_select(@list_of_ntp_owners,@selected_ntp_owners)  
+							else
+								options_for_select(@list_of_ntp_owners,'-1')
+							end %>
+						</select>
+						<div style="display: none;">
+							<%= submit_to_remote 'ntp_owner_select_submit', 'Select Network Termination Point Owners', :url => {:action => 'select_ntp_owners', :id => @report.id}, :update => 'list_of_users_with_ntp_owners' %>
+						</div>
+					</div>
+				</td>
+				<td>
+					<div id="poi_select" onmouseover="association_select_mouseover(false,true,false);" style="background: #fff; padding: 3px 4px 0px 4px;">
+						<center><b>Points of Interest</b></center>
+						<select class="poi_select" id="pointsofinterest_ids[]" multiple="multiple" name="pointsofinterest_ids[]" onchange="document.getElementsByName('poi_select_submit')[0].onclick();" size="<%= @selector_size %>">
+							<%= if @selected_pois != nil then 
+								options_for_select(@list_of_pois,@selected_pois)  
+							else
+								options_for_select(@list_of_pois,'-1')
+							end %>
+						</select>
+						<div style="display: none;">
+							<%= submit_to_remote 'poi_select_submit', 'Select Points of Interest', :url => {:action => 'select_pois', :id => @report.id}, :update => 'list_of_users_with_pois' %>
+						</div>
+					</div>
+				</td>
+				<td>
+					<div id="np_select" onmouseover="association_select_mouseover(false,false,true);" style="background: #fff; padding: 3px 4px 0px 4px;">
+						<center><b>Network Providers</b></center>
+						<select class="networkprovider_select" id="np_ids[]" multiple="multiple" name="np_ids[]" onchange="document.getElementsByName('np_select_submit')[0].onclick();" size="<%= @selector_size %>">
+							<%= if @selected_nps != nil then 
+								options_for_select(@list_of_nps,@selected_nps)  
+							else
+								options_for_select(@list_of_nps,'-1')
+							end %>
+						</select>
+						<div style="display: none;">
+							<%= submit_to_remote 'np_select_submit', 'Select Network Providers', :url => {:action => 'select_nps', :id => @report.id}, :update => 'list_of_users_with_nps' %>
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<div style="display: block; overflow: auto; height: 200px;">
+						<div id="list_of_users_with_ntp_owners" style="display: block;">
+							<%= render :partial  => 'list_of_users_with_ntp_owners' %>
+						</div>
+						<div id="list_of_users_with_pois" style="display: none;">
+							<%= render :partial  => 'list_of_users_with_pois' %>
+						</div>
+						<div id="list_of_users_with_nps" style="display: none;">
+							<%= render :partial  => 'list_of_users_with_nps' %>
+						</div>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+<% end %>
+	

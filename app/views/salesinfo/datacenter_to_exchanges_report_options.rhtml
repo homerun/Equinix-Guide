@@ -1,0 +1,15 @@
+
+<div class="new_form">  
+<%- form_tag do %>
+<div class="yui-g">
+    <div class="yui-u first">
+
+    <p><label>Public Report?</label> <%= radio_button :options, :public, "Yes", {:checked => 'checked'} %> Yes <%= radio_button :options, :public, "No" %> No</p>
+	
+    <p><label>Show the nearest # of Point of Interest locations: </label><select id="options_num_of_poi_locations" name="options[num_of_poi_locations]"><%= options_for_select(['All',1,2,3,4,5,6]) %></select></p>
+	<br/>
+	<p><label>Finalize Report</label><%= submit_tag 'Build Report', :class => 'no_margin' %></p>
+	
+	</div>
+</div>
+<%- end %>	

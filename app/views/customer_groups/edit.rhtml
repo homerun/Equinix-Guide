@@ -1,0 +1,107 @@
+<script scope='text/javascript'>
+	function page_name_selected() {
+		$('page_title_div').style.display = 'block';
+		$('page_name_div').style.display = 'none';
+		var page_name = $('customer_group_rule_page_name').options[$('customer_group_rule_page_name').selectedIndex].text;
+		$('page_title_span').innerHTML = page_name;
+		if(page_name == 'All pages' || (page_name in <%= "{'#{CustomerGroupRule.non_object_page_titles.join("':true,'")}':true}"%>))
+			document.getElementsByName('new_customer_group_rule_step_one_submit')[0].onclick();
+		else
+			$('all_objects_select_div').style.display = 'block';
+	}
+	function all_objects_selected() {
+		$('all_objects_div').style.display = 'block';
+		$('all_objects_select_div').style.display = 'none';
+		if($('customer_group_rule_all_objects_yes').checked)
+			$('all_objects_span').innerHTML = "<p><center>View Access for all Objects</center></p>";
+		else
+			$('all_objects_span').innerHTML = "<p><center>View Access for selected Objects</center></p>";
+		document.getElementsByName('new_customer_group_rule_step_one_submit')[0].onclick();
+	}
+	function toggle_checkbox_with_value(name,val) {
+		var checkboxes = document.getElementsByName(name)
+		for(var i=0; i < checkboxes.length; i++)
+			if(checkboxes[i].value == val)
+				checkboxes[i].checked = !checkboxes[i].checked;
+	}
+</script>
+
+<div class="title_div">
+	<h1>Edit Customer Group</h1>
+</div>
+
+<span class="section_header">Customer Info</span>
+<div id="editPane">
+	<% form_for @customer_group, :url => {:controller => 'customer_groups', :action => 'update', :id => @customer_group.id}, :html => {:id => "customer_group_form"} do |f| %>
+		<table>
+		    <tr>
+		    	<td class="edit_field_text">
+		    		Customer Name
+		    	</td>
+				<td>
+					<div name="editable" style="display: none;">
+						<%= f.text_field :name %>
+					</div>
+					<div name="read_only">
+						<%= @customer_group.name %>
+					</div>
+				</td>
+			</tr>
+		    <tr>
+		    	<td class="edit_field_text">
+		    		Notes
+		    	</td>
+				<td>
+					<div name="editable" style="display: none;">
+						<%= f.text_area :notes, {:rows => "5"} %>
+					</div>
+					<div name="read_only">
+						<%= @customer_group.notes %>
+					</div>
+				</td>
+			</tr>
+			<tr>
+			    <td></td>
+			    <td>
+			        <% if @current_user.has_editor_role? -%>
+            			<div name="make_editable">
+            				<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+            			</div>
+            		<% end %>
+            		<div name="make_read_only" style="display:none;">
+            			<%= submit_tag 'Save Changes' %>
+            			<div id="modified" name="modified"><%= render :partial => 'shared/modified' %></div>
+            		</div>
+			    </td>
+			</tr>    
+		</table>
+		
+	<% end %>
+	<%= observe_form  :customer_group_form, 
+					  :update => 'modified',
+					  :url => {:action =>'set_modified'} %>
+</div>
+<br/>
+
+<span class="section_header">Security Rules</span>
+<div id="add_customer_group_rule_div">
+	<span style="font-size: 10px">
+		<a href="#" onclick="document.getElementsByName('new_customer_group_rule_submit')[0].onclick(); $('add_customer_group_rule_div').style.display = 'none'; $('new_customer_group_rule_step_one').style.display = 'block';">New Rule</a>
+	</span>
+	<div style="display: none;">	
+		<form>
+			<%= submit_to_remote 'new_customer_group_rule_submit', 'New Rule', :url => { :action => 'new_customer_group_rule_step_one', :id => @customer_group.id}, :update => 'new_customer_group_rule_step_one' %>
+		</form>
+	</div>
+</div>
+<div class="green_div" style="width: 800px; font: 12px 'Verdana', Arial, Helvetica, sans-serif; display: none;" id="new_customer_group_rule_step_one">
+</div>
+<br/>
+<% if @customer_group.customer_group_rules != nil and @customer_group.customer_group_rules.size > 0 then %>
+	<div id="current_customer_group_rules">
+		<%= render :partial => 'current_customer_group_rules' %>
+	</div>
+<% end %>
+
+<br/>
+<span class="section_header">Users in Customer Group</span>

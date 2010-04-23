@@ -1,0 +1,15 @@
+<html>
+	<head>
+		<%= stylesheet_link_tag 'printable' %>
+		<link rel="shortcut icon" href="http://www.equinix.com/equinix/favicon.ico" type="image/x-icon" />
+		<title>
+			Print Network Services Report
+		</title>
+	</head>
+	<body>
+		<div id="view_network_services_pane">
+			<%= render :partial => 'view_network_services_pane', :locals => {:printable => true} %>
+		</div>
+	</body>
+</html>
+		

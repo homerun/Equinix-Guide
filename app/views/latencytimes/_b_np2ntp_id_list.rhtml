@@ -1,0 +1,7 @@
+<%- if @b_np2ntp_id_list then -%>
+	<%= options_for_select(@b_np2ntp_id_list,@selected_b_np2ntp_id) %>
+<%- elsif @networkterminationpoint then -%>
+	<%= options_for_select(((@networkterminationpoint.networkterminationpoint_connections_through(nil).collect {|ntp_connection| ["#{ntp_connection.networkterminationpoint.name} - #{ntp_connection.connectiontype.name}",ntp_connection.id]}).sort! {|x,y| x[0].downcase <=> y[0].downcase}).insert(0,[' ',''])) %>
+<%- else -%>
+	<%= options_for_select([[' ','']]) %>
+<%- end -%>

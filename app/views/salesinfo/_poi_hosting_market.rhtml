@@ -1,0 +1,74 @@
+
+<%- if @selected_country then %>
+	<center>
+		<table class="border_only"><tr><td>
+		<table class="list_columns">
+			<thead>
+				<tr>
+					<th colspan="<%= @list_of_markets.size + 2 %>" style="cursor: pointer;" onmouseover="$('country_link').style.color = 'red'" onmouseout="$('country_link').style.color = 'white'" onclick="market_to_country();">
+						<span id="country_link">Country: <%= @selected_country.name %></span>
+					</th>
+				</tr>
+				<tr>
+					<th><div style="width: 130px;">Markets:</div></th>
+					<% market_totals = Hash.new %>
+					<% @list_of_markets.each do |market| %>
+						<th>
+							<div style="width: 100px;">
+								<% market_totals[market] = 0 %>
+								<%= market.market_name %>
+							</div>
+						</th>
+					<% end %>
+					<th>
+							<div style="width: 100px;">
+								Total
+							</div>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<% is_even = true %>
+				<% @list_of_market_datacenter_owners.each do |dc_owner| %>
+					<tr class="<%= if !is_even then 'odd_small' else 'even_small' end %>">
+						<td>
+							<span<%= ' style="font: 12px Arial, Helvetica, sans-serif;"' if dc_owner.name == 'Equinix' %>><b>
+								<%= link_to dc_owner.name, {:controller => 'manage', :action => 'edit_ntp_owner', :id => dc_owner.id} %>
+							</b></span>
+						</td>
+						<% dc_owner_total = 0 %>
+						<% @list_of_markets.each do |market| %> 
+							<td style='text-align: right;'>
+								<% market_totals[market] += (@market_numbers[dc_owner][market].nil? ? 0 : @market_numbers[dc_owner][market].size) %>
+								<% dc_owner_total += (@market_numbers[dc_owner][market].nil? ? 0 : @market_numbers[dc_owner][market].size) %>
+								<% if dc_owner.name == 'Equinix' then %>
+									<span style="font: 12px 'Verdana', Arial, Helvetica, sans-serif;"><b><%= print_poi_hosting_details(@market_numbers[dc_owner][market],'poi_hosting_market_details') %></b></span>
+								<% else %>
+									<%= print_poi_hosting_details(@market_numbers[dc_owner][market],'poi_hosting_market_details') %>
+								<% end %>
+							</td>
+						<% end %>
+						<% if dc_owner.name == 'Equinix' then %>
+							<td style='text-align: right;'><span style="font: 12px 'Verdana', Arial, Helvetica, sans-serif;"><b><%= dc_owner_total %></b></span></td>
+						<% else %>
+							<td style='text-align: right;'><%= dc_owner_total %></td>
+						<% end %>
+					</tr>
+					<% is_even = !is_even %>
+				<% end %>
+				<tr>
+					<td><b>Totals</b></td>
+					<% @list_of_markets.each do |market| %>
+						<td style='text-align: right;'>
+							<%= market_totals[market] %>
+						</td>
+					<% end %>
+					<td>&nbsp;</td>
+				</tr>
+				<div id="poi_hosting_market_details" style="display: none; position: absolute; left: 1; top: 1;" class="connectionTypeDescr" onmouseout="javascript:this.style.display='none';" onmouseover="javascript:this.style.display='block';">
+				</div>
+			</tbody>
+		</table>
+		</td></tr></table>
+	</center>
+<%- end -%>

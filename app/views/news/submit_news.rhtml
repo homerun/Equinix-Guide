@@ -1,0 +1,202 @@
+
+  <%= stylesheet_link_tag 'mycalendar' %>
+  <%= javascript_include_tag "mycalendar" %>
+
+<script type="text/javascript">
+	function does_contain(a,e) {
+		for(var i=0; i<a.length; i++)
+			if(e+'' == a[i]+'')
+				return true;
+		return false;
+	}
+
+	function get_select_option_text(type,tag) {
+		options = $(type+'Select_id')
+		for(var i=0; i<options.length; i++)
+			if(options[i].value+'' == ''+tag)
+				return options[i].text;
+		return "Unknown";
+	}
+	
+	function remove_tag(type,tag) {
+		currentTags = $(type+'Tags').value.split(',')
+		if(currentTags)
+			for(var i=0; i<currentTags.length; i++)
+				if(currentTags[i]+'' == tag+'') {
+					for(var j=i; j<currentTags.length; j++)
+						currentTags[j] = currentTags[j+1];
+					currentTags.length = currentTags.length-1;
+					break;
+				}
+		$(type+'Tags').value = currentTags.join(',')
+		html = ""
+		for(var i=0; i<currentTags.length; i++) {
+			if(currentTags[i] != "")
+				html += "<a href='#' onclick='remove_tag(\""+type+"\",\""+currentTags[i]+"\"); return false;'>"+get_select_option_text(type,currentTags[i])+"</a>, "
+		}
+		$('list_of_'+type+'_tags').innerHTML = html;
+	}
+
+	function add_tag(type) {
+		currentTags = $(type+'Tags').value.split(',')
+		toAdd = $(type+'Select_id').value
+		if(currentTags)
+			if(does_contain(currentTags,toAdd));
+			else
+				currentTags[currentTags.length] = toAdd
+		else
+			currentTags[currentTags.length] = toAdd
+		$(type+'Tags').value = currentTags.join(',')
+		html = ""
+		for(var i=0; i<currentTags.length; i++) {
+			if(currentTags[i] != "")
+				html += "<a href='#' onclick='remove_tag(\""+type+"\",\""+currentTags[i]+"\"); return false;'>"+get_select_option_text(type,currentTags[i])+"</a>, "
+		}
+		$('list_of_'+type+'_tags').innerHTML = html;
+	}
+</script>
+
+<div class="title_div"><h1>Submit News</h1></div>
+
+<% form_for :newsitem do |form| %>
+	<input type="hidden" name="newsitem[user_id]" id="newsitem_user_id" value="<%= @user_id %>" />
+	<table>
+		<tr>
+			<td class="edit_field_text">URL:</td>
+			<td>
+				<%= form.text_field :url, { :size => "70", 
+									   :onchange => "$('news_action').innerHTML = 'Fetching the Page and Loading The Title...'; #{remote_function(:update => "news_action", 
+															   :url => { :action => 'check_url'},
+															   :with => "'url='+escape(value)") }",
+									   :onkeydown => "if(event.keyCode==13)event.keyCode=9",
+									   :value => "#{ @the_url if @the_url != nil }" } %>
+				<div id="news_action">
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td class="edit_field_text">Title:</td>
+			<td><%= form.text_field :title, { :size => "70",
+										:value => "#{ @title if @title != nil }"  } %></td>
+		</tr>
+		<tr>
+			<td class="edit_field_text">Description:</td>
+			<td><%= form.text_area :descr, { :cols => "50", :rows => "5" } %></td>
+		</tr>
+		<tr>
+			<td class="edit_field_text">Article Date:</td>
+			<td>
+			    <script type="text/javascript">
+                	jQuery(function() {
+                		jQuery('#newsitem_article_date').datepicker({changeMonth: true, changeYear: true, dateFormat: 'yy-mm-dd'});
+                	});
+                </script>
+
+				<input type="text" id="newsitem_article_date" name="newsitem[article_date]" />
+			</td>
+		</tr>
+		<tr>
+			<td class="edit_field_text">Tags:</td>
+			<td>
+				<table>
+					<tr>
+						<td>
+						</td>
+						<td>
+							<center><b>Tags</b> <i>(click tag to remove)</i></center>
+						</td>
+					<tr>
+						<td style="width: 0%;">
+							<center><b>Network Termination Point Owner</b></center>
+						</td>
+						<td rowspan="2" style="width: 50%;">
+							<div id="list_of_ntpOwner_tags">
+							</div>
+							<input type="hidden" id="ntpOwnerTags" name="ntpOwnerTags" value="" />
+						</td>
+						<tr>
+							<td style="vertical-align: top;" style="width: 0%;">
+								<%= select :ntpOwnerSelect, :id, @list_of_ntpOwners %>
+								<input type="button" value="Add" onclick="add_tag('ntpOwner')" />
+							</td>
+						</tr>
+					</tr>
+					<tr>
+						<td style="width: 0%;">
+							<center><b>Point of Interest</b></center>
+						</td>
+						<td rowspan="2" style="width: 50%;">
+							<div id="list_of_poi_tags">
+							</div>
+							<input type="hidden" id="poiTags" name="poiTags" value="" />
+						</td>
+						<tr>
+							<td style="vertical-align: top;" style="width: 0%;">
+								<%= select :poiSelect, :id, @list_of_pois %>
+								<input type="button" value="Add" onclick="add_tag('poi')" />
+							</td>
+						</tr>
+					</tr>
+					<tr>
+						<td style="width: 0%;">
+							<center><b>Network Provider</b></center>
+						</td>
+						<td rowspan="2" style="width: 50%;">
+							<div id="list_of_np_tags">
+							</div>
+							<input type="hidden" id="npTags" name="npTags" value="" />
+						</td>
+						<tr>
+							<td style="vertical-align: top;" style="width: 0%;">
+								<%= select :npSelect, :id, @list_of_nps %>
+								<input type="button" value="Add" onclick="add_tag('np')" />
+							</td>
+						</tr>
+					</tr>
+					<tr>
+						<td style="width: 0%;">
+							<center><b>Competitive Market</b></center>
+						</td>
+						<td rowspan="2" style="width: 50%;">
+							<div id="list_of_market_tags">
+							</div>
+							<input type="hidden" id="marketTags" name="marketTags" value="" />
+						</td>
+						<tr>
+							<td style="vertical-align: top;" style="width: 0%;">
+								<%= select :marketSelect, :id, @list_of_markets %>
+								<input type="button" value="Add" onclick="add_tag('market')" />
+							</td>
+						</tr>
+					</tr>
+					<tr>
+						<td style="width: 0%;">
+							<center><b>Equinix Region</b></center>
+						</td>
+						<td rowspan="2" style="width: 50%;">
+							<div id="list_of_region_tags">
+							</div>
+							<input type="hidden" id="regionTags" name="regionTags" value="" />
+						</td>
+						<tr>
+							<td style="vertical-align: top;" style="width: 0%;">
+								<%= select :regionSelect, :id, @list_of_regions %>
+								<input type="button" value="Add" onclick="add_tag('region')" />
+							</td>
+						</tr>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td class="edit_field_text">Other Tags:</td>
+			<td><%= form.text_field :tags, { :size => "70" } %></td>
+		</tr>
+		<tr>
+		    <td></td>
+		    <td><%= submit_tag 'Submit' %></td>
+		</tr>
+	</table>
+	
+	
+<% end %>

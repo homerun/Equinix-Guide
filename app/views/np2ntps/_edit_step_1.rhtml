@@ -1,0 +1,19 @@
+<form action="/np2ntps/edit_step_1_submit" method="get" id="step_1_submit_<%= ((np2ntp.nil?)?(''):(np2ntp.id)) %>">
+	<input type="hidden" id="np2ntp_networkprovider_id" name="np2ntp[networkprovider_id]" value="<%= networkprovider.id %>" />
+	<input type="hidden" id="np2ntp_networkterminationpoint_id" name="np2ntp[networkterminationpoint_id]" value="<%= networkterminationpoint.id %>" />
+	<input type="hidden" id="edit_type_<%= ((np2ntp.nil?)?(''):(np2ntp.id)) %>" name="edit_type" value="<%= edit_type %>" />
+	<input type="hidden" id="np2ntp_id" name="np2ntp[id]" value="<%= ((np2ntp.nil?)?(''):(np2ntp.id)) %>" />
+	
+	<p class="selection_box_title">Step 1: Available?</p>
+    <p style="margin-left: 20px;">
+		<%= radio_button :np2ntp, :available, "Y" %> In Building &nbsp; &nbsp;
+		<%= radio_button :np2ntp, :available, "N" %> Not In Building &nbsp; &nbsp;
+    </p>
+	<br/>
+</form>
+<%= observe_form  "step_1_submit_#{((np2ntp.nil?)?(''):(np2ntp.id))}",
+				  :update => "edit_step_2_#{((np2ntp.nil?)?(''):(np2ntp.id))}",
+				  :url => {:controller => 'np2ntps', :action =>'edit_step_1_submit'} %> 
+<div id="edit_step_2_<%= ((np2ntp.nil?)?(''):(np2ntp.id)) %>">
+
+</div>

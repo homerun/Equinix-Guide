@@ -1,0 +1,71 @@
+
+<% table_width = 780 %>
+<hr/>
+<% form_tag do %>
+	<input type="hidden" id="notificationrule_object_name" name="notificationrule[object_name]" value="<%= (@object_name_label == nil ? "ALL" : @object_name_label.table_name) %>" />
+	<input type="hidden" id="notificationrule_get_news" name="notificationrule[get_news]" value="<%= (@scope[:news] ? true : false) %>" />
+	<input type="hidden" id="notificationrule_get_additions" name="notificationrule[get_additions]" value="<%= (@scope[:additions] ? true : false) %>" />
+	<input type="hidden" id="notificationrule_get_updates" name="notificationrule[get_updates]" value="<%= (@scope[:updates] ? true : false) %>" />
+	<input type="hidden" id="notificationrule_user_id" name="notificationrule[user_id]" value="<%= current_user_id %>" />
+	<input type="hidden" id="notificationrule_seq_num" name="notificationrule[seq_num]" value="<%= @seq_num %>" />
+	<input type="hidden" id="notificationrule_l_paren" name="notificationrule[l_paren]" value="0" />
+	<input type="hidden" id="notificationrule_r_paren" name="notificationrule[r_paren]" value="0" />
+	<input type="hidden" id="notificationrule_and_or" name="notificationrule[and_or]" value="O" />
+	<input type="hidden" id="notificationrule_field_name" name="notificationrule[field_name]" value="<%= @field_name %>" />
+	<input type="hidden" id="notificationrule_comparison_operator" name="notificationrule[comparison_operator]" value="<%= @comparison_operator %>" />
+	
+	<% if @comparison_operator == 'like' then %>
+		<p>
+			<center>
+				<% if @field_name_label == nil then %>
+					Title/Name contains
+				<% else %>
+					<%= @object_name_label.label %>'s <%= @field_name_label.label %> contains
+				<% end %> 
+				<%= text_field :notificationrule, :comparison_value %>
+			</center>
+		</p>
+		<hr/>
+	<% elsif @list_of_ids != nil then %>
+		<% increment = (@list_of_ids.size / 3.0).ceil -%>
+			<div style="width: <%= table_width / 3 %>px; float: left;">
+				<% (0..(increment-1)).each do |i| %>
+					<%= check_box "comparison_value", "", {}, "#{@list_of_ids[i][1]},","" %><a href="#" onclick="toggle_checkbox_with_value('comparison_value[]','<%= @list_of_ids[i][1] %>,'); return false;"><%= @list_of_ids[i][0] %></a><br/>
+				<% end %>
+			</div> 
+			<div style="width: <%= table_width / 3 %>px; float: left;">
+				<% ((increment)..(increment*2-1)).each do |i| %>
+					<% if i < @list_of_ids.size then %>
+						<%= check_box "comparison_value", "", {}, "#{@list_of_ids[i][1]},","" %><a href="#" onclick="toggle_checkbox_with_value('comparison_value[]','<%= @list_of_ids[i][1] %>,'); return false;"><%= @list_of_ids[i][0] %></a><br/>
+					<% end %>
+				<% end %>
+			</div> 
+			<div style="width: <%= table_width / 3 %>px; float: left;">
+				<% ((increment*2)..(@list_of_ids.size - 1)).each do |i| %>
+					<% if i < @list_of_ids.size then %>
+						<%= check_box "comparison_value", "", {}, "#{@list_of_ids[i][1]},","" %><a href="#" onclick="toggle_checkbox_with_value('comparison_value[]','<%= @list_of_ids[i][1] %>,'); return false;"><%= @list_of_ids[i][0] %></a><br/>
+					<% end %>
+				<% end %>
+			</div>
+		<div style="clear: both;">
+			&nbsp;
+		</div>
+		<hr/>
+	<% end %>
+	<p>
+		<center>
+			This rule will be applied for all items as far back as:
+		</center>
+		<br/>
+		<input id="notificationrule_start_date" type="hidden" name="notificationrule[start_date]" />
+		<center>
+			<a id="notificationrule_start_date_a"></a>
+			<script type="text/javascript"> createCalendar("notificationrule_start_date",new Date("<%= print_date(2.weeks.ago) %>")) </script>
+		</center>
+		<br/>
+		<center>
+			<input type="submit" value="Finish" onClick="postAction(this.form,'feeds','add_new_notification_rule')"/>
+			or <a onclick="$('add_notification_rule_div').style.display = 'block'; $('new_notification_rule').style.display = 'none'; $('new_notification_rule').innerHTML = '';" >Cancel</a>
+		</center>
+	</p>
+<% end %>

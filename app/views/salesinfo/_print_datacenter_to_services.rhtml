@@ -1,0 +1,50 @@
+<html>
+	<head>
+		<%= stylesheet_link_tag 'printable' %>
+		<link rel="shortcut icon" href="http://www.equinix.com/equinix/favicon.ico" type="image/x-icon" />
+		<title>
+			Print Datacenter to Network Services Report
+		</title>
+	</head>
+	<body>
+		<% if @providers_poi_list.size > 0 then -%>
+			<div style="display: inline; margin-right: 30px;">
+				<div id="exchanges_cross_table_link" style="display: none;">
+					<a href="#" onclick="document.getElementById('exchanges_cross_table').style.display = 'block'; document.getElementById('providers_cross_table').style.display = 'none'; document.getElementById('exchanges_cross_table_link').style.display = 'none'; document.getElementById('exchanges_cross_table_text').style.display = 'inline'; document.getElementById('providers_cross_table_link').style.display = 'inline'; document.getElementById('providers_cross_table_text').style.display = 'none'; return false;">Exchanges</a>
+				</div>
+				<div id="exchanges_cross_table_text" style="display: inline;">
+					Exchanges
+				</div>
+			</div>
+			
+			<div style="display: inline; margin-right: 30px;">
+				<div id="providers_cross_table_link" style="display: inline;">
+					<a href="#" onclick="document.getElementById('providers_cross_table').style.display = 'block'; document.getElementById('exchanges_cross_table').style.display = 'none'; document.getElementById('providers_cross_table_link').style.display = 'none'; document.getElementById('providers_cross_table_text').style.display = 'inline'; document.getElementById('exchanges_cross_table_link').style.display = 'inline'; document.getElementById('exchanges_cross_table_text').style.display = 'none'; return false;">Providers</a>
+				</div>
+				<div id="providers_cross_table_text" style="display: none;">
+					Providers
+				</div>
+			</div>
+		<% end -%>
+		
+		<div id="exchanges_cross_table">
+			<%= render :partial => 'datacenter_to_pois_cross_table', 
+					   :locals => {:type => 'exchanges',
+								   :poi_list => @exchanges_poi_list, 
+								   :networkproviders => @exchanges_networkproviders, 
+								   :regions_present => @exchanges_regions_present,
+								   :contact_rows => @exchanges_contact_rows,
+								   :has_campus_connection => @exchanges_has_campus_connection,
+								   :printable =>  true} %>
+		</div>
+		
+		<% if @providers_poi_list.size > 0 then -%>
+			<div id="providers_cross_table" style="display: none;">
+				<%= render :partial => 'provider_cross_table', 
+						   :locals => {:type => 'providers',
+								   	   :poi_list => @providers_poi_list,
+									   :printable =>  true} %>
+			</div>
+		<% end -%>
+	</body>
+</html>

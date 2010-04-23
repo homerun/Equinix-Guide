@@ -1,0 +1,150 @@
+	
+<% unless flash[:notice].blank? %>
+		<div id="prospect_notification" class="notification">
+			<%= image_tag("/images/flash_img.jpg",{:class => 'title_img'}) %>
+			<div style="vertical-align: top; display: inline;">
+  			<%= flash[:notice] %>
+  			<% flash[:notice] = '' %>
+  		</div>
+		</div>
+  	<script type="text/javascript">
+  		setTimeout("$('prospect_notification').style.display = 'none'",5000)
+  	</script>
+<% end %>
+
+
+	<span class="section_header"><%= (live_connections)?('Live Connections'):('Sales Prospects')%></span>
+	<br/>
+<% unless live_connections -%>
+	<div name="editable" style="display: none;">
+		<span style="font-size: 10px">
+			<a href="#" onclick="$('add_poi2ntp_prospect_div').style.display = 'block'; return false;">New Prospect</a>
+		</span>
+		<br/>
+		<% form_remote_tag :url => {:action => 'add_poi2ntp_prospect'}, :update => "poi2ntp_prospect" do %>
+			<%= hidden_field :new, :id, :value => "YES" %>
+			<%= hidden_field :poi, :id, :value => "#{@pointsofinterest.id}" %>
+			<div id="add_poi2ntp_prospect_div" class="connectionTypeDescr" style="width: 800px; display: none;">
+				<p>
+					<span class="bold_label">Point of Interest</span>
+					<br/>
+					<%= select :poi2ntp, :pointsofinterest_id, @pointsofinterest.associated_pois_list %>
+				</p>
+				<p>
+					<span class="bold_label">Network Termination Point</span>
+					<br/>
+					<%= select :poi2ntp, :networkterminationpoint_id, @list_of_equinix_ntps %>
+				</p>
+				<p>	
+					<span class="bold_label">Connection Type</span>
+					<br/>
+					<%= select :poi2ntp, :poiconnectiontype_id, @poi_connection_types %>
+				</p>
+				<p>
+					<span class="bold_label">Status</span>
+					<br/>
+						<%= select :poi2ntp, :prospectstatustype_id, @list_of_prospect_status_types %>
+				</p>
+				<p>
+					<span class="bold_label">Public</span>
+					<br/>
+					<%= check_box :poi2ntp, :public, {:checked => 'checked'} %>
+					Yes (If private, only equinix users can see this connection)
+				</p>
+					<input type="button" onclick="$('add_poi2ntp_prospect_div').style.display = 'none'; document.getElementsByName('add_poi2ntp_prospect')[0].onclick(); hide_info_div(this,'add_sales_prospect_submit'); return false;" value="Add" />
+					or <a onclick="$('add_poi2ntp_prospect_div').style.display = 'none'; return false;">Cancel</a>
+					<div style="display: none;">
+						<%= submit_to_remote 'add_poi2ntp_prospect', 'Add', :url => { :action => 'add_poi2ntp_prospect'}, :update => 'poi2ntp_prospects_pane' %>
+					</div>
+			</div>
+		<% end %>
+	</div>
+<% end -%>
+
+	<p></p>
+	<table class="border_only"><tr><td>
+	<table class="list_columns">
+		<%- if live_connections then connections_attribute = 'ntp_connections' else connections_attribute = 'prospect_ntp_connections' end -%>
+		<% if eval("@pointsofinterest.#{connections_attribute}") %>
+			<% is_even = true %>
+			<% connection_exists = false -%>
+			<% if eval("@pointsofinterest.#{connections_attribute}") and eval("@pointsofinterest.#{connections_attribute}").size != 0 and ((@pointsofinterest.parent_poi != nil and eval("@pointsofinterest.parent_poi.#{connections_attribute}") != nil) or (@pointsofinterest.children_pois and @pointsofinterest.children_pois.size != 0)) %>
+				<% connection_exists = true -%>
+				<tr>
+					<th colspan="2" style="background-color: #bbb">
+						<div style="width: 850px;"><%= @pointsofinterest.name %></div>
+					</th>
+				</tr>
+			<% end %>
+			<% (eval("@pointsofinterest.#{connections_attribute}").sort { |x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).each do |sales_prospect| %>
+				<%= render :partial => 'poi2ntp_prospect_item', :locals => {:sales_prospect => sales_prospect, :current_poi => @pointsofinterest, :is_even => is_even} %>
+				<% is_even = !is_even %>
+			<% end %>
+			<% if @pointsofinterest.parent_poi and @pointsofinterest.parent_poi.parent_poi and @pointsofinterest.parent_poi.parent_poi.prospect_ntp_connections and eval("@pointsofinterest.parent_poi.parent_poi.#{connections_attribute}").size != 0 then %>
+				<% connection_exists = true -%>
+				<tr>
+					<th colspan="2" style="background-color: #bbb">
+						<%= link_to "#{@pointsofinterest.parent_poi.parent_poi.name}", {:action => 'edit', :id => @pointsofinterest.parent_poi.id} %> (Grand-Parent Point of Interest)
+					</th>
+				</tr>
+				<% (eval("@pointsofinterest.parent_poi.parent_poi.#{connections_attribute}").sort { |x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).each do |sales_prospect| %>
+					<%= render :partial => 'poi2ntp_prospect_item', :locals => {:sales_prospect => sales_prospect, :current_poi => @pointsofinterest.parent_poi.parent_poi, :is_even => is_even} %>
+					<% is_even = !is_even %>
+				<% end %>
+			<% end %>
+			<% if @pointsofinterest.parent_poi != nil and eval("@pointsofinterest.parent_poi.#{connections_attribute}") != nil and eval("@pointsofinterest.parent_poi.#{connections_attribute}").size != 0 then %>
+				<% connection_exists = true -%>
+				<tr>
+					<th colspan="2" style="background-color: #bbb">
+						<%= link_to "#{@pointsofinterest.parent_poi.name}", {:action => 'edit', :id => @pointsofinterest.parent_poi.id} %> (Parent Point of Interest)
+					</th>
+				</tr>
+				<% (eval("@pointsofinterest.parent_poi.#{connections_attribute}").sort { |x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).each do |sales_prospect| %>
+					<%= render :partial => 'poi2ntp_prospect_item', :locals => {:sales_prospect => sales_prospect, :current_poi => @pointsofinterest.parent_poi, :is_even => is_even} %>
+					<% is_even = !is_even %>
+				<% end %>
+			<% end %>
+			<% if @pointsofinterest.children_pois != nil and @pointsofinterest.children_pois.size > 0 then %>
+				<% (@pointsofinterest.children_pois.sort {|x,y| x.name.downcase <=> y.name.downcase }).each do |child_poi| %>
+					<% if eval("child_poi.#{connections_attribute}") != nil and eval("child_poi.#{connections_attribute}").size != 0 then %>
+						<% connection_exists = true -%>
+						<tr>
+							<th colspan="2" style="background-color: #bbb">
+								<%= link_to "#{child_poi.name}", {:action => 'edit', :id => child_poi.id} %> (Child Point of Interest)
+							</th>
+						</tr>
+						<% (eval("child_poi.#{connections_attribute}").sort { |x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).each do |sales_prospect| %>
+							<%= render :partial => 'poi2ntp_prospect_item', :locals => {:sales_prospect => sales_prospect, :current_poi => child_poi, :is_even => is_even} %>
+							<% is_even = !is_even %>
+							<% if child_poi.children_pois != nil and child_poi.children_pois.size > 0 then %>
+								<% (child_poi.children_pois.sort {|x,y| x.name.downcase <=> y.name.downcase }).each do |grand_child_poi| %>
+									<% if eval("grand_child_poi.#{connections_attribute}") != nil and eval("grand_child_poi.#{connections_attribute}").size != 0 then %>
+										<tr>
+											<th colspan="2" style="background-color: #bbb">
+												<%= link_to "#{grand_child_poi.name}", {:action => 'edit', :id => grand_child_poi.id} %> (Grand-Child Point of Interest)
+											</th>
+										</tr>
+										<% (eval("grand_child_poi.#{connections_attribute}").sort { |x,y| x.networkterminationpoint.name.downcase <=> y.networkterminationpoint.name.downcase }).each do |sales_prospect| %>
+											<%= render :partial => 'poi2ntp_prospect_item', :locals => {:sales_prospect => sales_prospect, :current_poi => grand_child_poi, :is_even => is_even} %>
+											<% is_even = !is_even %>
+										<% end %>
+									<% end %>
+								<% end %>
+							<% end %>
+						<% end %>
+					<% end %>
+				<% end %>
+			<% end %>
+			<% if not connection_exists then -%>
+				<tr><td><div style="width: 160px;">No <%= if live_connections then 'Live Connections' else 'Prospects' end %> to edit.</div></td></tr>
+			<% end -%>
+		<% else -%>
+			<tr><td><div style="width: 160px;">No <%= if live_connections then 'Live Connections' else 'Prospects' end %> to edit.</div></td></tr>
+		<% end %>
+	</table>	
+	</td></tr></table>
+<% if @change_to_edit then %>
+	<script type="text/javascript">
+		toggle_read_only(false);
+	</script>
+<% end %>

@@ -1,0 +1,55 @@
+<span class="edit_title">My Reports I'm Sharing</span>
+<% form_tag do %>
+	<table class="list_columns">
+		<thead >
+			<tr>
+				<th>User</th>
+				<th>Unshare</th>
+				<th>Report Title</th>
+				<th>Type of Report</th>
+				<th>Notes</th>
+			</tr>
+		</thead>
+		<tbody >
+			<% if @list_of_users_and_reports == nil or @list_of_users_and_reports.size == 0 then %>
+				<tr>
+					<td colspan="5">
+						You are not sharing any reports.
+					</td>
+				</tr>
+			<% else %>
+				<% @list_of_users_and_reports.each do |user_pair| %>
+					<% even = false %>
+					<tr>
+						<td colspan="5">
+							<span class="selection_box_title"><%= user_pair[:user].print_name %></span>
+						</td>
+					</tr>
+					<% even = false %>
+					<% user_pair[:shared_reports].each do |shared_report| %>
+						<tr class="<%= if even then 'even_small' else 'odd_small' end %>">
+							<td></td>
+							<td>
+								<%= link_to_remote( 'Remove', 
+												:url => { :action => 'unshare_report', 
+														:unshareId => shared_report.id ,
+														:id => @current_user.id}, 
+												:update => 'my_shared_reports_pane' ) %>
+							</td>
+							<td>
+								<%= link_to "#{shared_report.report.report_title}", {:action => 'open_report', :id => (shared_report.report.id*9999-321), :sharable => 'yes'} %>
+							</td>
+							<td>
+								<%= shared_report.report.reporttype.type_title %>
+							</td>
+							<td>
+								<%= shared_report.report.notes %>
+							</td>
+						</tr>
+						<% even = !even %>
+					<% end %>
+				<%end%>
+			<% end %>
+		</tbody>
+	</table>
+<% end %>

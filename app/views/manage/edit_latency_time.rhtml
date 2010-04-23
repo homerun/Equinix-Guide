@@ -1,0 +1,70 @@
+
+<% @selector_size = 5 %>
+
+<div class="title_div">
+	<%= image_tag "latency_time.gif", :width => 30 %>
+    <h1>Latency Times</h1>
+</div>
+
+
+<table class="full">
+<tr><td>
+	<div style="min-width: 1100px;">
+		<% @partial_type = 'selector' %>
+		<div id="networkprovider_selector">
+			<%= render :partial => 'networkprovider_selector' %>
+		</div>
+		
+		<% @partial_type = 'editor' %>
+		<div id="latency_time_selector">
+			<%= render :partial => 'latency_time_selector' %>
+		</div>
+	</div>
+</td></tr>
+<tr><td>
+	<div id="editPane">
+		<% if @latency_time == nil then %>
+			<% if @message != nil then %>
+				<%= @message %><br/>
+				<% @message = nil %>
+			<% end %>
+			<br/>
+		<% else %>
+			<span class="edit_title"><%= "#{@latency_time.np2ntpA.networkterminationpoint.name} to #{@latency_time.np2ntpB.networkterminationpoint.name}" %></span>
+			<% form_remote_tag(:url => {:action => 'select_a_np2ntp'}, :update => 'b_np2ntp_selector') do %>
+				<%= hidden_field :latencytime, :id, :value => "#{@latency_time.id}" %>
+				<%= hidden_field :latencytime, :networkprovider_id, :value => "#{@latency_time.networkprovider_id}" %>
+				<table>
+					<tr>
+						<td class="edit_field_text">Network Termination Point 1: </td>
+						<td><%= select_tag('latencytime[a_np2ntp_id]', 
+									    options_for_select(@list_of_a_np2ntps,@selected_np2ntp_a),
+									    :onchange => remote_function(:update => 'b_np2ntp_selector', 
+														       :url => { :action => 'select_a_np2ntp'},
+															  :with => "'a_np2ntp_id='+value+'&id=#{@latency_time.id}'")) %></td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Network Termination Point 2: </td>
+						<td>
+							<div id='b_np2ntp_selector'>
+								<%= select_tag('latencytime[b_np2ntp_id]', 
+											options_for_select(@list_of_b_np2ntps,"#{@latency_time.b_np2ntp_id}"), 
+										     :onchange => remote_function(:update => 'modified', 
+										   						    :url => { :action => 'set_modified'})) %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Latency Time: </td>
+						<td><%= text_field :latencytime, :latency_time, {:value => "#{@latency_time.latency_time}", 
+															   :onchange => remote_function(:update => 'modified', 
+															   						  :url => { :action => 'set_modified'})}  %></td>
+					</tr>
+				</table>
+				<input type="submit" value="Save Changes" onClick="this.disabled = true; postAction(this.form,'manage','save_latency_time')"/>
+				<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+			<% end %> 
+		<% end %>
+	</div>
+</td></tr>
+</table>

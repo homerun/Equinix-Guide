@@ -1,0 +1,43 @@
+<tr>
+	<td>
+		<center><%= check_box 'inquiries', '', {}, "#{inquiry[:inquiry_detail].id},","" %></center>
+	<td>
+		<% if inquiry[:inquiry_detail].inquiry_table == 'Networkterminationpoint' then %>
+			<b>Network Termination Point: </b>
+			<%= inquiry[:inquiry_obj].name %>
+		<% end %>
+	</td>
+	<td>
+		<% if inquiry[:inquiry_detail].inquiryType[1..1] == 'F' then %>
+			<center>YES</center>
+		<% else %>
+			<center>NO</center>
+		<% end %>
+	</td>
+	<% if inquiry[:inquiry_detail].sent_at == nil then %>
+		<td colspan="2">
+			<center>Not Sent Yet</center>
+		</td>
+	<% else %>
+		<td>
+			<%= inquiry[:inquiry_detail].sent_at.to_s(:long) %>
+		</td>
+		<td>
+			<%= inquiry[:inquiry_detail].inquireToEmail %>
+		</td>
+	<% end %>
+	<td>
+		<% if inquiry[:inquiry_detail].response_date == nil then %> 
+			No Response Yet
+		<% else %>
+			<%= inquiry[:inquiry_detail].response_date.to_s %>
+		<% end %>
+	</td>
+	<td>
+		<% if inquiry[:inquiry_detail].notes == nil then %> 
+			No notes.
+		<% else %>
+			<%= inquiry[:inquiry_detail].notes %>
+		<% end %>
+	</td>
+</tr>

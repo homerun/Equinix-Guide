@@ -1,0 +1,1365 @@
+<% unless @networkterminationpoint.nil? %>
+<%- max_tabs = 15 -%>
+<%- campus_tab = 'tab_15' %>
+<script type="text/javascript">
+	var initial_campus = '';
+</script>
+<br/>
+    <h1><%= @networkterminationpoint.name %></h1>
+	<% if @last_update %>
+		<span class="updated_on">
+		    (last updated on <%= @networkterminationpoint.updated_at %> by <%= @last_update[:user] %>)
+		</span>
+	<% end %>
+	
+	<div id="tabs_pane" class="tabs_pane">
+	    <ul class="tab_row">
+	        <li id="tab_1" class="selected">
+				<span><a href="#" onclick="select_tab(1,<%= max_tabs %>); return false;">Location</a></span>
+			</li>
+		<% if @networkterminationpoint.is_datacenter? and @current_user.is_equinix_user? %>
+		    <li id="tab_14">
+			    <span><a href="#" onclick="select_tab(14,<%= max_tabs %>); return false;">Site Info</a></span>
+		    </li>
+		    <li id="tab_6">
+			    <span><a href="#" onclick="select_tab(6,<%= max_tabs %>); return false;">Transportation Access</a></span>
+		    </li>
+		    <li id="tab_7">
+			    <span><a href="#" onclick="select_tab(7,<%= max_tabs %>); return false;">Security</a></span>
+		    </li>
+		    <li id="tab_8">
+			    <span><a href="#" onclick="select_tab(8,<%= max_tabs %>); return false;">Power</a></span>
+		    </li>
+		    <li id="tab_9">
+			    <span><a href="#" onclick="select_tab(9,<%= max_tabs %>); return false;">HVAC</a></span>
+		    </li>
+		    <li id="tab_10">
+			    <span><a href="#" onclick="select_tab(10,<%= max_tabs %>); return false;">Fire</a></span>
+		    </li>
+		    <li id="tab_12">
+			    <span><a href="#" onclick="select_tab(12,<%= max_tabs %>); return false;">Network Services</a></span>
+		    </li>
+			<li id="tab_11">
+				<span><a href="#" onclick="select_tab(11,<%= max_tabs %>); return false;">Managed Services</a></span>
+			</li>
+			<li id="tab_3">
+				<span><a href="#" onclick="select_tab(3,<%= max_tabs %>); return false;">Network Providers</a></span>
+			</li>
+			<li id="tab_2">
+				<span><a href="#" onclick="select_tab(2,<%= max_tabs %>); return false;">Points of Interest</a></span>
+			</li>
+			<li id="tab_13">
+				<span><a href="#" onclick="select_tab(13,<%= max_tabs %>); return false;">Competitive Market</a></span>
+			</li>
+		<% else %>		
+			<li id="tab_3">
+				<span><a href="#" onclick="select_tab(3,<%= max_tabs %>); return false;">Network Providers</a></span>
+			</li>
+			<li id="tab_2">
+    			<span><a href="#" onclick="select_tab(2,<%= max_tabs %>); return false;">Points of Interest</a></span>
+    		</li>
+		<% end %>
+			<li id="tab_5">
+				<span><a href="#" onclick="select_tab(5,<%= max_tabs %>); return false;">Latency Times</a></span>
+			</li>
+			<li id="<%= campus_tab %>" style="display: none;">
+				<span><a href="#" onclick="select_tab(15,<%= max_tabs %>); return false;">Campus</a></span>
+			</li>
+		    <li id="tab_4">
+			    <span><a href="#" onclick="select_tab(4,<%= max_tabs %>); return false;">History</a></span>
+		    </li>
+		</ul>
+		<div id="tab_3_content" class="tab_content" style="display: none;">
+            <div id="tab_padding">
+			<%- if @current_user.can_edit_networkterminationpoint?(@networkterminationpoint.id) -%>
+				<%= link_to 'Inquire Network Providers about this Network Termination Point', 
+							{:controller => :inquiry, 
+							 :action => 'add_inquiries_for_networkprovider', 
+							 :networkterminationpoint_id => @networkterminationpoint.id,
+							 :edit_page => 'Networkterminationpoint'} %>
+			<%- end -%>
+			<%- if NEW_CONNECTIONS then -%>
+				<div id="np2ntps">
+					<%= render :partial => '/np2ntps/np2ntps', :locals => {:networkterminationpoint => @networkterminationpoint, :networkprovider => nil } %>
+				</div>
+			<%- else -%>
+				<div id="networkterminationpoint_networkproviders">
+					<%= render :partial => 'network_providers' %>
+				</div>
+			<%- end -%>
+			</div>
+		</div>
+		<div id="tab_2_content" class="tab_content" style="display: none;">
+		    <div id="tab_padding">
+			<div id="networkterminationpoint_pois">
+				<%= render :partial => 'pois' %>
+			</div>
+			</div>
+		</div>
+		<div id="tab_4_content" class="tab_content" style="display: none;">
+		    <div id="tab_padding">
+			<div id="history_pane">
+				<%= render :partial => '/shared/history_pane', :locals => {:table_name => 'Networkterminationpoint', :table_id => @networkterminationpoint.id, :tab_number => 4} %>
+			</div>
+			</div>
+		</div>
+		<div id="tab_5_content" class="tab_content" style="display: none;">
+		    <div id="tab_padding">
+				<%= render :partial => 'latencytimes/edit_step1', :locals => {:edit_page => 'Networkterminationpoint', :editable => @current_user.can_edit_networkterminationpoint?(@networkterminationpoint.id) } %>
+			</div>
+		</div>
+		<% form_for @networkterminationpoint, :url => {:action => 'update', :id => @networkterminationpoint.id}, :html => {:id => "ntp_form"} do |f| %>
+		    <% fields_for(@datacenterdetail) do |d|%>
+			<input type="hidden" name="current_tab" value="1" />
+			<div id="tab_1_content" class="tab_content">
+			    <div id="tab_padding">
+				<table>
+				    <tr>
+						<td class="edit_field_text">Name: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.text_field :name %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.name %> <%= link_to 'Delete', {:action => :destroy, :id => @networkterminationpoint}, :confirm => 'Are you sure?' if (@current_user.has_editor_role? && @current_user.is_equinix_user?) %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Owner: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.select :networktermptowner_id, Networktermptowner.find(:all, :order => 'name').collect { |o| [o.name, o.id]} %>
+								</div>
+								<div name="read_only">
+									<%= @networkterminationpoint.owner.name unless @networkterminationpoint.owner.nil? %>
+								</div>
+							</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Type: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.select :networktermpttype_id, Networktermpttype.find(:all, :order => 'name').collect { |t| [t.name, t.id]} %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.type.name if @networkterminationpoint.type != nil %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Street Address: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.text_field :street_address %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.street_address %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Floor: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.text_field :floor %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.floor %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Suite: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.text_field :suite %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.suite %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">City: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.text_field :city %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.city %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">State (or Province): </td>
+						<td>
+							<div name="editable" style="display: none;">
+							    <%= f.text_field :state_or_province %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.state_or_province %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Zipcode: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.text_field :zip_code %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.zip_code %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Country: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.select :country_id, @list_of_countries %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.country.name if @networkterminationpoint.country %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Latitude: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.text_field :lat, :value => @networkterminationpoint.lat %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.lat %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Longitude: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.text_field :lon, :value => @networkterminationpoint.lon %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.lon %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Exact Coordinates?: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.check_box :coordinates_exact %>
+							</div>
+							<div name="read_only">
+								<%= (@networkterminationpoint.coordinates_exact == true)?('Yes'):('No') %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">NPA-NXX: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.text_field :npa_nxx %>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.npa_nxx %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Future Build: </td>
+						<td>		
+							<div name="editable" style="display: none;">
+							    <%= f.check_box :is_future_build, :onclick => "negotiate_hide_show_future_build_date();" %>
+
+								<span id="future_build_dateEdit">
+									<b>Estimated Completion Date:</b>
+									<%= f.text_field :future_build_date %>
+								</span>
+							</div>
+							<div name="read_only">
+							    <%= (@networkterminationpoint.is_future_build == true)?("Yes - #{print_date(@networkterminationpoint.future_build_date)}"):('No') %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Campus: </td>
+						<td>
+							<div name="editable" style="display: none;">
+							    <%= f.select :campus_id, Campus.find(:all).collect{|c| [c.name, c.id]}, {:include_blank => true}, :onchange => "if(this.value == '') $('#{ campus_tab }').style.display = 'none'; else $('#{ campus_tab }').style.display = 'inline'; if($('networkterminationpoint_campus_id').value == initial_campus) { $('campus_initial').style.display = 'block'; $('campus_new').style.display = 'none'; } else {$('campus_initial').style.display = 'none'; $('campus_new').style.display = 'block';}" %>
+								<script type="text/javascript">
+									var initial_campus = $('networkterminationpoint_campus_id').value;
+									if($('networkterminationpoint_campus_id').value=='')
+										$('<%= campus_tab %>').style.display = "none";
+									else
+										$('<%= campus_tab %>').style.display = "inline";
+								</script>
+							</div>
+							<div name="read_only">
+								<%= @networkterminationpoint.campus.name unless @networkterminationpoint.campus.nil? %>
+							</div>
+						</td>
+					</tr>
+					<%- if @networkterminationpoint.owner.name == "Equinix" -%>					
+						<tr>
+							<td class="edit_field_text">Equinix Metro Report: </td>
+							<td>
+								<%- if @networkterminationpoint.datacenterdetail.nil? or @networkterminationpoint.datacenterdetail.market.nil? %>
+									<%= link_to_remote 'Click to Generate', :url => {:controller => 'campus', :action => 'equinix_metro_report_preload', :networkterminationpoint_id => @networkterminationpoint.id, :update_field => "metro_report_link"}, :before => "$('metro_report_link').innerHTML = 'Loading...';", :update => 'preload_div' %>
+								<%- else %>
+									<%= link_to_remote 'Click to Generate', :url => {:controller => 'campus', :action => 'equinix_metro_report_preload', :market_id => @networkterminationpoint.datacenterdetail.market.id, :update_field => "metro_report_link"}, :before => "$('metro_report_link').innerHTML = 'Loading...';", :update => 'preload_div' %>
+								<%- end %>
+								<span id="metro_report_link"></span>
+							</td>
+						</tr>
+					<%- end -%>
+					<tr>
+					    <td></td>
+					    <td>
+					        <% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+            					<div name="make_editable">
+            						<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+            					</div>
+            				<% end %>
+            				<div name="make_read_only" style="display:none;">
+            					<%= f.submit 'Save Changes'%>
+            					<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+            				</div>
+					    </td>
+					</tr>
+				</table>
+				
+				</div>
+			</div>
+			<% if @networkterminationpoint.is_datacenter? and @current_user.is_equinix_user? %>
+				<div id="tab_14_content" class="tab_content" style="display: none;">
+				    <div id="tab_padding">
+					<%= d.hidden_field :networkterminationpoint_id, :value => "#{@networkterminationpoint.id}" %>
+					<table>
+						<tr>
+							<td class="edit_field_text">Gross Floor Capacity: </td>
+							<td>
+								<div name="editable" style="display: none;">
+								    <%= d.text_field :gross_floor_capacity_metric, :style => "text-align: right;" if @current_user.unit_preference == 'M' %>
+                                    <%= d.text_field :gross_floor_capacity_british, :style => "text-align: right;" unless @current_user.unit_preference == 'M' %> 
+                                    <%= get_long_unit_name('area') %>
+								</div>
+								<div name="read_only">
+									<%= get_field_match_units(@datacenterdetail,'gross_floor_capacity') %>
+									<%= get_long_unit_name('area') unless get_field_match_units(@datacenterdetail,'gross_floor_capacity').nil? %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Net Floor Capacity: </td>
+							<td>
+								<div name="editable" style="display: none;">
+								    <%= d.text_field :floor_capacity_metric, :style => "text-align: right;" if @current_user.unit_preference == 'M' %> 
+                                    <%= d.text_field :floor_capacity_british, :style => "text-align: right;" unless @current_user.unit_preference == 'M' %>
+									<%= get_long_unit_name('area') %>
+								</div>
+								<div name="read_only">
+									<%= get_field_match_units(@datacenterdetail,'floor_capacity') %>
+									<%= get_long_unit_name('area') if get_field_match_units(@datacenterdetail,'floor_capacity') != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">% Occupied: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.text_field :occupancy_rate, :size => 2 %>
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.occupancy_rate} %" unless @datacenterdetail.occupancy_rate.nil? %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Quality Type: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :qualitytype_id, Qualitytype.find(:all, :order => 'quality_type').collect { |t| [t.quality_type, t.id] }, {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.quality_type.quality_type unless @datacenterdetail.quality_type.nil? %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Year Facility Built: </td>
+							<td>
+								<div name="editable" style="display: none;">
+								     <%= d.text_field :age %>
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.age} year built" if @datacenterdetail.age != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Customer Work Area: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :customer_work_area, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.customer_work_area %>
+								</div>
+							</td>			   						   
+						</tr>
+						<tr>
+							<td class="edit_field_text">Conference Rooms: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :conference_rooms, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.conference_rooms %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Site Deliveries: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :site_deliveries, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.site_deliveries %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Staging Rooms: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :staging_rooms, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.staging_rooms %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">No Cardboard: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :no_cardboard, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.no_cardboard %>
+								</div>
+							</td>
+						</tr>
+					</table>
+					<% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+						<div name="make_editable">
+							<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+						</div>
+					<% end %>
+					<div name="make_read_only" style="display:none;">
+						<%= f.submit 'Save Changes'%>
+						<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+					</div>
+					</div>
+				</div>
+				<div id="tab_6_content" class="tab_content" style="display: none;">
+				    <div id="tab_padding">
+					<table>
+						<tr>
+							<td class="edit_field_text">Distance to Bus: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.text_field :distance_to_bus_metric, :style => 'text-align:right;' if @current_user.unit_preference == 'M' %>
+                                    <%= d.text_field :distance_to_bus_british, :style => 'text-align:right;' unless @current_user.unit_preference == 'M' %>
+									<%= get_long_unit_name('distance') %>
+								</div>
+								<div name="read_only">
+									<%= get_field_match_units(@datacenterdetail,'distance_to_bus') %>
+									<%= get_long_unit_name('distance') if get_field_match_units(@datacenterdetail,'distance_to_bus') != nil%>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Distance to Train: </td>
+							<td>
+								<div name="editable" style="display: none;">
+								    <%= d.text_field :distance_to_train_metric, :style => "text-align: right;" if @current_user.unit_preference == 'M' %>
+                                    <%= d.text_field :distance_to_train_british, :style => "text-align: right;" unless @current_user.unit_preference == 'M' %>
+									<%= get_long_unit_name('distance') %>
+								</div>
+								<div name="read_only">
+									<%= get_field_match_units(@datacenterdetail,'distance_to_train') %>
+									<%= get_long_unit_name('distance') if get_field_match_units(@datacenterdetail,'distance_to_train') != nil%>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Parking Spots: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.text_field :parking_spots %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.parking_spots %>
+								</div>
+							</td>
+						</tr>
+					</table>
+					<% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+						<div name="make_editable">
+							<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+						</div>
+					<% end %>
+					<div name="make_read_only" style="display:none;">
+					    <%= f.submit 'Save Changes' %>
+						<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+					</div>
+					</div>
+				</div>
+				<div id="tab_7_content" class="tab_content" style="display: none;">
+				    <div id="tab_padding">
+					<table>
+						<tr>
+							<td class="edit_field_text">24x365 Security Personel: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :full_time_security_personnel, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.full_time_security_personnel %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">After Hours Access: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :after_hours_access, %w[Yes No], {:include_blank => true} %> 
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.after_hours_access %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">CCTV Inside: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :cctv_inside, %w[Yes No], {:include_blank => true} %> 
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.cctv_inside %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">CCTV Outside: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :cctv_outside, %w[Yes No], {:include_blank => true} %> 
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.cctv_outside %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">CCTV Tape Storage: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :cctv_tape_storage, %w[Yes No], {:include_blank => true} %> 
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.cctv_tape_storage %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">BioMetrics: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :bio_metrics, %w[Yes No], {:include_blank => true} %> 
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.bio_metrics %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Man Trap: </td>
+							<td>	
+								<div name="editable" style="display: none;">
+									<%= d.select :man_trap, %w[Yes No], {:include_blank => true} %> 
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.man_trap %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Cust Sign In: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :cust_sign_in, %w[Yes No], {:include_blank => true} %> 
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.cust_sign_in %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Cust Proximity Card: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :cust_proximity_card, Array["Yes", "No", "Provided @ sign in"], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.cust_proximity_card %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Cust Pin Number: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :cust_pin_num, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.cust_pin_num %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Rack Key Access: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :rack_key_access, %w[Onsite Offsite], {:include_blank => true} %> 
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.rack_key_access %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Cust Access Telco Room: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :cust_access_telco_rm, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.cust_access_telco_rm %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Integrated BMS: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :security_integrated_bms, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.security_integrated_bms %>
+								</div>
+							</td>
+						</tr>
+					</table>
+					<% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+						<div name="make_editable">
+							<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+						</div>
+					<% end %>
+					<div name="make_read_only" style="display:none;">
+					    <%= f.submit 'Save Changes'%>
+						<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+					</div>
+					</div>
+				</div>
+				<div id="tab_8_content" class="tab_content" style="display: none;">
+				    <div id="tab_padding">
+					<table>
+						<tr>
+							<td class="edit_field_text">Power Density: </td>
+							<td>
+								<div name="editable" style="display: none;">
+								     <%= d.text_field :power_density_metric if @current_user.unit_preference == 'M' %>
+                                        <%= d.text_field :power_density_british unless @current_user.unit_preference == 'M' %>
+								 	w/<%= get_short_unit_name('area') %>
+								</div>
+								<div name="read_only">
+									<%= get_field_match_units(@datacenterdetail,'power_density') %>
+									<%= "w/#{get_short_unit_name('area')}" if get_field_match_units(@datacenterdetail,'power_density') != nil%>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text"># of Power Grids: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.text_field :power_grids %> power grids
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.power_grids} power grids" if @datacenterdetail.power_grids != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Mains Power Supply: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.text_field :mains_power_supply %> Mw
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.mains_power_supply} Mw" if @datacenterdetail.mains_power_supply != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">HV Lines: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.text_field :hv_lines %> lines
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.hv_lines} lines" if @datacenterdetail.hv_lines != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text"># of Transformers: </td>
+							<td>
+								<div name="editable" style="display: none;">
+								    <%= d.text_field :transformers, :size => 4 %> transformers
+                                    <%= d.select :transformers_plus, @list_of_n_plus, {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.transformers} transformers" if @datacenterdetail.transformers != nil %>
+									<%= " N+#{@datacenterdetail.transformers_plus}" if @datacenterdetail.transformers_plus != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">UPS System: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :ups_system_type_id, (Upssystemtype.find(:all, :order => 'ups_system_type' ).collect { |t| [t.ups_system_type, t.id] }).insert(0,[' ',0]) %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.ups_system_type.ups_system_type if @datacenterdetail.ups_system_type != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">UPS Capacity: </td>
+							<td>
+								<div name="editable" style="display: none;">
+								    <%= d.text_field :ups_capacity_multiplier, :size => 2 %> x
+                                    <%= d.text_field :ups_capacity %> Kva
+                                    <%= d.select :ups_capacity_plus, @list_of_n_plus, {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.ups_capacity_multiplier} x" if @datacenterdetail.ups_capacity_multiplier != nil %>
+									<%= "#{@datacenterdetail.ups_capacity} Kva" if @datacenterdetail.ups_capacity != nil %>
+									<%= " N+#{@datacenterdetail.ups_capacity_plus}" if @datacenterdetail.ups_capacity_plus != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">UPS Time (Full Load): </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.text_field :ups_time_full_load %> minutes
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.ups_time_full_load} minutes" if @datacenterdetail.ups_time_full_load != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Generator: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.text_field :generator_brand %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.generator_brand %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Generator Capacity: </td>
+							<td>
+								<div name="editable" style="display: none;">
+								    <%= d.text_field :generator_capacity_multiplier, :size => 2 %> x
+                                    <%= d.text_field :generator_capacity, :size => 10 %> Mw
+                                    (<%= d.text_field :primary_generators, :size => 2 %> +
+                                    <%= d.text_field :backup_generators, :size => 2 %>)
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.generator_capacity_multiplier} x " if @datacenterdetail.generator_capacity_multiplier != nil %>
+									<%= "#{@datacenterdetail.generator_capacity} Mw " if @datacenterdetail.generator_capacity != nil %>
+									<%= "(#{@datacenterdetail.primary_generators} + #{@datacenterdetail.backup_generators})" if @datacenterdetail.primary_generators != nil or @datacenterdetail.backup_generators != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Diesel Storage: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.text_field :diesel_storage_metric if @current_user.unit_preference == 'M' %>
+                                    <%= d.text_field :diesel_storage_british unless @current_user.unit_preference == 'M' %>
+									<%= get_long_unit_name('volume') %>
+								</div>
+								<div name="read_only">
+									<%= get_field_match_units(@datacenterdetail,'diesel_storage') %>
+									<%= "#{get_long_unit_name('volume')}" if get_field_match_units(@datacenterdetail,'diesel_storage') != nil%>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Diesel Time (Full Load): </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.text_field :diesel_fuel_time %> hours
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.diesel_fuel_time} hours" if @datacenterdetail.diesel_fuel_time != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Fuel Supplier Contracts: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :fuel_supplier_contracts, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.fuel_supplier_contracts %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Integrated BMS: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :power_integrated_bms, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.power_integrated_bms %>
+								</div>
+							</td>
+						</tr>
+					</table>
+					<% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+						<div name="make_editable">
+							<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+						</div>
+					<% end %>
+					<div name="make_read_only" style="display:none;">
+						<%= f.submit 'Save Changes'%>
+						<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+					</div>
+					</div>
+				</div>
+				<div id="tab_9_content" class="tab_content" style="display: none;">
+				    <div id="tab_padding">
+					<table>
+						<tr>
+							<td class="edit_field_text">Temperature Control: </td>
+							<td>
+								<div name="editable" style="display: none;">
+								    <%= d.text_field :temp_control_metric, :size => 2 if @current_user.unit_preference == 'M' %>
+                                    <%= d.text_field :temp_control_british, :size => 2 unless @current_user.unit_preference == 'M' %>
+									 <%= get_short_unit_name('temperature') %>
+									 (&plusmn;
+									 <%= d.text_field :temp_control_plus_minus_metric, :size => 2 if @current_user.unit_preference == 'M' %>
+                                     <%= d.text_field :temp_control_plus_minus_british, :size => 2 unless @current_user.unit_preference == 'M' %>
+									<%= get_short_unit_name('temperature') %>)
+								</div>
+								<div name="read_only">
+									<%= "#{get_field_match_units(@datacenterdetail,'temp_control')} #{get_short_unit_name('temperature')}" if get_field_match_units(@datacenterdetail,'temp_control') != nil %>
+									<%= "(&plusmn;#{get_field_match_units(@datacenterdetail,'temp_control_plus_minus')}#{get_short_unit_name('temperature')})" if get_field_match_units(@datacenterdetail,'temp_control_plus_minus') != nil and get_field_match_units(@datacenterdetail,'temp_control') != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Humidity Control: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.text_field :humidity_control, :size => "2" %> %
+									(&plusmn;
+									<%= d.text_field :humidity_control_plus_minus, :size => 2 %>
+									%)
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.humidity_control}% " if @datacenterdetail.humidity_control != nil %>
+									<%= "(&plusmn;#{@datacenterdetail.humidity_control_plus_minus}%)" if @datacenterdetail.humidity_control_plus_minus != nil and @datacenterdetail.humidity_control != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Raised Floor: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.text_field :raised_floor  %> mm
+									<%= d.select :anti_static_tiles, [["anti-static tiles"]], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= "#{@datacenterdetail.raised_floor}mm " if @datacenterdetail.raised_floor != nil %>
+									<%= @datacenterdetail.anti_static_tiles %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">CRAC Units: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.text_field :crac_units %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.crac_units %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">CRAC Type: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.text_field :crac_type %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.crac_type %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Integrated BMS: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :hvac_integrated_bms, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.hvac_integrated_bms %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Water Chillers: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :water_chillers, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.water_chillers %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Water Storage Tank: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :water_storage_tank, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.water_storage_tank %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Water Storage Capacity: </td>
+							<td>
+								<div name="editable" style="display: none;">
+								    <%= d.text_field :water_capacity_metric if @current_user.unit_preference == 'M' %>
+                                    <%= d.text_field :water_capacity_british unless @current_user.unit_preference == 'M' %>
+									<%= get_long_unit_name('volume') %>
+								</div>
+								<div name="read_only">
+									<%= get_field_match_units(@datacenterdetail,'water_capacity') %>
+									<%= "w/#{get_long_unit_name('volume')}" if get_field_match_units(@datacenterdetail,'water_capacity') != nil%>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Cooling Towers: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :cooling_towers, %w[Yes No], {:include_blank => true} %>
+									<%= d.select :cooling_towers_plus, @list_of_n_plus, {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.cooling_towers %>
+									<%= " N+#{@datacenterdetail.cooling_towers_plus}" if @datacenterdetail.cooling_towers_plus != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Hot/Cold Aisle: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :hot_cold_aisle, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.hot_cold_aisle %>
+								</div>
+							</td>
+						</tr>
+					</table>
+					<% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+						<div name="make_editable">
+							<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+						</div>
+					<% end %>
+					<div name="make_read_only" style="display:none;">
+						<%= f.submit 'Save Changes'%>
+						<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+					</div>
+					</div>
+				</div>
+				<div id="tab_10_content" class="tab_content" style="display: none;">
+				    <div id="tab_padding">
+					<table>
+						<tr>
+							<td class="edit_field_text">Fire Suppression: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.text_field :fire_suppression %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.fire_suppression %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Detection: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.text_field :fire_detection %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.fire_detection %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Sprinkler Type: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :sprinklertype_id, Sprinklertype.find(:all).collect { |t| [t.sprinkler_type, t.id] }, {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.sprinkler_type.sprinkler_type if @datacenterdetail.sprinkler_type != nil %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Fire Extinguishers: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :fire_extinguishers,  %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.fire_extinguishers %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Integrated BMS: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :fire_integrated_bms, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.fire_integrated_bms %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Fire Rating: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.text_field :fire_rating %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.fire_rating %>
+								</div>
+							</td>
+						</tr>
+					</table>
+					<% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+						<div name="make_editable">
+							<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+						</div>
+					<% end %>
+					<div name="make_read_only" style="display:none;">
+						<%= f.submit 'Save Changes'%>
+						<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+					</div>
+					</div>
+				</div>
+				<div id="tab_11_content" class="tab_content" style="display: none;">
+				    <div id="tab_padding">
+					<table>
+						<tr>
+							<td class="edit_field_text">Smart Hands: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :smart_hands,  %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.smart_hands %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Tape Backup: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :tape_backup, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.tape_backup %>
+								</div>
+							</td>
+						</tr>
+					</table>
+					<% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+						<div name="make_editable">
+							<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+						</div>
+					<% end %>
+					<div name="make_read_only" style="display:none;">
+					    <%= f.submit 'Save Changes'%>
+						<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+					</div>
+					</div>
+				</div>
+				<div id="tab_12_content" class="tab_content" style="display: none;">
+				    <div id="tab_padding">
+					<table>
+						<tr>
+							<td class="edit_field_text">Carrier Neutral: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :carrier_neutral, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.carrier_neutral %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Diverse Fibre entry: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :diverse_fibre_entry, %w[Yes No], {:include_blank => true} %> x
+									<%= d.text_field :diverse_fibre_entry_multiplier, :size => 2 %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.diverse_fibre_entry %>
+									<%= " x #{@datacenterdetail.diverse_fibre_entry_multiplier}" if @datacenterdetail.diverse_fibre_entry_multiplier != nil %>
+								</div>			   						    
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Secure Telco Room: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :secure_telco_room, %w[Yes No], {:include_blank => true} %> x
+									<%= d.text_field :secure_telco_room_multiplier, :size => 2 %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.secure_telco_room %>
+									<%= " x #{@datacenterdetail.secure_telco_room_multiplier}" if @datacenterdetail.secure_telco_room_multiplier != nil %>
+								</div>	
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">MLPA Platform: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :mlpa_platform, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.mlpa_platform %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Coax X-Connect: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :coax_x_connect, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.coax_x_connect %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">UTP X-Connect: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :utp_x_connect, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.utp_x_connect %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Fibre X-Connect: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :fibre_x_connect, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.fibre_x_connect %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Data/Power Segmentation: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :data_power_segmentation, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.data_power_segmentation %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">24/365 NOC: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :full_time_noc, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.full_time_noc %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">24/365 locally staffed: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :full_time_locally_staffed, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.full_time_locally_staffed %>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="edit_field_text">Roof space available: </td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :roof_space_available, %w[Yes No], {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.roof_space_available %>
+								</div>
+							</td>
+						</tr>
+					</table>
+					<% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+						<div name="make_editable">
+							<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+						</div>
+					<% end %>
+					<div name="make_read_only" style="display:none;">
+					    <%= f.submit 'Save Changes'%>
+						<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+					</div>
+					</div>
+				</div>	
+				<div id="tab_13_content" class="tab_content" style="display: none;">
+				    <div id="tab_padding">
+					<table>
+						<tr>
+							<td class="edit_field_text" style="width: 350px;">Competitive Market for <%= @networkterminationpoint.name %>:</td>
+							<td>
+								<div name="editable" style="display: none;">
+									<%= d.select :market_id, @list_of_markets, {:include_blank => true} %>
+								</div>
+								<div name="read_only">
+									<%= @datacenterdetail.market.market_name if @datacenterdetail.market %>
+								</div>
+								<%= observe_field "datacenterdetail_market_id", 
+                                		:url => {:action => 'show_market'},
+                                		:update => "show_markets",
+                                		:with => "'market_id=' + escape(value) + '&ntp_id=' + #{@networkterminationpoint.id}" %>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2">
+							    <div id="show_markets">
+								    <%= render :partial => 'markets' if @datacenterdetail.market %>
+								</div>    
+							</td>
+						</tr>
+					</table>
+					<% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+						<div name="make_editable">
+							<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+						</div>
+					<% end %>
+					<div name="make_read_only" style="display:none;">
+						<%= f.submit 'Save Changes'%>
+						<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+					</div>
+					</div>
+				</div>
+				<div id="tab_15_content" class="tab_content" style="display: none;">
+				    <div id="tab_padding">
+				    	<div id="campus_initial">
+				    		<%- unless @networkterminationpoint.campus.nil? -%>
+								<div id="campus_changes" style="display: none;">
+								</div>
+					    		<%= render :partial => 'campus/campus_ntp2ntps', :locals => {:campus => @networkterminationpoint.campus, :networkterminationpoint => @networkterminationpoint, :show_link => false} %>
+								
+								<% if @current_user.has_editor_role? && @current_user.is_equinix_user? -%>
+									<div name="make_editable">
+										<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+									</div>
+								<% end %>
+								<div name="make_read_only" style="display:none;">
+								    <%= f.submit 'Save Changes'%>
+									<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+								</div>
+							<%- end -%>
+				    	</div>
+						<div id="campus_new" style="display: none;">
+							You mut save before you can edit the new campus details.
+						</div>
+				    </div>
+				</div>
+			<% end -%>
+    		<% end %>
+        <% end %>
+	</div>
+	<div id="preload_div">
+	</div>
+<% end %>
+
+<script>
+
+Event.observe(window, 'load', function() {
+negotiate_hide_show_future_build_date();
+});
+
+function negotiate_hide_show_future_build_date(){
+	if($('networkterminationpoint[is_future_build]').checked){
+		$('future_build_dateEdit').show();
+	}else{
+		$('future_build_dateEdit').hide();
+	}
+}
+</script>
+
+<%= observe_form  :ntp_form, 
+				  :update => 'modified',
+				  :url => {:action =>'set_modified'} %>

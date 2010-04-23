@@ -1,0 +1,92 @@
+<script lang="text/javascript">
+	function check_all_current_first_times(me) {
+		checkboxes = document.getElementsByName('current_first_time[]')
+		if(!checkboxes)
+			return;
+		for(var i = 0; i < checkboxes.length; i++)
+			checkboxes[i].checked = me.checked;
+	}
+	function check_all_current_agains(me) {
+		checkboxes = document.getElementsByName('current_again[]')
+		if(!checkboxes)
+			return;
+		for(var i = 0; i < countCheckBoxes; i++)
+			checkboxes[i].checked = me.checked;
+	}
+	function check_all_other_first_times(me) {
+		checkboxes = document.getElementsByName('other_first_time[]')
+		if(!checkboxes)
+			return;
+		for(var i = 0; i < checkboxes.length; i++)
+			checkboxes[i].checked = me.checked;
+	}
+	function check_all_other_agains(me) {
+		checkboxes = document.getElementsByName('other_again[]')
+		if(!checkboxes)
+			return;
+		for(var i = 0; i < countCheckBoxes; i++)
+			checkboxes[i].checked = me.checked;
+	}
+</script>
+
+<p>
+	<span class="page_title">Request Network Information for <%= @selected_ntp.name %></span>
+</p>
+<% form_tag do %>
+	<input type="hidden" id="id" name="id" value="<%= @selected_ntp.id %>" />
+	<% if @list_of_current_np_objs != nil and @list_of_current_np_objs.size > 0 then %>
+		<%= submit_tag 'Submit' %>
+		<table class="border_only"><tr><td>
+		<table class="list_columns" style="width: 900px;">
+			<thead>
+			<tr>
+				<th colspan="5"><span class="edit_title" style="color: #fff;">Verify Current Connections</span></th>
+			</tr>
+			<tr>
+				<th>Verify</th>
+				<th>Network Provider</th>
+				<th>Current Connection</th>
+				<th>Last Inquiry</th>
+				<th>Last Update</th>
+			</tr>
+			</thead>
+			</tbody>
+			<% even = true %>
+			<% @list_of_current_np_objs.each do |np_obj| %>
+				<%= render :partial => 'ntp_add_np_row', :locals => {:np_obj => np_obj, :even => even} %>
+				<% even = !even %>
+			<% end %>
+			</tbody>
+		</table>
+		</td></tr></table>
+	<% end %>
+	<br/>
+	<%= submit_tag 'Submit' %>
+	<br/>
+	<table class="border_only"><tr><td>
+	<table class="list_columns" style="width: 900px;">
+		<thead>
+		<tr>
+			<th colspan="5"><span class="edit_title" style="color: #fff;">Find New Connections</span></th>
+		</tr>
+		<tr>
+			<th>Inquire</th>
+			<th>Network Provider</th>
+			<th>Current Connection</th>
+			<th>Last Inquiry</th>
+			<th>Last Update</th>
+		</tr>
+		</thead>
+		<tbody>
+		<% even = true %>
+		<% @list_of_other_np_objs.each do |np_obj| %>
+			<%= render :partial => 'ntp_add_np_row', :locals => {:np_obj => np_obj, :even => even} %>
+			<% even = !even %>
+		<% end %>
+		</tbody>
+	</table>
+	</td></tr></table>
+	<%= submit_tag 'Submit' %>
+<% end %>
+
+<%= link_to "Return to edit #{@selected_ntp.name}", {:controller => 'networkterminationpoints', :action => 'edit', :id => @selected_ntp.id} %>

@@ -1,0 +1,344 @@
+<div class="title_div">
+    <%= image_tag "ntp_title_img.gif", :width => '45' %>
+    <h1>Network Termination Points</h1>
+</div>
+
+<%= error_messages_for :networkterminationpoint %>
+<div class="new_form">  
+<% form_for @networkterminationpoint, :url => {:action => 'create'} do |f| %>
+    <% fields_for(@datacenterdetail) do |d| %>
+<div class="yui-g">
+    <div class="yui-u first">
+
+    <p><label>Name:*</label> <%= f.text_field :name %></p>
+    <p><label>Owner:*</label> 
+        <%= f.select :networktermptowner_id, Networktermptowner.find(:all, :order => 'name').collect { |o| [o.name, o.id]}, {:include_blank => true} %>
+    </p>
+    <p><label>Type:*</label> <%= f.select :networktermpttype_id, Networktermpttype.find(:all, :order => 'name').collect { |t| [t.name, t.id]}, {:include_blank => true}, {:onchange => "negotiate_hide_show_datacenter_details();"} %></p>
+    <p><label>Street Address:</label> <%= f.text_field :street_address %> </p>
+    <p><label>Floor:</label> <%= f.text_field :floor, :size => 9 %>
+        <b>Suite:</b> <%= f.text_field :suite, :size => 10 %>
+    </p>
+    <p><label>City:</label> <%= f.text_field :city %></p>
+    <p><label>State (or Province):</label> <%= f.text_field :state_or_province, :size => 8 %>
+        <b>Zip Code:</b> <%= f.text_field :zip_code, :size => 7 %>
+    </p>
+    <p>
+        <label>Region: </label>
+        <select id="region_selector" name="region_selector">
+            <%= options_for_select(@list_of_regions.insert(0,''), @selected_region) %>
+        </select>
+    </p>
+    <p><label>Country:*</label> <%= f.select :country_id, @list_of_countries, {:include_blank => true} %></p>
+    <p><label>Latitude:</label> <%= f.text_field :lat %></p>
+    <p><label>Longitude:</label> <%= f.text_field :lon %></p>
+	<p><label>Exact Coordinates?:</label> <%= f.check_box :coordinates_exact %></p>
+    <p><label>NPA-NXX:</label> <%= f.text_field :npa_nxx %></p>	
+    <p><label>Future Build:</label> 
+        <%= f.check_box :is_future_build, :onclick => "negotiate_hide_show_future_build_date();" %> </p>
+    <p id="future_build_dateEdit">
+		<label>Estimated Completion Date:</label>
+		<%= f.text_field :future_build_date %>
+		<div style="clear:both;"></div>
+	</p>
+    <p><label>Campus:</label> <%= f.select :campus_id, ['Select Network Termination Point Owner First'], {:include_blank => true} %></p>
+
+<div id="datacenter">
+    <h2>Security</h2>
+    <p><label>24x7x365 Security Personel:</label>
+        <%= d.select :full_time_security_personnel, %w[Yes No], {:include_blank => true} %> 
+    </p>
+    <p><label>After Hours Access:</label>
+        <%= d.select :after_hours_access, %w[Yes No], {:include_blank => true} %> 
+    </p>
+    <p><label>CCTV Inside:</label>
+        <%= d.select :cctv_inside, %w[Yes No], {:include_blank => true} %> 
+    </p>
+    <p><label>CCTV Outside:</label>
+        <%= d.select :cctv_outside, %w[Yes No], {:include_blank => true} %> 
+    </p>
+    <p><label>CCTV Tape Storage:</label>
+        <%= d.select :cctv_tape_storage, %w[Yes No], {:include_blank => true} %> 
+    </p>
+    <p><label>BioMetrics:</label>
+        <%= d.select :bio_metrics, %w[Yes No], {:include_blank => true} %> 
+    </p>
+    <p><label>Man Trap:</label>
+        <%= d.select :man_trap, %w[Yes No], {:include_blank => true} %> 
+    </p>
+    <p><label>Cust Sign In:</label>
+        <%= d.select :cust_sign_in, %w[Yes No], {:include_blank => true} %> 
+    </p>
+    <p><label>Cust Proximity Card:</label>
+        <%= d.select :cust_proximity_card, Array["Yes", "No", "Provided @ sign in"], {:include_blank => true} %>
+    </p>
+    <p><label>Cust Pin Number:</label>
+        <%= d.select :cust_pin_num, %w[Yes No], {:include_blank => true} %> 
+    </p>
+    <p><label>Rack Key Access:</label>
+        <%= d.select :rack_key_access, %w[Onsite Offsite], {:include_blank => true} %> 
+    </p>
+    <p><label>Cust Access Telco Room:</label>
+        <%= d.select :cust_access_telco_rm, %w[Yes No], {:include_blank => true} %> 
+    </p>
+    <p><label>Integrated BMS:</label>
+        <%= d.select :security_integrated_bms, %w[Yes No], {:include_blank => true} %> 
+    </p>
+    
+    <h2>Network Services</h2>
+	<p><label>Carrier Neutral: </label>    
+	    <%= d.select :carrier_neutral, %w[Yes No], {:include_blank => true} %>
+	</p>
+    <p><label>Diverse Fibre entry: </label>
+		<%= d.select :diverse_fibre_entry, %w[Yes No], {:include_blank => true} %> x
+		<%= d.text_field :diverse_fibre_entry_multiplier, :size => 2 %>
+	</p>
+    <p><label>Secure Telco Room: </label>
+		<%= d.select :secure_telco_room, %w[Yes No], {:include_blank => true} %> x
+		<%= d.text_field :secure_telco_room_multiplier, :size => 2 %>
+	</p>
+    <p><label>MLPA Platform: </label>
+		<%= d.select :mlpa_platform, %w[Yes No], {:include_blank => true} %>
+	</p>
+    <p><label>Coax X-Connect: </label>
+		<%= d.select :coax_x_connect, %w[Yes No], {:include_blank => true} %>
+	</p>
+    <p><label>UTP X-Connect: </label>
+		<%= d.select :utp_x_connect, %w[Yes No], {:include_blank => true} %>
+	</p>
+    <p><label>Fibre X-Connect: </label>
+		<%= d.select :fibre_x_connect, %w[Yes No], {:include_blank => true} %>
+	</p>
+    <p><label>Data/Power Segmentation: </label>
+		<%= d.select :data_power_segmentation, %w[Yes No], {:include_blank => true} %>
+	</p>
+	<br/>
+    <p><label>24/365 NOC: </label>
+		<%= d.select :full_time_noc, %w[Yes No], {:include_blank => true} %>
+	</p>
+    <p><label>24/365 locally staffed: </label>
+		<%= d.select :full_time_locally_staffed, %w[Yes No], {:include_blank => true} %>
+	</p>
+    <p><label>Roof space available: </label>
+		<%= d.select :roof_space_available, %w[Yes No], {:include_blank => true} %>
+	</p>
+	
+	<h2>Transportation Access</h2>
+    <p><label>Distance to Bus:</label>
+        <%= d.text_field :distance_to_bus_metric if @current_user.unit_preference == 'M' %>
+        <%= d.text_field :distance_to_bus_british unless @current_user.unit_preference == 'M' %> 
+        <%= get_long_unit_name('distance') %>
+    </p>    
+	<p><label>Distance to Train:</label>
+        <%= d.text_field :distance_to_train_metric if @current_user.unit_preference == 'M' %>
+        <%= d.text_field :distance_to_train_british unless @current_user.unit_preference == 'M' %> 
+        <%= get_long_unit_name('distance') %>
+    </p>
+    <p><label>Parking Spots:</label>
+        <%= d.text_field :parking_spots %> 
+    </p>
+    
+	<h2>Managed Services</h2>
+	<p><label>Smart Hands:</label>  
+	    <%= d.select :smart_hands,  %w[Yes No], {:include_blank => true} %>
+	</p>
+    <p><label>Tape Backup: </label>
+	    <%= d.select :tape_backup, %w[Yes No], {:include_blank => true} %>
+    </p>
+</div>    
+    </div>
+    
+    <div class="yui-u">
+<div id="datacenter2">     
+        <p><label>Competitive Market:</label>
+            <%= d.select :market_id, @list_of_markets, {:include_blank => true} %>
+        </p>    
+        <p><label>Gross Floor Capacity:</label> 
+            <%= d.text_field :gross_floor_capacity_metric if @current_user.unit_preference == 'M' %>
+            <%= d.text_field :gross_floor_capacity_british unless @current_user.unit_preference == 'M' %> 
+            <%= get_long_unit_name('area') %>
+        </p>
+        <p><label>Net Floor Capacity:</label> 
+            <%= d.text_field :floor_capacity_metric if @current_user.unit_preference == 'M' %> 
+            <%= d.text_field :floor_capacity_british unless @current_user.unit_preference == 'M' %>
+            <%= get_long_unit_name('area') %>
+        </p>
+
+        <p><label>% Occupied:</label> <%= d.text_field :occupancy_rate %></p>	
+        <p><label>Quality Type:</label> <%= d.select :qualitytype_id, Qualitytype.find(:all, :order => 'quality_type').collect { |t| [t.quality_type, t.id] }, {:include_blank => true} %></p>
+        <p><label>Year Facility Built:</label> <%= d.text_field :age %></p>
+        <p><label>Conference Rooms:</label> <%= d.select :conference_rooms,%w[Yes No], {:include_blank => true} %></p>
+        <p><label>Staging Rooms:</label> <%= d.select :staging_rooms, %w[Yes No], {:include_blank => true} %></p>
+        <p><label>Site Deliveries:</label> <%= d.select :site_deliveries, %w[Yes No], {:include_blank => true} %></p>
+        <p><label>No Cardboard:</label> <%= d.select :no_cardboard, %w[Yes No], {:include_blank => true} %></p>
+        <p><label>Customer Work Area:</label> <%= d.select :customer_work_area, %w[Yes No], {:include_blank => true} %></p>
+    <h2>Power</h2>
+    <p><label>Power Density:</label>
+        <%= d.text_field :power_density_metric if @current_user.unit_preference == 'M' %>
+        <%= d.text_field :power_density_british unless @current_user.unit_preference == 'M' %> 
+        w/<%= get_long_unit_name('area') %>
+    </p>
+    <p><label># of Power Grids:</label>
+        <%= d.text_field :power_grids %> power grids
+    </p>
+    <p><label>Mains Power Supply:</label>
+        <%= d.text_field :mains_power_supply %> Mw
+    </p>
+    <p><label>HV Lines:</label>
+        <%= d.text_field :hv_lines %> lines
+    </p>
+    <p><label># of Transformers:</label>
+        <%= d.text_field :transformers, :size => 4 %> transformers
+        <%= d.select :transformers_plus, @list_of_n_plus, {:include_blank => true} %>
+    </p>
+    <p><label>UPS System:</label>
+        <%= d.select :ups_system_type_id, Upssystemtype.find(:all, :order => 'ups_system_type' ).collect { |t| [t.ups_system_type, t.id] }, {:include_blank => true} %>
+    </p>
+    <p><label>UPS Capacity:</label>
+        <%= d.text_field :ups_capacity_multiplier, :size => 2 %> x
+        <%= d.text_field :ups_capacity, :size => 8 %> Kva
+        <%= d.select :ups_capacity_plus, @list_of_n_plus, {:include_blank => true} %>
+    </p>
+    <p><label>UPS Time (Full Load):</label>
+        <%= d.text_field :ups_time_full_load %> minutes
+    </p>
+    <p><label>Generator Brand:</label>
+        <%= d.text_field :generator_brand %>
+    </p>
+    <p><label>Generator Capacity:</label>
+        <%= d.text_field :generator_capacity_multiplier, :size => 2 %> x
+        <%= d.text_field :generator_capacity, :size => 6 %> Mw
+        (<%= d.text_field :primary_generators, :size => 2 %> +
+        <%= d.text_field :backup_generators, :size => 2 %>)
+    </p>
+    <p><label>Diesel Storage:</label>
+        <%= d.text_field :diesel_storage_metric if @current_user.unit_preference == 'M' %>
+        <%= d.text_field :diesel_storage_british unless @current_user.unit_preference == 'M' %> 
+        <%= get_long_unit_name('volume') %>
+    </p>
+    <p><label>Diesel Time (Full Load):</label>
+        <%= d.text_field :diesel_fuel_time %> hours
+    </p>
+    <p><label>Fuel Supplier Contracts:</label>
+        <%= d.select :fuel_supplier_contracts, %w[Yes No], {:include_blank => true} %>
+    </p>
+    <p><label>Integrated BMS:</label>
+        <%= d.select :power_integrated_bms, %w[Yes No], {:include_blank => true} %>
+    </p>
+    
+    <h2>HVAC</h2>
+    <p><label>Temperature Control:</label>
+			    <%= d.text_field :temp_control_metric, :size => 2 if @current_user.unit_preference == 'M' %>
+                <%= d.text_field :temp_control_british, :size => 2 unless @current_user.unit_preference == 'M' %>
+				 <%= get_short_unit_name('temperature') %>
+				 (&plusmn;
+				 <%= d.text_field :temp_control_plus_minus_metric, :size => 2 if @current_user.unit_preference == 'M' %>
+                 <%= d.text_field :temp_control_plus_minus_british, :size => 2 unless @current_user.unit_preference == 'M' %>
+				<%= get_short_unit_name('temperature') %>)
+	</p>
+    <p><label>Humidity Control:</label>
+		<%= d.text_field :humidity_control, :size => 2 %> %
+		(&plusmn;
+		<%= d.text_field :humidity_control_plus_minus, :size => 2 %>
+		%)
+	</p>
+    <p><label>Raised Floor: </label>
+		<%= d.text_field :raised_floor, :size => 8  %> mm
+		<%= d.select :anti_static_tiles, [["anti-static tiles"]], {:include_blank => true} %>
+    </p>
+    <p><label>CRAC Units: </label>
+		<%= d.text_field :crac_units %>
+    </p>
+    <p><label>CRAC Type: </label>
+		<%= d.text_field :crac_type %>
+    </p>
+    <p><label>Integrated BMS: </label>
+		<%= d.select :hvac_integrated_bms, %w[Yes No], {:include_blank => true} %>
+	</p>
+    <p><label>Water Chillers: </label>
+		<%= d.select :water_chillers, %w[Yes No], {:include_blank => true} %>
+	</p>
+    <p><label>Water Storage Tank: </label>
+		<%= d.select :water_storage_tank, %w[Yes No], {:include_blank => true} %>
+	</p>
+    <p><label>Water Storage Capacity: </label>
+		<%= d.text_field :water_capacity_metric if @current_user.unit_preference == 'M' %>
+        <%= d.text_field :water_capacity_british unless @current_user.unit_preference == 'M' %>
+		<%= get_long_unit_name('volume') %>
+	</p>
+    <p><label>Cooling Towers: </label>
+		<%= d.select :cooling_towers, %w[Yes No], {:include_blank => true} %>
+		<%= d.select :cooling_towers_plus, @list_of_n_plus, {:include_blank => true} %>
+    </p>
+    <p><label>Hot/Cold Aisle: </label>
+		<%= d.select :hot_cold_aisle, %w[Yes No], {:include_blank => true} %>
+	</p>
+	
+	<h2>Fire</h2>
+	<p><label>Fire Suppression: </label>
+	    <%= d.text_field :fire_suppression %>
+	</p>
+    <p><label>Detection: </label>
+	    <%= d.text_field :fire_detection %>
+	</p>
+    <p><label>Sprinkler Type: </label>
+	    <%= d.select :sprinklertype_id, Sprinklertype.find(:all).collect { |t| [t.sprinkler_type, t.id] }, {:include_blank => true} %>
+	</p>
+    <p><label>Fire Extinguishers: </label>
+	    <%= d.select :fire_extinguishers,  %w[Yes No], {:include_blank => true} %>
+	</p>
+    <p><label>Integrated BMS: </label>
+	    <%= d.select :fire_integrated_bms, %w[Yes No], {:include_blank => true} %>
+	</p>
+    <p><label>Fire Rating: </label>
+	    <%= d.text_field :fire_rating %>
+	</p>
+</div>	
+
+    </div>
+</div>
+    <p style="margin-left:190px"><%= f.submit 'Create' %> or <%= link_to 'Back', :action => 'edit' %></p>
+  
+    <% end -%>
+<% end -%>
+</div>
+<script>
+	Event.observe(window, 'load', function() {
+  	negotiate_hide_show_future_build_date();
+  	negotiate_hide_show_datacenter_details();
+	});
+
+	function negotiate_hide_show_future_build_date(){
+		if($('networkterminationpoint_is_future_build').checked){
+			$('future_build_dateEdit').show();
+		}else{
+			$('future_build_dateEdit').hide();
+		}
+	};
+	
+	function negotiate_hide_show_datacenter_details(){
+		if($('networkterminationpoint_networktermpttype_id').value == '1'){
+			$('datacenter').show();
+			$('datacenter2').show();
+		}else{
+			$('datacenter').hide();
+			$('datacenter2').hide();
+		}
+	}
+</script>
+
+<%= observe_field "networkterminationpoint_country_id", 
+		:url => {:action => 'show_markets'},
+		:update => "datacenterdetail_market_id",
+		:with => "country_id" %>
+		
+<%= observe_field "region_selector", 
+		:url => {:action => 'show_countries'},
+		:update => "networkterminationpoint_country_id",
+		:with => "region_id" %>
+		
+<%= observe_field "networkterminationpoint_networktermptowner_id", 
+		:url => {:action => 'show_campuses'},
+		:update => "networkterminationpoint_campus_id",
+		:with => "networktermptowner_id" %>
+	

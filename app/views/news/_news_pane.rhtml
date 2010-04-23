@@ -1,0 +1,193 @@
+<% @max_news_items = 10 if @max_news_items == nil %>
+<% @sort_order = "Hottest" if @sort_order == nil %>
+<% @total_news = @list_of_news.size %>
+<% news_ids = (@list_of_news.collect {|x| x.id }).join(',') %>
+<% if @total_news > @max_news_items then %>
+	<% @start_range = "0" if @start_range == nil %>
+	<% @start_range = @start_range.to_i %>
+	<% @end_range = (@start_range + @max_news_items > @total_news ? (@total_news - 1) : (@start_range + @max_news_items - 1)) %>
+	<% @list_of_news = @list_of_news.values_at(eval("#{@start_range}..#{@end_range}")) %>
+<% end %>
+<table class="border_only"><tr><td>
+<table class="list_columns">
+	<thead>
+		<% if @title != nil then %>
+			<tr>
+				<td colspan="5">
+					Currently Viewing <%= @title %>. <a href="javascript:location.reload(true);">View All</a>
+				</td>
+			</tr>
+		<% end %>
+		<tr>
+			<td colspan="5">
+				<% if @total_news > @max_news_items then %>
+					<div style="float: right">
+						<% if @start_range > 0 then %>
+							<a href="#" onclick="<%= remote_function(  :update => "news_pane", 
+															:url => { :controller => 'news', :action => 'sort_news', :sort => "#{@sort_order}", :ids => news_ids, :start_range => (@start_range - @max_news_items) }) %>; return false;">
+								<< Previous <%= @max_news_items if @start_range + @max_news_items >= @total_news %> 
+							</a>
+						<% end %>
+						<% if @start_range + @max_news_items < @total_news then %>
+							<a href="#" onclick="<%= remote_function(  :update => "news_pane", 
+															:url => { :controller => 'news', :action => 'sort_news', :sort => "#{@sort_order}", :ids => news_ids, :start_range => (@start_range + @max_news_items) }) %>; return false;">
+								Next <%= @max_news_items if @start_range == 0 %> >>
+							</a>
+						<% end %>
+						&nbsp;<i>(<%= @total_news %> Total)</i>
+					</div>
+				<% end %>
+				<div style="float: left">
+					Please Sort By: 
+					&nbsp;&nbsp;&nbsp;
+					<% if @sort_order == 'Hottest' then %>
+						Hottest
+					<% else %>
+						<a href="#" onclick="<%= remote_function(  :update => "news_pane", 
+														:url => { :controller => 'news', :action => 'sort_news', :sort => "Hottest", :ids => news_ids }) %>; return false;">
+							Hottest
+						</a>
+					<% end %> 
+					&nbsp;&nbsp;&nbsp;
+					<% if @sort_order == 'Upcoming' then %>
+						Upcoming
+					<% else %>
+						<a href="#" onclick="<%= remote_function(  :update => "news_pane", 
+														:url => { :controller => 'news', :action => 'sort_news', :sort => "Upcoming", :ids => news_ids }) %>; return false;">
+							Upcoming
+						</a>
+					<% end %>
+					&nbsp;&nbsp;&nbsp;
+					<% if @sort_order == 'Most Popular' then %>
+						<%= @sort_order %>
+					<% else %>
+						<a href="#" onclick="<%= remote_function(  :update => "news_pane", 
+														:url => { :controller => 'news', :action => 'sort_news', :sort => "Most Popular", :ids => news_ids }) %>; return false;">
+							Most Popular
+						</a>
+					<% end %>
+					&nbsp;&nbsp;&nbsp;
+					<% if @sort_order == 'Date of Article' then %>
+						<%= @sort_order %>
+					<% else %>
+						<a href="#" onclick="<%= remote_function(  :update => "news_pane", 
+														:url => { :controller => 'news', :action => 'sort_news', :sort => "Date of Article", :ids => news_ids }) %>; return false;">
+							Date of Article
+						</a>
+					<% end %>
+					&nbsp;&nbsp;&nbsp;
+					<% if @sort_order == 'Date Submitted' then %>
+						<%= @sort_order %>
+					<% else %>
+						<a href="#" onclick="<%= remote_function(  :update => "news_pane", 
+														:url => { :controller => 'news', :action => 'sort_news', :sort => "Date Submitted", :ids => news_ids }) %>; return false;">
+							Date Submitted
+						</a>
+					<% end %>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<th colspan="2">
+				<div style="width: 55px;">Votes</div>
+			</th>
+			<th>
+				<div style="width: 130px;">Submitted By</div>
+			</th>
+			<th>
+				<div style="width: 420px;">Article</div>
+			</th>
+			<th>
+				<div style="width: 120px;">Tags</div>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<%= "<tr><td colspan='5'>No News</td></tr>" if @list_of_news.size == 0 %>
+		<% @list_of_news.each do |news| %>
+			<tr>
+				<td style="height: 100%;">
+				  <div style="display: table; height: 65px; #position: relative; width: 40px;">
+				    <div style=" #position: absolute; #top: 50%;display: table-cell; vertical-align: middle; width: 40px;">
+				      <div style=" #position: relative; #top: -50%; width: 40px; text-align: right;">
+							<%= print_message_div("<span id=\"news_#{ news.id }_point_value\" class=\"positive_ratings\">#{news.net_rating}</span>","<b>Hottest Score:</b> #{news.point_value_hottest}<br/><b>Upcoming Score:</b> #{news.point_value_upcoming}<br/><b>ts:</b> #{news.tsValue}<br/><b>x:</b> #{news.net_rating}<br/><b>y:</b> #{news.yValue}<br/><b>z:</b> #{news.zValue}") %>
+				      </div>
+				    </div>
+				  </div>
+				</td>
+				<td style="align: left;">
+				  <div style="display: table; height: 65px; #position: relative; width: 25px;">
+				    <div style=" #position: absolute; #top: 50%;display: table-cell; vertical-align: middle;">
+				      <div style=" #position: relative; #top: -50%">
+						<div id="news<%= news.id %>" style="height: 100%; display: inline;">
+							<% rating = news.rated_by_user?(current_user_id) %>
+							<% if rating == nil then %>
+								<a href="#" onclick="<%= remote_function(  :update => "news#{news.id}", :url => { :controller => 'news', :action => 'rate_news', :id => news.id, :rating => "Y" }) %>; return false;"><%= image_tag("/images/plus_default.jpg",{:width => '20', :class => 'item_img'}) %></a><br/><br/>
+								<a href="#" onclick="<%= remote_function(  :update => "news#{news.id}", :url => { :controller => 'news', :action => 'rate_news', :id => news.id, :rating => "N" }) %>; return false;"><%= image_tag("/images/minus_default.jpg",{:width => '20', :class => 'item_img'}) %></a>
+							<% else %>
+								<% if rating == "Y" then %>
+									<a href="#" onclick="return false;"><%= image_tag("/images/plus_selected.jpg",{:width => '20', :class => 'item_img'}) %></a><br/><br/>
+									<a href="#" onclick="return false;"><%= image_tag("/images/minus_default.jpg",{:width => '20', :class => 'item_img'}) %></a>
+								<% else %>
+									<a href="#" onclick="return false;"><%= image_tag("/images/plus_default.jpg",{:width => '20', :class => 'item_img'}) %></a><br/><br/>
+									<a href="#" onclick="return false;"><%= image_tag("/images/minus_selected.jpg",{:width => '20', :class => 'item_img'}) %></a>
+								<% end %>
+							<% end %>
+						</div>
+				      </div>
+				    </div>
+				  </div>
+				</td>
+				<td>
+					<%= news.user.print_name %> <%= time_ago_in_words(news.created_at) %> ago
+				</td>
+				<td>
+					<a href="<%= news.print_url %>" target="_blank"><span class="news_title"><%= news.title %></span></a><%= " (#{news.article_date})" if news.article_date != nil and !news.article_date.blank? %><br/>
+					<%= news.descr %><br/>
+				</td>
+				<td>
+					<% if news.poitags != nil then %>
+						<% news.poitags.each do |poiTag| %>
+							<%= link_to "#{poiTag.poi.name}", { :controller => 'pointsofinterests', :action => 'edit', :id => poiTag.pointsofinterest_id, :selected_tab_row => 1, :selected_tab => 7 } %>,
+						<% end %>
+					<% end %>
+					<% if news.nptags != nil then %>
+						<% news.nptags.each do |npTag| %>
+							<%= link_to "#{npTag.np.name}", { :controller => 'networkproviders', :action => 'edit', :id => npTag.networkprovider_id, :selected_tab_row => 1, :selected_tab => 4 } %>,
+						<% end %>
+					<% end %>
+					<% if news.ntpownertags != nil then %>
+						<% news.ntpownertags.each do |ntpOwnerTag| %>
+							<%= link_to "#{ntpOwnerTag.networktermptowner.name}", { :controller => 'manage', :action => 'edit_ntp_owner', :id => ntpOwnerTag.networktermptowner_id, :selected_tab_row => 1, :selected_tab => 4 } %>,
+						<% end %>
+					<% end %>
+					<% if news.regiontags != nil then %>
+						<% news.regiontags.each do |regionTag| %>
+							<%= link_to "#{regionTag.region.region_name}", { :controller => 'manage', :action => 'edit_region', :id => regionTag.equinixregion_id, :selected_tab_row => 1, :selected_tab => 3 } %>,
+						<% end %>
+					<% end %>
+					<% if news.markettags != nil then %>
+						<% news.markettags.each do |marketTag| %>
+							<%= link_to "#{marketTag.market.market_name}", { :controller => 'manage', :action => 'edit_market', :id => marketTag.market_id, :selected_tab_row => 1, :selected_tab => 3 } %>,
+						<% end %>
+					<% end %>
+					<% if !news.tags.blank? then %>
+						<% news.tags.split(',').each do |the_tag| %>
+							<a href="#" onclick="<%= remote_function(  :update => "news_pane",
+															:url => { :controller => 'news', 
+																	:action => 'sort_news', 
+																	:sort => "#{@sort_order}", 
+																	:ids => get_news_ids_from_tags(the_tag), 
+																	:title => "TAG: \"#{the_tag.strip}\"" }) %>; return false;">
+								<%= the_tag %></a>,
+						<% end %>
+					<% end %>
+				</td> 
+			</tr>
+		<% end %>
+	</tbody>
+</table>
+</td></tr></table>
+<div id="connectionTypeDescr" style="display: none; position: absolute; left: 1; top: 1;" class="connectionTypeDescr" onmouseout="javascript:this.style.display='none'">
+</div>
+<input type="button" onclick="window.location='/news/submit_news/';" value="Submit News" >

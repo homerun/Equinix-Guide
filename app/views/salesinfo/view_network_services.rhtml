@@ -1,0 +1,27 @@
+<%= image_tag "view_network_services_title_img.jpg", :class => 'title_img' %>
+
+<%= link_to 'Printable version...',  :action => 'print_network_services_report' %>
+
+<table class="full">
+<tr><td>
+	<div id="region_selector">
+		<%= render :partial => 'region_selector' %>
+	</div>
+	
+	<div id="country_selector">
+		<%= render :partial => 'country_selector' %>
+	</div>
+	
+	<div id="ntp_selector">
+		<%= render :partial => 'ntp_selector' %>
+	</div>
+</td></tr>
+<tr><td>
+	
+	<div id="view_network_services_pane">
+		<%= render :partial => 'view_network_services_pane' %>
+	</div>
+
+</td></tr>
+</table>
+

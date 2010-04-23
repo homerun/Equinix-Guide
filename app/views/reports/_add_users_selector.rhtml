@@ -1,0 +1,12 @@
+<% unless @list_of_add_users.blank? -%>
+	<form action="/networkterminationpoints/add_selected_users" method="get" id="add_selected_users">
+		<%= submit_to_remote 'add_users_submit', 'Share With Users', :url => {:action => 'add_selected_users', :id => @report.id}, :update => 'remove_users_selector_list', :html => {:id => 'add_users_submit', :disabled => true}, :before => 'this.disabled = "disabled";', :after => "$('add_users_list').selectedIndex = -1; if($('send_email').checked) $('remove_users_selector_list').innerHTML = 'Sending Email(s)...';"  %>
+		<input id="send_email" name="send_email" type="checkbox" />Send Email Notification
+		<br/>
+		<select id="add_users_list" name="add_users_list[]" multiple="multiple" size="<%= @add_users_list_size %>" style="*width: 340px; min-width: 300px; max-width: 400px;" onchange="if(this.selectedIndex>=0) $('add_users_submit').disabled=false; else $('add_users_submit').disabled=true;">
+			<%= options_for_select(@list_of_add_users) %>
+		</select>
+	</form>
+<% else -%>
+No Users meet your search criteria
+<% end -%>

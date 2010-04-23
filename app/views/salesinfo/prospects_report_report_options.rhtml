@@ -1,0 +1,32 @@
+<div class="title_div">
+    <h1>Build Prospects Report</h1>
+</div>
+
+<div class="new_form">  
+<%- form_tag do -%>
+<div class="yui-g">
+    <div class="yui-u first">
+	
+	<p><label>Public Report?:</label> <%= radio_button :options, :public, "Yes", {:checked => 'checked'} %> Yes &nbsp; <%= radio_button :options, :public, "No" %> No</p>
+	
+    <p>
+    	<label>Prospect Types:</label> 
+		<%= radio_button :options, :types, "All", {:checked => 'checked'} %> All &nbsp; &nbsp;
+		<%= radio_button :options, :types, "All_Non_Live" %> All Non-Live &nbsp; &nbsp;
+		<%= radio_button :options, :types, "Targeted" %> Targeted Only
+	</p>
+	
+    <p>
+    	<label>Regions:</label> 
+		<% Equinixregion.find(:all).each do |region| %>
+			<%= check_box "selected_regions", "", {:checked => 'checked'}, "#{region.id}","" %>
+			<%= region.region_name %>
+			&nbsp; &nbsp;
+		<% end %>
+	</p>
+	
+	<p><label>Finalize Report:</label><%= submit_tag 'Build Report' %></p>
+	
+	</div>
+</div>
+<%- end -%>	

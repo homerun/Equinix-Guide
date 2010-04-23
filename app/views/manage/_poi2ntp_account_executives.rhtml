@@ -1,0 +1,52 @@
+<% form_tag do %>
+	<input type="hidden" id="pointsofinterest_id" name="pointsofinterest_id" value="<%= @pointsofinterest.id %>" /> 
+	<input type="hidden" id="poiaccountexecutive_pointsofinterest_id" name="poiaccountexecutive[pointsofinterest_id]" value="<%= @pointsofinterest.id %>" /> 
+	<div name="read_only" style="display: inline;">
+			<span class="section_header">Account Executives</span>
+			<br/>
+	</div>
+	<div name="editable" style="display: none;">
+			<span class="section_header">Account Executives</span>
+			<br/>
+			<span style="font-size: 10px">
+				<a href="#" id="add_poi_account_executive_button" onclick="$('add_poi_account_executive_div').style.display = 'block'; return false;">Add Executive</a>
+				&nbsp;&nbsp;<a href="#" onclick="document.getElementsByName('remove_account_executive')[0].onclick(); return false;">Remove Selected</a>
+			</span>
+			<br/>
+			<div style="display: none;">
+				<%= submit_to_remote 'remove_account_executive', 'Remove', :url => { :action => 'remove_poi_account_executive'}, :update => 'poi2ntp_account_executives' %>
+			</div>
+	</div>
+	
+	<div id="add_poi_account_executive_div" class="connectionTypeDescr" style="z-index: 1; display: none;">
+		<p>
+			<span class="bold_label">Country</span>
+			<br/>
+			<%= select :poiaccountexecutive, :country_id, @list_of_countries %>
+		</p>
+		<p>
+			<span class="bold_label">User</span>
+			<br/>
+			<%= select :poiaccountexecutive, :user_id, @list_of_equinix_users %>
+		</p>
+		<input type="button" onclick="$('add_poi_account_executive_button').disabled = false; $('add_poi_account_executive_div').style.display = 'none'; document.getElementsByName('add_account_executive')[0].onclick(); return false;" value="Add" />
+		or <a onclick="$('add_poi_account_executive_button').disabled = false; $('add_poi_account_executive_div').style.display = 'none'; return false;">Cancel</a>
+		<div style="display: none;">
+			<%= submit_to_remote 'add_account_executive', 'Add', :url => { :action => 'add_poi_account_executive'}, :update => 'poi2ntp_account_executives' %>
+		</div>
+	</div>
+	<br/>
+	<% if @pointsofinterest.account_executives == nil then %>
+		None.
+	<% else %>
+		<% (@pointsofinterest.account_executives.sort {|x,y| "#{(x.country == nil ? 'All' : x.country.name)} - #{x.user.print_name}" <=> "#{(y.country == nil ? 'All' : y.country.name)} - #{y.user.print_name}"}).each do |account_exec| %>
+			<div name="editable" style="display: none;"><%= check_box "selectedAccountExecutives", "", {}, "#{account_exec.id},","" %></div><%= if account_exec.country == nil then 'All' else account_exec.country.name end %> - <%= account_exec.user.print_name %><br/>
+		<% end %>
+	<% end %>
+<% end %>
+
+<% if @change_to_edit then %>
+	<script type="text/javascript">
+		toggle_read_only(false);
+	</script>
+<% end %>

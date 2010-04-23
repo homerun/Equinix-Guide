@@ -1,0 +1,26 @@
+<div class="title_div">
+	<%= image_tag "poi_title_img.gif", :width => '40' %>
+    <h1>Manage Financial Points of Interest</h1>
+</div>
+
+<%= @message %>
+<%= error_messages_for :pointsofinterest %>
+
+<% unless @limited_access %>
+
+<span class="selection_box_title">Step 1: Choose Region</span><br/>
+<select id="region_selector" name="region_selector">
+    <%= options_for_select(@list_of_regions.insert(0,['',0]), @selected_region) %>
+</select>
+<br/><br/>
+<% end %>
+
+<span class="selection_box_title">Step 2: Choose Point of Interest or <%= link_to "Add New", {:action => "new"} %></span><br/>
+<div id="poi_selector">
+    <%= render :partial => "select_poi" %>
+</div>
+
+<%= observe_field "region_selector", 
+		:url => {:action => 'select_poi_region'},
+		:update => "poi_selector",
+		:with => "region_id" %>

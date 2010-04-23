@@ -1,0 +1,54 @@
+
+<div class="new_form">  
+<div class="yui-g">
+    <div class="yui-u first">   
+		<form action="/networkterminationpoint" method="get" id="select_latency_time">
+			<input type="hidden" id="networkterminationpoint" name="networkterminationpoint" value="<%= @networkterminationpoint.id if @networkterminationpoint %>" />
+			<input type="hidden" id="networkprovider" name="networkprovider" value="<%= @networkprovider.id if @networkprovider %>" />
+		    <p>
+		    	<span class="selection_box_title">Network Termination Point A:</span>
+		        <select id="latencytime_a_np2ntp_id" name="latencytime[a_np2ntp_id]">
+		            <%= render :partial => 'latencytimes/a_np2ntp_id_list' %>
+		        </select>
+		    </p>
+		    <p>
+		        <span class="selection_box_title">Network Provider:</span>
+		        <select id="latencytime_networkprovider_id" name="latencytime[networkprovider_id]">
+		            <%= render :partial => 'latencytimes/networkprovider_list' %>
+		        </select>
+		    </p>
+		    <p>
+		        <span class="selection_box_title">Network Termination Point B:</span>
+		        <select id="latencytime_b_np2ntp_id" name="latencytime[b_np2ntp_id]">
+		            <%= render :partial => 'latencytimes/b_np2ntp_id_list' %>
+		        </select>
+		    </p>
+		</form>
+    </div>
+    <div class="yui-u">
+		<div id='latencytime_edit'>
+			<%= render :partial => 'latencytimes/edit' %>
+		</div>
+    </div>  
+</div>
+</div>
+
+<div id='debug_latencytime_a_np2ntp_id'></div>
+<hr/>
+<div id='debug_latencytime_b_np2ntp_id'></div>
+
+<%= observe_form  :select_latency_time, 
+				  :update => 'latencytime_edit',
+				  :url => {:controller => 'latencytimes', :action => 'update_edit'} %>
+
+<%= observe_form  :select_latency_time, 
+				  :update => 'latencytime_b_np2ntp_id',
+				  :url => {:controller => 'latencytimes', :action => 'update_b_np2ntp_id_selector'} %>
+
+<%= observe_form  :select_latency_time, 
+				  :update => 'latencytime_networkprovider_id',
+				  :url => {:controller => 'latencytimes', :action => 'update_networkprovider_selector'} %>
+
+<%= observe_form  :select_latency_time, 
+				  :update => 'latencytime_a_np2ntp_id',
+				  :url => {:controller => 'latencytimes', :action => 'update_a_np2ntp_id_selector'} %>

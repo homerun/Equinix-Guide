@@ -1,0 +1,11 @@
+<% if @latency_time == nil then %>
+	<%= select_tag('latencytime[b_np2ntp_id]', 
+	               options_for_select(@list_of_b_np2ntps), 
+			     :onchange => remote_function(:update => 'modified', 
+			   						    :url => { :action => 'set_modified'}) ) %>
+<% else %>
+	<%= select_tag('latencytime[b_np2ntp_id]', 
+	               options_for_select(@list_of_b_np2ntps,@latency_time.b_np2ntp_id), 
+			     :onchange => remote_function(:update => 'modified', 
+			   						    :url => { :action => 'set_modified'}) ) %>
+<% end %>     

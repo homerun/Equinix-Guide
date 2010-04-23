@@ -1,0 +1,97 @@
+<div class="title_div">
+    <h1>Select Points of Interest</h1>
+</div>
+    <p class="selection_box_title">Step 1: Select search parameters</p>
+
+<form>
+<div class="yui-gb">
+    <div class="yui-u first">   
+		<p>
+			<b>Asset Classes:</b><br/>
+			<center>
+				<input type="checkbox" name="all_classes" checked="checked" onchange="document.getElementsByName('do_update')[0].click();" /> All (Include No Class) &nbsp;<br/>
+			</center>
+			<input type="checkbox" id="equities" name="equities" checked="checked" onchange="document.getElementsByName('do_update')[0].click();" /> Equities &nbsp;
+			<input type="checkbox" id="fixed_income" name="fixed_income" checked="checked"  onchange="document.getElementsByName('do_update')[0].click();" /> Fixed Income &nbsp;
+			<input type="checkbox" id="foreign_exchange" name="foreign_exchange" checked="checked"  onchange="document.getElementsByName('do_update')[0].click();" /> Foreign Exchange &nbsp;
+			<input type="checkbox" id="futures" name="futures" checked="checked"  onchange="document.getElementsByName('do_update')[0].click();" /> Derivatives &nbsp;
+		</p>
+    </div>
+    <div class="yui-u"> 
+	    <p>
+	    	<b>Regions:</b><br/>
+			<center>
+				<input type="checkbox" id="all_regions" name="all_regions" checked="checked" onchange="if(this.checked) { document.getElementById('selected_region_1').checked = true; document.getElementById('selected_region_2').checked = true; document.getElementById('selected_region_3').checked = true; document.getElementById('selected_region_4').checked = true; document.getElementsByName('do_update')[0].click();}" /> All&nbsp;<br/>
+			</center>
+			<% Equinixregion.find(:all).each do |region| %>
+				<%= check_box "selected_regions", "", {:id => "selected_region_#{region.id}", :checked => 'checked',  :onchange => "document.getElementsByName('do_update')[0].click(); if(!this.checked) document.getElementById('all_regions').checked = false;"}, "#{region.id}","" %>
+				<%= region.region_name %>
+				&nbsp; &nbsp;
+			<% end %>
+		</p>
+	</div>
+    <div class="yui-u"> 
+	    <p>
+	    	<p>
+		    	<b>Provider Options:</b>
+			</p>
+			<input type="checkbox" id="providers_only" name="providers_only" onchange="if(this.checked) { document.getElementById('provider_types').style.display = 'block'; document.getElementsByName('do_update')[0].click();} else { document.getElementById('provider_types').style.display = 'none'; document.getElementsByName('do_update')[0].click();}" /> Show only providers<br/>
+			<br/>
+			<div id="provider_types" style="display: none;">
+		    	<p>
+					<b>Provider Categories:</b>
+				</p>
+				<%- PointsofinterestProviderCategoryType.find(:all,:conditions => "(SELECT count(*) FROM pointsofinterest_provider_categories where pointsofinterest_provider_category_type_id = pointsofinterest_provider_category_types.id) > 0", :order => 'category').each do |cat| -%>
+					<%= check_box "provider_categories", "", {:checked => 'checked', :onchange => "document.getElementsByName('do_update')[0].click();"}, cat.id,'' %> <%= cat.category %><br/>
+				<%- end -%>
+			</div>
+		</p>
+	</div>
+	<div style="display: none">
+		<%= submit_to_remote 'do_update', 'Update', :url => {:action => 'update_poi_search_criteria'}, :update => 'select_poi_list' %>
+	</div>
+</div>
+<!--
+<br/>
+<div class="yui-gb" id="provider_types" style="display: none;">
+	<center><b>Provider Categories:</b></center>
+	<%- count_categories = 0 -%>
+	<%- categories = PointsofinterestProviderCategoryType.find(:all,:conditions => "(SELECT count(*) FROM pointsofinterest_provider_categories where pointsofinterest_provider_category_type_id = pointsofinterest_provider_category_types.id) > 0", :order => 'category') -%>
+    <div class="yui-u first">
+    	<%- (0..((categories.size/3.0).floor)).each do |i| -%>
+			<%#= check_box "provider_categories", "", {:checked => 'checked', :onchange => "document.getElementsByName('do_update')[0].click();"}, categories[i].id,'' %> <%#= categories[i].category %><br/>
+		<%- end -%>
+	</div>
+    <div class="yui-u first">
+    	<%- (((categories.size/3.0).floor+1)..((2*categories.size/3.0).floor)).each do |i| -%>
+			<%= check_box "provider_categories", "", {:checked => 'checked', :onchange => "document.getElementsByName('do_update')[0].click();"}, categories[i].id,'' %> <%= categories[i].category %><br/>
+		<%- end -%>
+	</div>
+    <div class="yui-u first">
+    	<%- (((2*categories.size/3.0).floor+1)..(categories.size-1)).each do |i| -%>
+			<%= check_box "provider_categories", "", {:checked => 'checked', :onchange => "document.getElementsByName('do_update')[0].click();"}, categories[i].id,'' %> <%= categories[i].category %><br/>
+		<%- end -%>
+	</div>
+</div>
+-->
+</form>
+
+<br/>
+<div class="yui-gb">
+    <div class="yui-u first">   
+		<p class="selection_box_title">Step 2.1: Add Points of Interest to View List</p>
+		<div id="select_poi_list">
+		    <%= render :partial => 'select_poi_list' %>
+		</div>	
+    </div>
+    <div class="yui-u">
+		<p class="selection_box_title">Step 2.2: Remove Points of Interest from View List</p>
+		<div id="view_poi_list">
+			<%= render :partial => 'view_poi_list' %>
+		</div>
+    </div>
+    <div class="yui-u">
+		<p class="selection_box_title">Step 3: Continue</p>
+		<p><%= button_to 'Save and Continue', {:controller => 'salesinfo', :action => 'select_pois_for_datacenter_to_exchanges_report'}, :disabled => true, :id => 'save_and_continue' %></p>
+    </div>
+</div>

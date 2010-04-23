@@ -1,0 +1,114 @@
+
+<script type="text/javascript">
+	function show_hide_region_contact_edit(num) {
+		if($('region'+num).innerHTML == 'New Contact') {
+			$('region'+num+'ContactSelect').style.display = 'none';
+			$('region'+num+'ContactEdit').style.display = 'inline';
+			$('region'+num).innerHTML = 'Cancel';
+		} else {
+			$('region'+num+'ContactSelect').style.display = 'inline';
+			$('region'+num+'ContactEdit').style.display = 'none';
+			$('region'+num).innerHTML = 'New Contact';
+			$('region'+num+'ContactEditName').value = '';
+			$('region'+num+'ContactEditEmail').value = '';
+		}
+	}
+</script>
+
+<% @selector_size = 5 %>
+
+<div class="title_div">
+	<h1>Campuses</h1>
+</div>
+
+<table class="full">
+<tr><td>
+	<div style="min-width: 1100px;">
+		<% @partial_type = 'selector' %>
+		<div id="ntp_owner_selector">
+			<%= render :partial => 'ntp_owner_selector' %>
+		</div>
+		<% @partial_type = 'editor' %>
+		<div id="campus_selector">
+			<%= render :partial => 'campus_selector' %>
+		</div>
+	</div>
+</td></tr>
+<tr><td>
+	<div id="editPane">
+		<% unless @campus.nil? -%>
+			<span class="edit_title"><%= @campus.name %></span>
+			<div id="tabs_pane" class="tabs_pane">
+				<div id="tab_row_1" class="tab_row">
+					<div id="tab_1" class="tab_selected_other">&nbsp;</div><div class="selected_inner_tab_other" id="inner_tab_1">
+						<a href="#" onclick="select_tab_old(1,2); return false;">
+							Campus Info
+						</a>
+					</div>
+					<div id="tab_2" class="tab_deselected_other">&nbsp;</div><div class="inner_tab_other" id="inner_tab_2">
+						<a href="#" onclick="select_tab_old(2,2); return false;">
+							History
+						</a>
+					</div>
+				</div>
+				<div id="tab_1_content" class="tab_content">
+					<% form_for :campus do |form| %>
+						<%= form.hidden_field :id, :value => "#{@campus.id}" %>
+						<input type="hidden" id="campus_networktermptowner_id" name="campus[networktermptowner_id]" value="<%= @campus.networktermptowner_id %>" />
+						<table>
+							<tr>
+								<td class="edit_field_text">Name: </td>
+								<td>
+									<div name="editable" style="display: none;">
+										<%= form.text_field :name, {:value => "#{@campus.name}",
+															   :onchange => remote_function(:update => 'modified', 
+															   						  :url => { :action => 'set_modified'})} %>
+									</div>
+									<div name="read_only">
+										<%= @campus.name %>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="edit_field_text"><div style="width: 210px;">Network Termination Points: </div></td>
+								<td>
+									<% if @campus.id == nil -%>
+										You must save before you can add Network Termination Points.
+									<% else %>
+										<div id="campus_ntps">
+											<%= render :partial => 'campus_ntps' %>
+										</div>
+									<% end %>
+								</td>
+							</tr>
+						</table>
+						<% if has_editor_role then %>
+							<div name="make_editable">
+								<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+							</div>
+						<% end %>
+						<div name="make_read_only" style="display:none;">
+							<input type="submit" value="Save Changes" onClick="this.disabled = true; postAction(this.form,'manage','save_campus')"/>
+							<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+						</div>
+					<% end %>
+				</div> 
+				<div id="tab_2_content" class="tab_content" style="display: none; width: 800px;">
+					<% if "#{@campus.id}" == '' then %>
+						You must save before you can view history items.
+					<% else %>
+						<%= render :partial => '/shared/history_pane', :locals => {:table_name => 'Campus', :table_id => @campus.id, :tab_number => 2} %>
+					<% end %>
+				</div>
+			</div> 
+		<% end %>
+	</div>
+</td></tr>
+</table>
+
+
+<% if @change_to_edit then %>
+	<script type="text/javascript">
+		toggle_read_only(false);
+	</script>
+<% end %>

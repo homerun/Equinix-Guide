@@ -1,0 +1,187 @@
+
+<script type="text/javascript">
+
+
+	function get_select_option_text(selectObj) {
+		options = selectObj
+		for(var i=0; i<options.length; i++)
+			if(options[i].value+'' == selectObj.value)
+				return options[i].text;
+		return "Unknown";
+	}
+	
+</script>
+
+<% unless flash[:notice].blank? %>
+	<div id="ntpNotification" class="notification">	
+		<%= image_tag("/images/flash_img.jpg",{:width => '50', :class => 'title_img'}) %>
+		<div style="vertical-align: top; display: inline;">
+ 			<%= flash[:notice] %>
+ 			<% flash[:notice] = '' %>
+    		</div>
+	</div>
+ 	<script type="text/javascript">
+ 		setTimeout("$('ntpNotification').style.display = 'none'",10000)
+ 	</script>
+<%end%>
+
+<% form_remote_tag :url => {:action => 'add_np_connection'}, :update => 'networkterminationpoint_networkproviders' do %>
+	<%= hidden_field :ntp, :id, :value => "#{@networkterminationpoint.id}" %>
+	<p>
+		<div id="add_connection_unsubmit">
+			<div name="editable" style="display: none;">
+				<a href="#" onclick="$('add_connection_submit').style.display = 'block'; $('add_connection_unsubmit').style.display = 'none'; return false;">Add Connection</a>
+			</div>
+			<div name="read_only">
+			</div>
+		</div>
+	</p>
+	<div id="add_connection_submit" class="connectionTypeDescr" style="z-index: 1; display: none;">
+		<p>
+			<span class="bold_label">Network Termination Point</span>
+		</p>
+		<p>
+			<%= select_tag(:selected_np_networkprovider_id, 
+						options_for_select(@other_np_connections), 
+						{:name => 'selected_np[networkprovider_id]'}) %>
+		</p>
+		<br/>
+		<p>
+			<span class="bold_label">Connection Type</span>
+		</p>
+		<p>
+			<%= select :selected_connection_type, :connectiontype_id, @connection_types %>
+		</p>
+		<br/>
+		<% if @current_user.is_np_editor? then %>
+			<input type="button" onclick="if(confirm('Do you certify that the information you are about to submit is accurate? If you click OK, your name will be associated with this data as one certifying its accuracy.')) { $('add_connection_unsubmit').style.display = 'block'; $('add_connection_submit').style.display = 'none'; document.getElementsByName('Add_NP')[0].onclick(); hide_info_div(this,'add_connection_submit'); } return false;" value="Add" />
+		<% else %>
+			<input type="button" onclick="$('add_connection_unsubmit').style.display = 'block'; $('add_connection_submit').style.display = 'none'; document.getElementsByName('Add_NP')[0].onclick(); hide_info_div(this,'add_connection_submit'); return false;" value="Add" />
+		<% end %>
+		or <a onclick="$('add_connection_unsubmit').style.display = 'block'; $('add_connection_submit').style.display = 'none'; return false;">Cancel</a>
+		<div style="display: none;">
+			<%= submit_to_remote 'Add_NP', 'Add', :url => { :action => 'add_np_connection'}, :update => 'networkterminationpoint_networkproviders' %>
+		</div>
+	</div>
+	<p></p>
+	<table class="border_only"><tr><td>
+	<table class="list_columns">
+		<thead >
+			<tr>
+				<th ><div style="width: 200px;"><center>Network Provider</center></div></th>
+				<th ><div style="width: 720px;"><center>Connection Type</center></div></th>
+				<th ><div style="width: 150px;"><center>Certified by Network Provider?</center></div></th>
+			</tr>
+		</thead>
+		<tbody >
+			<% if @networkterminationpoint.np_connections != nil then %>
+				<% is_even = true %>
+				<% (@networkterminationpoint.np_connections.sort { |x,y| x.networkprovider.name.downcase <=> y.networkprovider.name.downcase }).each do |np_connection| %>
+					<tr class="<%= if !is_even then 'odd_small' else 'even_small' end %>">
+						<td>
+							<%= link_to np_connection.networkprovider.name, { :controller => 'manage', :action => 'edit_networkprovider', :id => "#{np_connection.networkprovider.id}"}, :onclick => "return confirmed();" %>
+						</td>
+						<td>
+							<% form_remote_tag :url => { :action => 'remove_np_connection', :networkterminationpoint_id => @networkterminationpoint.id } do %>
+								<div id="contest_connection_unsubmit_<%= np_connection.id %>">
+									<%= np_connection.details %>
+								</div>
+								<div id="contest_connection_submit_<%= np_connection.id %>" class="connectionTypeDescr" style="z-index: 1; display: none;">
+									<center><b>
+										<%= np_connection.networkprovider.name %>
+										to
+										<%= np_connection.networkterminationpoint.name %>
+									</b></center>
+									<center>
+										<% if @current_user.is_np_editor? or np_connection.user == nil then %>
+											Please select from the list below the correct connection type.
+										<% else %>
+											Please select from the list below the correct connection type. We will then attempt to verify which type is correct.
+										<% end %>
+									</center>
+									<%= select_tag(:selected_connection_type_contest, 
+												options_for_select(@connection_types), 
+												:name => 'selected_connection_type_contest',
+												:onclick => '$("contestConnectionId").value = this.value') %>
+									<center>
+										<% if @current_user.is_np_editor? then %>
+											<input type="button" onclick="if(confirm('Do you certify that the information you are about to submit is accurate? If you click OK, your name will be associated with this data as one certifying its accuracy.')) { $('contest_connection_unsubmit_<%= np_connection.id %>').style.display = 'block'; $('contest_connection_submit_<%= np_connection.id %>').style.display = 'none'; document.getElementsByName('contest_np2ntp_connection_<%= np_connection.id %>')[0].onclick(); hide_info_div(this,'contest_connection_submit_<%= np_connection.id %>'); } return false;" value="Save" />
+										<% elsif np_connection.user == nil then %> 
+											<input type="button" onclick="$('contest_connection_unsubmit_<%= np_connection.id %>').style.display = 'block'; $('contest_connection_submit_<%= np_connection.id %>').style.display = 'none'; document.getElementsByName('contest_np2ntp_connection_<%= np_connection.id %>')[0].onclick(); hide_info_div(this,'contest_connection_submit_<%= np_connection.id %>'); return false;" value="Save" />
+										<% else %>
+											<input type="button" onclick="if(confirm('Are you sure you want to contest this connection? If so, click OK and your user information will be associated with this case and it will be reviewed shortly.')) { $('contest_connection_unsubmit_<%= np_connection.id %>').style.display = 'block'; $('contest_connection_submit_<%= np_connection.id %>').style.display = 'none'; document.getElementsByName('contest_np2ntp_connection_<%= np_connection.id %>')[0].onclick(); hide_info_div(this,'contest_connection_submit_<%= np_connection.id %>'); } return false;" value="Contest" />
+										<% end %>
+										or <a onclick="$('contest_connection_unsubmit_<%= np_connection.id %>').style.display = 'block'; $('contest_connection_submit_<%= np_connection.id %>').style.display = 'none'; $('certified_connection_<%= np_connection.id %>_a').innerHTML = '<%= if @current_user.is_np_editor? or np_connection.user == nil then 'Edit' else 'Contest' end %>'; return false;">Cancel</a>
+									</center>
+									<div style="display: none;">
+										<% if @current_user.is_np_editor? or np_connection.user == nil then %>
+											<%= submit_to_remote "contest_np2ntp_connection_#{np_connection.id}", 'Edit', :url => {:action => 'contest_np2ntp_connection', :id => np_connection.id }, :update => "contest_connection_unsubmit_#{ np_connection.id}", :before => 'this.disabled = true'  %>
+										<% else %>
+											<%= submit_to_remote "contest_np2ntp_connection_#{np_connection.id}", 'Contest', :url => {:action => 'contest_np2ntp_connection', :id => np_connection.id }, :update => "certified_connection_#{ np_connection.id}", :before => 'this.disabled = true'  %>
+										<% end %>
+									</div>
+								</div>
+							<% end %>
+						</td>
+						<td>
+							<% form_remote_tag :url => { :action => 'remove_np_connection', :networkterminationpoint_id => @networkterminationpoint.id } do %>
+								<div id="certified_connection_<%= np_connection.id %>">
+									<% if np_connection.user == nil then %>
+										No
+										<div name="editable" style="display: none;">
+											<% if @current_user.is_np_editor? then %>
+												<div id="certify_connection_<%= np_connection.id %>" style="display: none;">	
+													<%= submit_to_remote "certify_np2ntp_connection_#{np_connection.id}", 'Certify', :url => {:action => 'certify_np2ntp_connection', :id => np_connection.id}, :update => "certified_connection_#{ np_connection.id}", :before => 'this.disabled = true'  %>
+												</div>
+												<input type="button" onclick="if(confirm('Do you certify that the information you are about to submit is accurate? If you click OK, your name will be associated with this data as one certifying its accuracy.')) { document.getElementsByName('certify_np2ntp_connection_<%= np_connection.id %>')[0].onclick() } return false;" value="Certify" />									
+											<% end %>
+											&nbsp;<a id="certified_connection_<%= np_connection.id %>_a" href="#" onclick="$('contest_connection_unsubmit_<%= np_connection.id %>').style.display = 'none'; $('contest_connection_submit_<%= np_connection.id %>').style.display = 'block'; $('certified_connection_<%= np_connection.id %>_a').innerHTML = ''; return false;">Edit</a>
+										</div>
+										<div name="read_only">
+										</div>
+									<% else %>
+										<%= print_message_div('Yes',"Certified by #{ np_connection.user.print_name }#{ if np_connection.certified_date != nil then ' on '+np_connection.certified_date.to_s end }") %>
+										<% unless np_connection.contestlist_np2ntps.blank? %>
+											<%= print_message_div('*',"Contested by #{ np_connection.contestlist_np2ntps.size } user#{ 's' if np_connection.contestlist_np2ntps.size != 1 }.") %>
+										<% end %>
+										<% if np_connection.contestlist_np2ntps.blank? or !(np_connection.contestlist_np2ntps.collect {|contest| contest.id}).include?(@current_user.id) then %>
+											<div name="editable" style="display: none;">
+												<% if @current_user.is_np_editor? then %>
+													&nbsp;<a id="certified_connection_<%= np_connection.id %>_a" href="#" onclick="$('contest_connection_unsubmit_<%= np_connection.id %>').style.display = 'none'; $('contest_connection_submit_<%= np_connection.id %>').style.display = 'block'; $('certified_connection_<%= np_connection.id %>_a').innerHTML = ''; return false;">Edit</a>
+												<% else %>
+													&nbsp;<a id="certified_connection_<%= np_connection.id %>_a" href="#" onclick="$('contest_connection_unsubmit_<%= np_connection.id %>').style.display = 'none'; $('contest_connection_submit_<%= np_connection.id %>').style.display = 'block'; $('certified_connection_<%= np_connection.id %>_a').innerHTML = ''; return false;">Contest</a>
+												<% end %>
+											</div>
+											<div name="read_only">
+											</div>
+										<% end %>
+									<% end %>
+								</div>
+							<% end %>
+						</td>
+					</tr>
+					<% is_even = !is_even %>
+				<% end %>
+				<input type="hidden" id="contestConnectionId" name="contestConnectionId" value="1" />
+				<div id="connectionTypeDescr" style="display: none; position: absolute; left: 1; top: 1;" class="connectionTypeDescr" onmouseout="javascript:this.style.display='none'">
+				</div>
+			<% end %>
+		</tbody>
+	</table>
+	</td></tr></table>
+<% end %>
+
+<% if has_editor_role then %>
+	<div name="make_editable">
+		<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+	</div>
+<% end %>
+<div name="make_read_only" style="display:none;">
+	<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+</div>
+
+<% if @change_to_edit then %>
+	<script type="text/javascript">
+		toggle_read_only(false);
+	</script>
+<% end %>

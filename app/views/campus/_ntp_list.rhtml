@@ -1,0 +1,52 @@
+
+<table class="border_only"><tr><td>
+<table class="list_columns">
+	<thead>
+		<tr>
+			<th>
+				<div style="width: 240px;">
+					<center>Network Termination Point</center>
+				</div>
+			<th>
+				<div style="width: 130px;">
+					<center>Connections</center>
+				</div>
+			</th>
+			</th>
+			<th>
+				<div style="width: 180px;">
+					<center>Remove From Campus</center>
+				</div>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<%- @campus.networkterminationpoints.each do |ntp| -%>
+			<tr>		
+				<td>
+					<%= ntp.name %>
+				</td>
+				<td>
+					<div name="editable" style="display: none;">
+						<%= link_to_remote 'Edit', :url => {:action => 'edit_campus_connections', :id => @campus.id, :networkterminationpoint_id => ntp.id, :edit => true, :show_link => true}, :update => 'campus_connections' %>
+					</div>
+					<div name="read_only">
+						<%= link_to_remote 'View', :url => {:action => 'edit_campus_connections', :id => @campus.id, :networkterminationpoint_id => ntp.id, :edit => false, :show_link => true}, :update => 'campus_connections' %>
+					</div>
+				</td>
+				<td>
+					<div name="editable" style="display: none;">
+						<%= link_to_remote 'Remove', :url => {:action => 'remove_ntp', :id => @campus.id, :networkterminationpoint_id => ntp.id}, :update => 'ntp_list' %>
+					</div>
+				</td>
+			</tr>
+		<%- end -%>
+	</tbody>
+</table>
+</tr></td></table>
+
+<%- if @change_to_edit then -%>
+<script type="text/javascript">
+	toggle_read_only(false);
+</script>
+<%- end -%>

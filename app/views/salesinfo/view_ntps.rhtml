@@ -1,0 +1,29 @@
+<div class="title_div">
+    <%= image_tag "view_ntp.gif", :width => '45' %>
+    <h1>View Network Termination Points in Google Earth</h1>
+</div>
+
+<table class="full">
+	<tr>
+		<td>
+			<div id="region_selector">
+				<%= render :partial => 'region_selector' %>
+			</div>
+			
+			<div id="country_selector">
+				<%= render :partial => 'country_selector' %>
+			</div>
+			
+			<div id="ntp_selector">
+				<%= render :partial => 'ntp_selector' %>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div id="ntp_list">
+				<%= render :partial => 'ntp_list' %>
+			</div>
+		</td>
+	</tr>
+</table>

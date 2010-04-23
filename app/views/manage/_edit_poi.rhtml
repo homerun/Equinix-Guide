@@ -1,0 +1,339 @@
+<% unless @pointsofinterest.nil? -%>
+	<br/>
+	<h1><%= @pointsofinterest.name %></h1>
+	<div id="tabs_pane" class="tabs_pane">
+		<ul id="tab_row_1" class="tab_row">
+			<li id="tab_1" class="selected">
+				<span><a href="#" onclick="select_tab(1,8); return false;">Point of Interest Info</a></span>
+			</li>
+			<li id="tab_4">
+				<span><a href="#" onclick="select_tab(4,8); return false;">Children Points of Interest</a></span>
+			</li>
+			<li id="tab_5">
+				<span><a href="#" onclick="select_tab(5,8); return false;">Services</a></span>
+			</li>
+			<li id="tab_7">
+				<span><a href="#" onclick="select_tab(7,8); return false;">News</a></span>
+			</li>
+			<li id="tab_6">
+				<span><a href="#" onclick="select_tab(6,8); return false;">History</a></span>
+			</li>
+			<li id="tab_2">
+				<span><a href="#" onclick="select_tab(2,8); return false;">Network Termination Points</a></span>
+			</li>
+			<li id="tab_3">
+				<span><a href="#" onclick="select_tab(3,8); return false;">Preferred Network Providers</a></span>
+			</li>
+			<% if @current_user.is_equinix_user? -%>
+				<li id="tab_8">
+					<span><a href="#" onclick="select_tab(8,8); return false;">Account Info</a></span>
+				</li>
+			<% end %>
+		</ul>
+		<% form_for @pointsofinterest, :url => {:controller => 'manage', :action => 'update_poi', :id => @pointsofinterest.id}, :html => {:id => "points_of_interest_form"} do |f| %>
+			<div id="tab_1_content" class="tab_content">
+				<div id="tab_padding">
+				<input type="hidden" name="current_tab_row" value="1" />
+				<input type="hidden" name="current_tab" value="1" />
+				<table>
+					<tr>
+						<td class="edit_field_text">Name: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.text_field :name %> 
+							</div>
+							<div name="read_only">
+								<%= @pointsofinterest.name %> <%= link_to "Delete", {:action => "destroy_poi", :id => @pointsofinterest.id}, :confirm => 'Are you sure?', :method => :delete unless @limited_access %>
+							</div>
+							
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Abbreviation: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.text_field :abbreviation %>
+							</div>
+							<div name="read_only">
+								<%= @pointsofinterest.abbreviation %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">URL: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.text_field :url %>
+							</div>
+							<div name="read_only">
+								<a href="<%= @pointsofinterest.url %>" target="_blank"><%= @pointsofinterest.url %></a>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Notes: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.text_area :notes, {:rows => "5"} %>
+							</div>
+							<div name="read_only">
+								<%= @pointsofinterest.notes %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Parent Point of Interest: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.select :parent_pointsofinterest_id, @parent_pois, {:include_blank => true} %>
+							</div>
+							<div name="read_only">
+								<%= link_to @pointsofinterest.parent_poi.name, {:controller => 'pointsofinterests', :action => 'edit', :id => @pointsofinterest.parent_pointsofinterest_id} if @pointsofinterest.parent_poi %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Point of Interest Type: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.select :poitype_id, @poi_types %>
+							</div>
+							<div name="read_only">
+								<%= @pointsofinterest.poitype.name  if @pointsofinterest.poitype %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Subregion: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.select :unsubregion_id, @subregions %>
+							</div>
+							<div name="read_only">
+								<%= @pointsofinterest.subregion.name if @pointsofinterest.subregion %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="edit_field_text">Asset Classes: </td>
+						<td>
+							<div name="editable" style="display: none;">
+								<%= f.check_box :equities_class %>
+								Equities<br/>
+								<%= f.check_box :futures_class %>
+								Derivatives<br/>
+								<%= f.check_box :fixed_income_class %>
+								Fixed Income<br/>
+								<%= f.check_box :foreign_exchange_class %>
+								Foreign Exchange
+							</div>
+							<div name="read_only">
+								<%= "Equities<br/>" if @pointsofinterest.equities_class == true %>
+								<%= "Derivatives<br/>" if @pointsofinterest.futures_class == true %>
+								<%= "Fixed Income<br/>" if @pointsofinterest.fixed_income_class == true %>
+								<%= "Foreign Exchange<br/>" if @pointsofinterest.foreign_exchange_class == true %>
+							</div>
+						</td>
+					</tr>
+				</table>
+				<% if @current_user.has_editor_role? -%>
+					<div name="make_editable">
+						<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+					</div>
+				<% end %>
+				<div name="make_read_only" style="display:none;">
+					<%= submit_tag 'Save Changes' %>
+					<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+				</div>
+				</div>
+			</div>
+			<div id="tab_2_content" class="tab_content" style="display: none;">
+				<div id="tab_padding">
+				<% if "#{@pointsofinterest.id}" == '' then %>
+					You must save before you can add Network Termination Points
+				<% else %>
+					<div id="poi_networkterminationpoints">
+						<%= render :partial => 'networkterminationpoints/pois' %>
+					</div>
+				<% end %>
+				</div>
+			</div>
+			<div id="tab_3_content" class="tab_content" style="display:none;">
+				<div id="tab_padding">
+				<% if "#{@pointsofinterest.id}" == '' then %>
+					You must save before you can add Preferred Network Providers:
+				<% else %>
+					<div id="poi_preferred_nps">
+						<%= render :partial => 'poi_preferred_nps' %>
+					</div>
+				<% end %>
+				</div>
+			</div>
+			<div id="tab_4_content" class="tab_content" style="display:none;">
+				<div id="tab_padding">
+				<% if "#{@pointsofinterest.id}" == '' then %>
+					Point of Interest not saved yet.
+				<% else %>
+					<% is_even = true %>
+					<table class='border_only'><tr><td>
+					<table class='list'>
+						<thead >
+							<tr>
+								<th><div style="width: 220px;">Name</div></th>
+								<th><div style="width: 130px;">Abbreviation</div></th>
+								<th><div style="width: 350px;">URL</div></th>
+							</tr>
+						</thead>
+						<tbody >
+							<% @pointsofinterest.children_pois.each do |poi| %>
+								<tr class="<%= if !is_even then 'odd_small' else 'even_small' end %>">
+									<td>
+										<%= link_to poi.name, { :controller => 'pointsofinterests', :action => 'edit', :id => "#{poi.id}"}, :onclick => "return confirmed();" %>
+									</td>
+									<td>
+										<%= poi.abbreviation %>
+									</td>
+									<td>
+										<%= poi.url %>
+									</td>
+								</tr>
+								<% is_even = !is_even %>
+							<% end %>
+						</tbody>
+					</table>	
+					</td></tr></table>
+				<% end %>
+				</div>
+			</div>
+			<div id="tab_5_content" class="tab_content" style="display: none;">
+				<div id="tab_padding">
+				<% if "#{@pointsofinterest.id}" == '' then %>
+					Point of Interest not saved yet.
+				<% else %>
+					<div id="poi_services">
+						<%= render :partial => 'poi_services' %>
+					</div>	
+				<% end %>
+				</div>
+			</div>
+			<div id="tab_6_content" class="tab_content" style="display: none;">
+				<div id="tab_padding">
+				<% if "#{@pointsofinterest.id}" == '' then %>
+					Point of Interest not saved yet.
+				<% else %>
+					<%= render :partial => '/shared/history_pane' %>	
+				<% end %>
+				</div>
+			</div>
+			<div id="tab_7_content" class="tab_content" style="display: none;">
+				<div id="tab_padding">
+				<% if "#{@pointsofinterest.id}" == '' then %>
+					You must save before you can view news items.
+				<% else %>
+					<div id="news_pane">
+						<%= render :partial => '/shared/news_pane' %>
+					</div>
+				<% end %>
+				</div>
+			</div>
+			<div id="tab_8_content" class="tab_content" style="display: none;">
+				<div id="tab_padding">
+				<% if @current_user.is_equinix_user? -%>
+					<span class="section_header">Account Info</span>
+					<p></p>
+					<div name="editable" style="display: none;">
+						<div style="float: right">
+							Account ID:
+							<%= f.text_field :account_id %>
+						</div>
+						<div style="float: left;">
+							<%= f.check_box :active_equinix_customer %>
+							Active Equinix Customer
+						</div>
+					</div>
+					<p></p>
+					<div name="read_only">
+						<div style="float: right; width: 250px;">
+							<b>Account ID:</b> <div style="display: inline; width: 150px;"><%= @pointsofinterest.account_id %></div>&nbsp;
+						</div>
+						<div style="float: left;">
+							<span class="active_account"><%= "Active Equinix Customer" if @pointsofinterest.active_equinix_customer == true %></span>
+						</div>
+					</div>
+					<br/>
+					<div style="clear: both;">
+						<hr/>
+					</div>
+					<% if "#{@pointsofinterest.id}" == '' then %>
+						You must save before you can add prospects or account executives.
+					<% else %>
+						<div id="poi2ntp_account_executives">
+							<%= render :partial => 'poi2ntp_account_executives' %>
+						</div>
+						<hr/>
+						<div id="poi2ntp_account_notes_<%= @pointsofinterest.id %>" style="min-width: 700px;">
+							<%= render :partial => 'poi2ntp_account_notes', :locals => {:poi => @pointsofinterest} %>
+						</div>
+						<hr/>
+						<div id="poi2ntp_prospects_pane">
+							<%= render :partial => 'poi2ntp_prospects_pane', :locals => {:live_connections => false} %>
+						</div>
+						<hr/>
+						<div id="poi2ntp_live_pane">
+							<%= render :partial => 'poi2ntp_prospects_pane', :locals => {:live_connections => true} %>
+						</div>
+					<% end %>
+					<br/>
+					<% if @current_user.has_editor_role? -%>
+						<div name="make_editable">
+							<input type="button" onclick="toggle_read_only(false); return false;" value="Edit" />
+						</div>
+					<% end %>
+					<div name="make_read_only" style="display:none;">
+						<input type="submit" value="Save Changes" onClick="this.disabled = true; postAction(this.form,'manage','save_poi')"/>
+						<div id="modified" name="modified"><%= render :partial => '/shared/modified' %></div>
+					</div>
+				<% end %>
+				</div>
+			</div>
+		<% end %>
+	</div> 
+<%= observe_form  :points_of_interest_form, 
+				  :update => 'modified',
+				  :url => {:action =>'set_modified'} %>
+<% end %>
+
+				
+<script>
+function select_tab(tabNumber,maxTab) {
+	current_tab_objs = document.getElementsByName('current_tab');
+	for(var i=0; i<current_tab_objs.length; i++)
+		current_tab_objs[i].value = tabNumber;
+	for(var i=1; i<=maxTab; i++) {
+		if(i==tabNumber) {
+			if(document.getElementById('tab_'+i))
+				document.getElementById('tab_'+i).addClassName('selected');
+			if(document.getElementById('tab_'+i+'_content'))
+				document.getElementById('tab_'+i+'_content').style.display = 'block';
+		}
+		else {
+			if(document.getElementById('tab_'+i))
+				document.getElementById('tab_'+i).removeClassName('selected');
+			if(document.getElementById('tab_'+i+'_content'))
+				document.getElementById('tab_'+i+'_content').style.display = 'none';
+		}
+	}
+}
+</script>
+
+<% if @change_to_edit %>
+	<script type="text/javascript">
+		toggle_read_only(false);
+	</script>
+<% end %>
+
+<% if @selected_tab != nil then %>
+	<script type='text/javascript'>
+		select_tab(<%= @selected_tab %>,8);
+	</script>
+<% end %>

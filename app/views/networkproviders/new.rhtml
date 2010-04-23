@@ -1,0 +1,100 @@
+<div class="title_div">
+	<%= image_tag("np.gif",{:width => '30'}) %>
+    <h1>New Network Provider</h1>
+</div>
+
+
+<%= @message %>
+<%= error_messages_for :networkprovider %>
+
+<div class="new_form">
+	<% form_for @networkprovider, :url => {:action => 'create'} do |f| %>
+
+<div class="yui-g">
+    <div class="yui-u first">
+	    <h2>Network Provider Info</h2>
+	    <p>
+	        <label class="edit_field_text">Name:* </label>
+	        <%= f.text_field :name %>
+	    </p>
+	    <p>
+	        <label class="edit_field_text">URL: </label>
+			<%= f.text_field :url %>
+	    </p>
+	    <p>
+	        <label class="edit_field_text">asn: </label>
+	        <%= f.text_field :asn %>
+	    </p>
+	    <p>
+	        <label class="edit_field_text">Network Provider Type:* </label>
+			<%= f.check_box :carrier_type %>
+			Carrier
+			<%= f.check_box :extranet_type %>
+			Extranet
+			<!--
+			<%= f.check_box :isp_type %>
+			ISP
+			-->
+			<%= f.check_box :routing_type %>
+			Optimized IP Routing
+	    </p>
+    </div>
+    <div class="yui-u">
+    	<h2>Contact For Asia Pacific Region</h2>
+		<p>
+			<label class="edit_field_text">Name: </label>
+			<input id="region2ContactEditName" name="region2ContactEditName" value="<%= @prev_params[:region2ContactEditName] %>" />
+		</p>
+		<p>
+			<label class="edit_field_text">Email: </label>
+			<input id="region2ContactEditEmail" name="region2ContactEditEmail" value="<%= @prev_params[:region2ContactEditEmail] %>" />
+		</p>
+		<p>
+			<label class="edit_field_text">Phone: </label>
+			<input id="region2ContactEditPhone" name="region2ContactEditPhone" value="<%= @prev_params[:region2ContactEditPhone] %>" />
+		</p>
+    	<h2>Contact For Europe Region</h2>
+		<p>
+			<label class="edit_field_text">Name: </label>
+			<input id="region3ContactEditName" name="region3ContactEditName" value="<%= @prev_params[:region3ContactEditName] %>" />
+		</p>
+		<p>
+			<label class="edit_field_text">Email: </label>
+			<input id="region3ContactEditEmail" name="region3ContactEditEmail" value="<%= @prev_params[:region3ContactEditEmail] %>" />
+		</p>
+		<p>
+			<label class="edit_field_text">Phone: </label>
+			<input id="region3ContactEditPhone" name="region3ContactEditPhone" value="<%= @prev_params[:region3ContactEditPhone] %>" />
+		</p>
+    	<h2>Contact For Other Region</h2>
+		<p>
+			<label class="edit_field_text">Name: </label>
+			<input id="region4ContactEditName" name="region4ContactEditName" value="<%= @prev_params[:region4ContactEditName] %>" />
+		</p>
+		<p>
+			<label class="edit_field_text">Email: </label>
+			<input id="region4ContactEditEmail" name="region4ContactEditEmail" value="<%= @prev_params[:region4ContactEditEmail] %>" />
+		</p>
+		<p>
+			<label class="edit_field_text">Phone: </label>
+			<input id="region4ContactEditPhone" name="region4ContactEditPhone" value="<%= @prev_params[:region4ContactEditPhone] %>" />
+		</p>
+    	<h2>Contact For United States Region</h2>
+		<p>
+			<label class="edit_field_text">Name: </label>
+			<input id="region3ContactEditName" name="region1ContactEditName" value="<%= @prev_params[:region1ContactEditName] %>" />
+		</p>
+		<p>
+			<label class="edit_field_text">Email: </label>
+			<input id="region3ContactEditEmail" name="region1ContactEditEmail" value="<%= @prev_params[:region1ContactEditEmail] %>" />
+		</p>
+		<p>
+			<label class="edit_field_text">Phone: </label>
+			<input id="region3ContactEditPhone" name="region1ContactEditPhone" value="<%= @prev_params[:region1ContactEditPhone] %>" />
+		</p>
+	</div>
+</div>		
+    <p style="margin:20px 0 0 200px;"><%= f.submit 'Create' %> or <%= link_to 'Back', :action => 'edit' %></p>
+							
+<% end %>
+</div>

@@ -1,0 +1,18 @@
+<%= render :partial => "/layouts/yui_crud_includes" %>
+
+<div class="title_div">
+	<%= image_tag "add_user.gif", :width => '30' %>
+	<h1>Edit User</h1>
+</div>
+
+<div class="yui-skin-sam">
+	<br/>
+	<form action = "<%= url_for( :action => params[:action] ) %>" method="get">
+		<input id="search" name="search" type="text" value="<%= params[:search] if params[:search] %>">&nbsp;&nbsp;<%= submit_tag "Search", :id => 'search_commit' %>&nbsp;&nbsp;<%= submit_tag "Reset" %>
+	</form>
+	<br/>
+	<div id="dt"></div>
+	<div id="paging"></div>
+	<br/>
+	<%= render :partial => "layouts/yui_crud_table" %>
+</div>

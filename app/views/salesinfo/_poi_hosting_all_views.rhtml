@@ -1,0 +1,9 @@
+<div id="region_view"<%= 'style="display: none;"' if current_view != "region" or not current_view %>>
+	<%= render :partial => 'poi_hosting_region' %>
+</div>
+<div id="country_view"<%= 'style="display: none;"' if current_view != "country" %>>
+	<%= render :partial => 'poi_hosting_country' %>
+</div>
+<div id="market_view"<%= 'style="display: none;"' if current_view != "market" %>>
+	<%= render :partial => 'poi_hosting_market' %>
+</div>

@@ -1,0 +1,11 @@
+
+<% if @list_of_users_with_nps != nil and @list_of_users_with_nps.size != 0 then %>
+	<% @list_of_users_with_nps.each do |user| %>
+		<%= link_to_remote( "#{user.print_name}", 
+						:url => { :action => 'do_share_report', 
+								:user_id => user.id,
+								:id => @report.id }, 
+						:update => 'edit_report_shared_users_pane' ) %>
+		<br/>
+	<% end %>
+<% end %>

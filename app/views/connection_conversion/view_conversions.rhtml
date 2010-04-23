@@ -1,0 +1,55 @@
+<div class="title_div">
+    <%= image_tag "ntp_title_img.gif", :width => '45' %>
+    <h1>Network Termination Points</h1>
+</div>
+
+<p class="selection_box_title">Step 1: Select search parameters</p>
+<form action="/networkterminationpoints" method="get" id="select_ntp_list">
+<div class="yui-gb">
+    <div class="yui-u first">
+        <p>
+            <span class="selection_box_title">Region:</span><br/>
+            <select id="region_selector" name="search[region_id]">
+                <%= options_for_select(@list_of_regions.insert(0,'All')) %>
+            </select>
+        </p>
+        <p>
+            <span class="selection_box_title">Country:</span><br/>
+            <select id="country_selector" name="search[country_id]">
+            	<%= render :partial => 'select_country' %>
+            </select>
+        </p>  
+    </div>
+    <div class="yui-u"> 
+        <p>
+            <span class="selection_box_title">Network Termination Point Type:</span><br/>
+            <select id="ntp_type_selector" name="search[networktermpttype_id]">
+                <%= options_for_select(@list_of_networktermpttype_ids.insert(0,'All')) %>
+            </select>
+        </p>
+    </div>
+    <div class="yui-u">    
+        <p>
+            <span class="selection_box_title">NTP Owner:</span><br/>
+            <select id="ntp_owner_selector" name="search[networktermptowner_id]">
+                <%= options_for_select(Networktermptowner.find(:all, :order => 'name').collect { |o| [o.name, o.id]}.insert(0,'All')) %>
+            </select>
+        </p> 
+    </div>
+</div>
+</form>
+
+<%= observe_field "region_selector", 
+		:url => {:action => 'select_region'},
+		:update => "country_selector",
+		:with => "region_id" %>
+		
+<%= observe_form  :select_ntp_list, 
+				  :update => 'ntp_selector_list',
+				  :url => {:action => 'get_ntps'} %> 
+<br/>
+<p class="selection_box_title">Step 2 (optional): Select Network Termination Point</p>
+
+<div id="ntp_selector_list">
+    <%= render :partial => 'ntp_selector' %>
+</div>

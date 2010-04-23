@@ -1,0 +1,43 @@
+<% if @history_items == nil or @history_items.size == 0 then %>
+	<div style="width: 800;">No recorded history items.</div>
+<% else %>
+	<% form_remote_tag :url => { :controller => :audits, :action => 'rollback'}, :update => 'history_pane' do %>
+		<input type="hidden" id="audits" name="audits" value="<%= (@history_items.collect { |audit| audit.id }).join(',') %>" />
+		<input type="hidden" id="history_page" name="history_page" value="<%= @history_page %>" />
+		<table>
+			<tr>
+				<th>Rollback to...</th>
+				<th>Field Type</th>
+				<th>Property</th>
+				<th>Old Value</th>
+				<th>New Value</th>
+				<th>Time</th>
+			</tr>
+			<% @history_items.each do |audit| %>
+				<tr>
+					<td>
+						<center>
+							<%= submit_to_remote 'rollback', 'Here', :url => { :controller => :audits, :action => 'rollback', :id => audit.id}, :update => 'history_pane' %>
+						</center>
+					</td>
+					<td>
+						<%= print_field_type(@history_page,audit.table_name) %>
+					</td>
+					<td>
+						<%= audit.field_name %>
+					</td>
+					<td>
+						<%= audit.old_value %>
+					</td>
+					<td>
+						<%= audit.new_value %>
+					</td>
+					<td>
+						<%= audit.created_at.to_s(:long) %>
+					</td>
+				</tr>
+			<% end %>
+		</table>
+	<% end %>
+<% end %>
+						
